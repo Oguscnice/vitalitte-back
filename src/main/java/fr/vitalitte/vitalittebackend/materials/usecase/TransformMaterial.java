@@ -20,7 +20,6 @@ public class TransformMaterial {
     }
 
     public MaterialDto materialToDto(Material material){
-
         String materialType = ConvertEumMaterialType.EMaterialToString(material.getMaterialType());
         String picture = this.transformUrl.urlToString(material.getPicture());
 

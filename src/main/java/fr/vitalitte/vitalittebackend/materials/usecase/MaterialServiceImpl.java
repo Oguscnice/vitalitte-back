@@ -57,13 +57,18 @@ public class MaterialServiceImpl implements MaterialService{
     }
 
     @Override
+    public MaterialDto findMaterialBySlug(String materialSlug){
+        return this.transformMaterial.materialToDto(this.materialRepository.findBySlug(materialSlug).orElseThrow(MaterialNotFoundException::new));
+    }
+
+    @Override
     public void updateMaterialBySlug(String slug, MaterialDto materialDtoUpdated){
 
         Material materialToUpdate = this.materialRepository.findBySlug(slug)
                                             .orElseThrow(MaterialNotFoundException::new);
 
         String newSlug = SlugifyUtil.stringToSlug(materialDtoUpdated.getName());
-        if (this.materialRepository.existsBySlug(newSlug)) {
+        if (this.materialRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
             throw new SlugMaterialAlreadyExistsException();
         }
 

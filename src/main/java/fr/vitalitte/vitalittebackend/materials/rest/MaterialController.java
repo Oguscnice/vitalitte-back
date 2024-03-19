@@ -52,6 +52,12 @@ public class MaterialController {
         return types;
     }
 
+    @GetMapping("/{slug}")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public MaterialDto getMaterialBySlug(@PathVariable String slug) {
+        return this.materialService.findMaterialBySlug(slug);
+    }
+
     @PutMapping("/availability/{slug}")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> changeAvailabilityBySlug(@PathVariable String slug, @RequestBody boolean booleanValue) {
@@ -61,6 +67,7 @@ public class MaterialController {
     @PutMapping("/{slug}")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateMaterialBySlug(@PathVariable String slug, @RequestBody MaterialDto materialDto) {
+
         this.materialService.updateMaterialBySlug(slug, materialDto);
         return ResponseEntity.ok(new MessageResponse("Matériel mise à jour avec succès."));
     }
