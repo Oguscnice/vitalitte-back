@@ -78,7 +78,7 @@ public class MaterialServiceImpl implements MaterialService{
             throw new SlugMaterialAlreadyExistsException();
         }
 
-        List<Notebook> notebooks = this.notebookRepository.findAllByCategoryContains(materialToUpdate);
+        List<Notebook> notebooks = this.notebookRepository.findAllByMaterialsContaining(materialToUpdate);
         EMaterialType materialTypeUpdated = ConvertEumMaterialType.stringToEMaterial(materialDtoUpdated.getMaterialType());
 
         // transform et vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
@@ -119,7 +119,7 @@ public class MaterialServiceImpl implements MaterialService{
         Material materialToDelete = this.materialRepository.findBySlug(slug)
                                             .orElseThrow(MaterialNotFoundException::new);
 
-        List<Notebook> notebooks = this.notebookRepository.findAllByCategoryContains(materialToDelete);
+        List<Notebook> notebooks = this.notebookRepository.findAllByMaterialsContaining(materialToDelete);
 
         for(Notebook notebook : notebooks){
             List<Material> actualMaterials =  notebook.getMaterials();
