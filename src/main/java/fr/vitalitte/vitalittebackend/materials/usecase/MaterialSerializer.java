@@ -17,7 +17,7 @@ public class MaterialSerializer extends JsonSerializer<List<Material>> {
         List<Map<String, Object>> serializedTags = new ArrayList<>();
         for (Material material : materials) {
             Map<String, Object> serializedTag = new HashMap<>();
-            serializedTag.put("name", material.getName());
+            serializedTag.put("slug", material.getSlug());
             serializedTags.add(serializedTag);
         }
         jsonGenerator.writeObject(serializedTags);

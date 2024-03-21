@@ -5,6 +5,7 @@ import fr.vitalitte.vitalittebackend.category.models.Category;
 import fr.vitalitte.vitalittebackend.materials.models.Material;
 import fr.vitalitte.vitalittebackend.materials.usecase.MaterialSerializer;
 import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -46,21 +47,19 @@ public class Notebook {
     @Size(max = 1000)
     private String description;
     private boolean isAvailable;
-    @ManyToOne
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category")
     private Category category;
-    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY)
-    private List<SecondaryPicture> secondaryPictures;
     @ManyToMany(fetch = FetchType.LAZY)
-//    @JsonSerialize(using = MaterialSerializer.class)
+    @JsonSerialize(using = MaterialSerializer.class)
     @JoinTable(name = "notebook_materials",
-               joinColumns = @JoinColumn(name = "notebook_id"),
-               inverseJoinColumns = @JoinColumn(name = "material_id"))
+               joinColumns = @JoinColumn(name = "notebook_slug"),
+               inverseJoinColumns = @JoinColumn(name = "material_slug"))
     private List<Material> materials = new ArrayList<>();
 
     public Notebook(){}
 
-    public Notebook(UUID id, String name, String slug, URL mainPicture, String introduction, BigDecimal price, String description, Category category, List<SecondaryPicture> secondaryPictures, List<Material> materials, boolean isAvailable) {
+    public Notebook(UUID id, String name, String slug, URL mainPicture, String introduction, BigDecimal price, String description, Category category, List<Material> materials, boolean isAvailable) {
         this.id = id;
         this.name = name;
         this.slug = slug;
@@ -69,7 +68,6 @@ public class Notebook {
         this.price = price;
         this.description = description;
         this.category = category;
-        this.secondaryPictures = secondaryPictures;
         this.materials = materials;
         this.isAvailable = isAvailable;
     }
@@ -132,14 +130,6 @@ public class Notebook {
         isAvailable = available;
     }
 
-    public List<SecondaryPicture> getSecondaryPictures() {
-        return secondaryPictures;
-    }
-
-    public void setSecondaryPictures(List<SecondaryPicture> secondaryPictures) {
-        this.secondaryPictures = secondaryPictures;
-    }
-
     public List<Material> getMaterials() {
         return materials;
     }
@@ -156,6 +146,14 @@ public class Notebook {
         this.category = category;
     }
 
+//    public List<SecondaryPicture> getSecondaryPictures() {
+//        return secondaryPictures;
+//    }
+//
+//    public void setSecondaryPictures(List<SecondaryPicture> secondaryPictures) {
+//        this.secondaryPictures = secondaryPictures;
+//    }
+
     public static NotebookBuilder builder(){return new NotebookBuilder();}
     public static class NotebookBuilder{
         private final UUID id = UUID.randomUUID();
@@ -166,7 +164,6 @@ public class Notebook {
         private BigDecimal price;
         private String description;
         private Category category;
-        private List<SecondaryPicture> secondaryPictures;
         private List<Material> materials;
         public NotebookBuilder name(String name){
             this.name = name;
@@ -196,16 +193,12 @@ public class Notebook {
             this.category = category;
             return this;
         }
-        public NotebookBuilder secondaryPictures(List<SecondaryPicture> secondaryPictures){
-            this.secondaryPictures = secondaryPictures;
-            return this;
-        }
         public NotebookBuilder materials(List<Material> materials){
             this.materials = materials;
             return this;
         }
         public Notebook build(){
-            return new Notebook(this.id, this.name, this.slug, this.mainPicture, this.introduction, this.price, this.description, this.category, this.secondaryPictures, this.materials, true);
+            return new Notebook(this.id, this.name, this.slug, this.mainPicture, this.introduction, this.price, this.description, this.category, this.materials, true);
         }
     }
 }

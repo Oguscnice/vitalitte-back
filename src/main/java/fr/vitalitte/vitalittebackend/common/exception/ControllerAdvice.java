@@ -20,11 +20,13 @@ public class ControllerAdvice {
 
     @ExceptionHandler
     public ResponseEntity<MessageResponse> handleAlreadyExistException(ResourceAlreadyExistException e) {
+        LOGGER.error("Erreur interceptee", e);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(e.getMessage()));
     }
 
     @ExceptionHandler
     public ResponseEntity<MessageResponse> handleUrlInvalidException(InvalidTypeException e) {
+        LOGGER.error("Erreur interceptee", e);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(e.getMessage()));
     }
 

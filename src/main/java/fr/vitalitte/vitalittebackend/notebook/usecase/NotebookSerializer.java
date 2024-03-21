@@ -17,7 +17,7 @@ public class NotebookSerializer extends JsonSerializer<List<Notebook>> {
         List<Map<String, Object>> serializedNotebooks = new ArrayList<>();
         for (Notebook notebook : notebooks) {
             Map<String, Object> serializedNotebook = new HashMap<>();
-            serializedNotebook.put("name", notebook.getName());
+            serializedNotebook.put("slug", notebook.getSlug());
             serializedNotebooks.add(serializedNotebook);
         }
         jsonGenerator.writeObject(serializedNotebooks);
