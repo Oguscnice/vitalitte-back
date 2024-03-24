@@ -82,6 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category categoryFound = this.categoryRepository.findBySlug(slug)
                                             .orElseThrow(CategoryNotFoundException::new);
+
         List<Notebook> notebooks = this.notebookRepository.findAllByCategory(categoryFound);
 
         for (Notebook notebook : notebooks) {
