@@ -32,11 +32,6 @@ public class CategoryController {
                 .body(new MessageResponse("Categorie créée avec succès."));
     }
 
-    @GetMapping("/{slug}")
-    public CategoryDto getCategoryBySlug(@PathVariable String slug) {
-        return this.categoryService.findCategoryBySlug(slug);
-    }
-
     @GetMapping("")
     public List<CategoryDto> getAllCategories() {
         return this.categoryService.findAllCategories();

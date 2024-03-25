@@ -16,11 +16,11 @@ public class NotebookDto {
     private BigDecimal price;
     private List<String> secondaryPictures;
     private String description;
-    private List<Material> materials;
+    private List<MaterialDto> materialsDto;
     private CategoryDto categoryDto;
     private boolean isAvailable;
 
-    public NotebookDto(String name, String slug, String mainPicture, String introduction, BigDecimal price, List<String> secondaryPictures, String description, List<Material> materials, CategoryDto categoryDto, boolean isAvailable) {
+    public NotebookDto(String name, String slug, String mainPicture, String introduction, BigDecimal price, List<String> secondaryPictures, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, boolean isAvailable) {
         this.name = name;
         this.slug = slug;
         this.mainPicture = mainPicture;
@@ -28,7 +28,7 @@ public class NotebookDto {
         this.price = price;
         this.secondaryPictures = secondaryPictures;
         this.description = description;
-        this.materials = materials;
+        this.materialsDto = materialsDto;
         this.categoryDto = categoryDto;
         this.isAvailable = isAvailable;
     }
@@ -89,12 +89,12 @@ public class NotebookDto {
         this.description = description;
     }
 
-    public List<Material> getMaterials() {
-        return materials;
+    public List<MaterialDto> getMaterialsDto() {
+        return materialsDto;
     }
 
-    public void setMaterials(List<Material> materials) {
-        this.materials = materials;
+    public void setMaterials(List<MaterialDto> materialsDto) {
+        this.materialsDto = materialsDto;
     }
 
     public CategoryDto getCategoryDto() {
@@ -122,7 +122,7 @@ public class NotebookDto {
         private BigDecimal price;
         private List<String> secondaryPictures;
         private String description;
-        private List<Material> materials;
+        private List<MaterialDto> materialsDto;
         private CategoryDto categoryDto;
         private boolean isAvailable;
         public NotebookDtoBuilder name(String name){
@@ -153,8 +153,8 @@ public class NotebookDto {
             this.description = description;
             return this;
         }
-        public NotebookDtoBuilder materials(List<Material> materials){
-            this.materials = materials;
+        public NotebookDtoBuilder materialsDto(List<MaterialDto> materialsDto){
+            this.materialsDto = materialsDto;
             return this;
         }
         public NotebookDtoBuilder categoryDto(CategoryDto categoryDto){
@@ -166,7 +166,7 @@ public class NotebookDto {
             return this;
         }
         public NotebookDto build(){
-            return new NotebookDto(this.name, this.slug, this.mainPicture, this.introduction, this.price, this.secondaryPictures, this.description, this.materials, this.categoryDto, this.isAvailable);
+            return new NotebookDto(this.name, this.slug, this.mainPicture, this.introduction, this.price, this.secondaryPictures, this.description, this.materialsDto, this.categoryDto, this.isAvailable);
         }
     }
 }

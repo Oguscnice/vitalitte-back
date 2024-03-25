@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface CategoryRepository  extends JpaRepository<Category, String> {
     Optional<Category> findBySlug(String slug);
     Boolean existsBySlug(String slug);
+
 }

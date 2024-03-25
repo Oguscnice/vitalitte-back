@@ -2,6 +2,7 @@ package fr.vitalitte.vitalittebackend.category.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
+import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,9 +24,6 @@ public class Category {
     @NotBlank
     @Size(max = 255)
     private String name;
-    @JsonIgnore
-    @OneToMany(mappedBy = "category")
-    private List<Notebook> notebooks;
 
     public Category(UUID id, String slug, String name) {
         this.id = id;
@@ -50,8 +48,8 @@ public class Category {
     public void setName(String name) {
         this.name = name;
     }
-    public List<Notebook> getNotebooks() {return notebooks;}
-    public void setNotebooks(List<Notebook> notebooks) {this.notebooks = notebooks;}
+//    public List<Notebook> getNotebooks() {return notebooks;}
+//    public void setNotebooks(List<Notebook> notebooks) {this.notebooks = notebooks;}
 
     public static CategoryBuilder builder(){
         return new CategoryBuilder();

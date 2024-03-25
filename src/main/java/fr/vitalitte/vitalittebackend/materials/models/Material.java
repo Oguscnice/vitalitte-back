@@ -1,12 +1,7 @@
 package fr.vitalitte.vitalittebackend.materials.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
-import fr.vitalitte.vitalittebackend.notebook.usecase.NotebookSerializer;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -15,8 +10,6 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -39,10 +32,7 @@ public class Material {
     @NotNull
     private EMaterialType materialType;
     private boolean isAvailable;
-    @JsonIgnore
-    @ManyToMany(mappedBy = "materials")
-    @JsonSerialize(using = NotebookSerializer.class)
-    private List<Notebook> notebooks = new ArrayList<>();
+
     public Material() {}
 
     public Material(UUID id, String name, String slug, BigDecimal price, String description, URL picture, EMaterialType materialType, boolean isAvailable) {
@@ -101,8 +91,6 @@ public class Material {
     public void setMaterialType(EMaterialType materialType) {
         this.materialType = materialType;
     }
-//    public List<Notebook> getNotebooks() {return notebooks;}
-//    public void setNotebooks(List<Notebook> notebooks) {this.notebooks = notebooks;}
 
     public static MaterialBuilder builder(){
         return new MaterialBuilder();

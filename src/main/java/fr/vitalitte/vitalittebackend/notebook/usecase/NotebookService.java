@@ -7,9 +7,10 @@ import java.util.List;
 
 public interface NotebookService {
     void createNotebook(CreateNotebookBody createNotebookBody);
-//    List<NotebookDto> findAllNotebooks();
-//    void changeNotebookAvailabilityBySlug(String slug, boolean booleanValue);
-//    void updateNotebookBySlug(String slug, NotebookDto notebookDtoUpdated);
-//    void deleteNotebookBySlug(String slug);
+    NotebookDto getNotebookBySlug(String slug);
+    List<NotebookDto> findAllNotebooks();
+    void changeNotebookAvailabilityBySlug(String slug, NotebookDto notebookDto);
+    void updateNotebookBySlug(String slug, NotebookDto notebookDtoUpdated);
+    void deleteNotebookBySlug(String slug);
 
 }

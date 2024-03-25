@@ -12,6 +12,7 @@ import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
 import fr.vitalitte.vitalittebackend.notebook.persistence.NotebookRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,15 +45,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto findCategoryBySlug(String slug){
-
-        Category categoryFound = this.categoryRepository.findBySlug(slug)
-                .orElseThrow(CategoryNotFoundException::new);
-
-        return this.transformCategory.categoryToDto(categoryFound);
-    }
-
-    @Override
     public void updateCategory(String slug, CategoryDto category) {
 
         Category categoryToUpdate = this.categoryRepository.findBySlug(slug)
@@ -64,9 +56,18 @@ public class CategoryServiceImpl implements CategoryService {
             throw new SlugCategoryAlreadyExistsException();
         }
 
+        List<Notebook> notebooksToUpdate = this.notebookRepository.findAllByCategory(categoryToUpdate);
+
         categoryToUpdate.setSlug(newSlug);
         categoryToUpdate.setName(CapitalizeStringUtil.capitalizeFirstLetter(category.getName()));
 
+//        List<Notebook> notebooksUpdated = new ArrayList<>();
+//        for(Notebook notebook : notebooksToUpdate){
+//            notebook.setCategory(categoryToUpdate);
+//            notebooksUpdated.add(this.notebookRepository.save(notebook));
+//        }
+//
+//        categoryToUpdate.setNotebooks(notebooksUpdated);
         this.categoryRepository.save(categoryToUpdate);
     }
 
@@ -79,13 +80,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategoryBySlug(String slug) {
 
-        if(!this.categoryRepository.existsBySlug(slug)) {
-            throw new CategoryNotFoundException();
-        }
-
         Category categoryFound = this.categoryRepository.findBySlug(slug)
                                             .orElseThrow(CategoryNotFoundException::new);
-        List<Notebook> notebooks = this.notebookRepository.findAllByCategorySlug(categoryFound.getSlug());
+
+        List<Notebook> notebooks = this.notebookRepository.findAllByCategory(categoryFound);
 
         for (Notebook notebook : notebooks) {
             notebook.setCategory(null);
