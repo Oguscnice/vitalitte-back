@@ -1,15 +1,16 @@
 package fr.vitalitte.vitalittebackend.notebook.usecase;
 
 import fr.vitalitte.vitalittebackend.category.exception.CategoryNotFoundException;
-import fr.vitalitte.vitalittebackend.category.exception.SlugCategoryAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.category.models.Category;
 import fr.vitalitte.vitalittebackend.category.persistence.CategoryRepository;
 import fr.vitalitte.vitalittebackend.category.usecase.TransformCategory;
+import fr.vitalitte.vitalittebackend.collection.exception.CollectionNotFoundException;
+import fr.vitalitte.vitalittebackend.collection.models.Collection;
+import fr.vitalitte.vitalittebackend.collection.persistence.CollectionRepository;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.materials.exception.MaterialNotFoundException;
 import fr.vitalitte.vitalittebackend.materials.exception.MaterialTypeNotFoundException;
-import fr.vitalitte.vitalittebackend.materials.exception.SlugMaterialAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.materials.models.Material;
 import fr.vitalitte.vitalittebackend.materials.persistence.MaterialRepository;
 import fr.vitalitte.vitalittebackend.materials.rest.MaterialDto;
@@ -19,7 +20,6 @@ import fr.vitalitte.vitalittebackend.notebook.exception.SlugNotebookAlreadyExist
 import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
 import fr.vitalitte.vitalittebackend.notebook.persistence.NotebookRepository;
 import fr.vitalitte.vitalittebackend.notebook.rest.CreateNotebookBody;
-import fr.vitalitte.vitalittebackend.notebook.rest.NotebookController;
 import fr.vitalitte.vitalittebackend.notebook.rest.NotebookDto;
 import fr.vitalitte.vitalittebackend.secondaryPicture.exception.SecondaryPictureNotFoundException;
 import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
@@ -35,20 +35,22 @@ import java.util.List;
 public class NotebookServiceImpl implements NotebookService {
     NotebookRepository notebookRepository;
     CategoryRepository categoryRepository;
+    MaterialRepository materialRepository;
+    CollectionRepository collectionRepository;
     SecondaryPictureRepository secondaryPictureRepository;
     SecondaryPictureService secondaryPictureService;
-    MaterialRepository materialRepository;
     TransformNotebook transformNotebook;
     TransformMaterial transformMaterial;
     TransformCategory transformCategory;
     TransformUrl transformUrl;
 
-    public NotebookServiceImpl(NotebookRepository notebookRepository, CategoryRepository categoryRepository, SecondaryPictureRepository secondaryPictureRepository, SecondaryPictureService secondaryPictureService, MaterialRepository materialRepository, TransformNotebook transformNotebook, TransformMaterial transformMaterial, TransformCategory transformCategory, TransformUrl transformUrl) {
+    public NotebookServiceImpl(NotebookRepository notebookRepository, CategoryRepository categoryRepository, MaterialRepository materialRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository, SecondaryPictureService secondaryPictureService, TransformNotebook transformNotebook, TransformMaterial transformMaterial, TransformCategory transformCategory, TransformUrl transformUrl) {
         this.notebookRepository = notebookRepository;
         this.categoryRepository = categoryRepository;
+        this.materialRepository = materialRepository;
+        this.collectionRepository = collectionRepository;
         this.secondaryPictureRepository = secondaryPictureRepository;
         this.secondaryPictureService = secondaryPictureService;
-        this.materialRepository = materialRepository;
         this.transformNotebook = transformNotebook;
         this.transformMaterial = transformMaterial;
         this.transformCategory = transformCategory;
@@ -65,7 +67,8 @@ public class NotebookServiceImpl implements NotebookService {
 
 //      vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
         URL newUrlMainPicture = this.transformUrl.stringToUrl(createNotebookBody.getMainPicture());
-//      List<URL> newUrlSecondaryPictures = this.transformUrl.stringsToUrl(createNotebookBody.getSecondaryPictures());
+        final Collection collectionFound = this.collectionRepository.findBySlug(createNotebookBody.getCollectionDto().getSlug())
+                                            .orElseThrow(CollectionNotFoundException::new);
         final Category categoryFound = this.categoryRepository.findBySlug(createNotebookBody.getCategoryDto().getSlug())
                                             .orElseThrow(CategoryNotFoundException::new);
 
@@ -84,6 +87,7 @@ public class NotebookServiceImpl implements NotebookService {
                 .price(createNotebookBody.getPrice())
                 .description(createNotebookBody.getDescription())
                 .category(categoryFound)
+                .collection(collectionFound)
                 .materials(materials)
                 .build();
 
@@ -100,22 +104,26 @@ public class NotebookServiceImpl implements NotebookService {
         return this.transformNotebook.notebookToDto(this.notebookRepository.findBySlug(slug)
                                                             .orElseThrow(NotebookNotFoundException::new));
     }
+
     public List<NotebookDto> findAllNotebooks(){
         return this.transformNotebook.notebooksToDto(this.notebookRepository.findAll());
     }
+
     public void changeNotebookAvailabilityBySlug(String slug, NotebookDto notebookDto){
         Notebook notebookToUpdate = this.notebookRepository.findBySlug(slug)
                                             .orElseThrow(NotebookNotFoundException::new);
         notebookToUpdate.setAvailable(!notebookToUpdate.isAvailable());
         this.notebookRepository.save(notebookToUpdate);
     }
+
     public void updateNotebookBySlug(String slug, NotebookDto notebookDtoUpdated){
+
         Notebook notebookToUpdate = this.notebookRepository.findBySlug(slug)
                 .orElseThrow(NotebookNotFoundException::new);
 
         String newSlug = SlugifyUtil.stringToSlug(notebookDtoUpdated.getName());
 
-        if (this.categoryRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
+        if (this.notebookRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
             throw new SlugNotebookAlreadyExistsException();
         }
 
@@ -127,7 +135,18 @@ public class NotebookServiceImpl implements NotebookService {
         notebookToUpdate.setIntroduction(notebookDtoUpdated.getIntroduction());
         notebookToUpdate.setPrice(notebookDtoUpdated.getPrice());
         notebookToUpdate.setDescription(notebookDtoUpdated.getDescription());
-        notebookToUpdate.setCategory(this.transformCategory.dtoToCategory(notebookDtoUpdated.getCategoryDto()));
+
+        Category categoryToUpdated = null;
+        if(this.categoryRepository.findBySlug(notebookDtoUpdated.getCategoryDto().getSlug()).isPresent()){
+            categoryToUpdated = this.categoryRepository.findBySlug(notebookDtoUpdated.getCategoryDto().getSlug()).orElseThrow(CategoryNotFoundException::new);
+        }
+        notebookToUpdate.setCategory(categoryToUpdated);
+
+        Collection collectionToUpdated = null;
+        if(this.collectionRepository.findBySlug(notebookDtoUpdated.getCollectionDto().getSlug()).isPresent()){
+            collectionToUpdated = this.collectionRepository.findBySlug(notebookDtoUpdated.getCollectionDto().getSlug()).orElseThrow(CollectionNotFoundException::new);
+        }
+        notebookToUpdate.setCollection(collectionToUpdated);
 
         List<Material> materials = new ArrayList<>();
         for(MaterialDto materialDto : notebookDtoUpdated.getMaterialsDto()){

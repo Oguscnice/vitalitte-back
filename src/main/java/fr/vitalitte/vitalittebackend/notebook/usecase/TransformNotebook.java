@@ -1,5 +1,9 @@
 package fr.vitalitte.vitalittebackend.notebook.usecase;
 
+import fr.vitalitte.vitalittebackend.category.exception.CategoryNotFoundException;
+import fr.vitalitte.vitalittebackend.category.models.Category;
+import fr.vitalitte.vitalittebackend.category.persistence.CategoryRepository;
+import fr.vitalitte.vitalittebackend.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.category.usecase.TransformCategory;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.materials.usecase.TransformMaterial;
@@ -21,19 +25,28 @@ public class TransformNotebook {
     TransformCategory transformCategory;
     TransformMaterial transformMaterial;
     NotebookRepository notebookRepository;
+    CategoryRepository categoryRepository;
     SecondaryPictureRepository secondaryPictureRepository;
 
-    public TransformNotebook(TransformUrl transformUrl, TransformCategory transformCategory, TransformMaterial transformMaterial, NotebookRepository notebookRepository, SecondaryPictureRepository secondaryPictureRepository) {
+    public TransformNotebook(TransformUrl transformUrl, TransformCategory transformCategory, TransformMaterial transformMaterial, NotebookRepository notebookRepository, CategoryRepository categoryRepository, SecondaryPictureRepository secondaryPictureRepository) {
         this.transformUrl = transformUrl;
         this.transformCategory = transformCategory;
         this.transformMaterial = transformMaterial;
         this.notebookRepository = notebookRepository;
+        this.categoryRepository = categoryRepository;
         this.secondaryPictureRepository = secondaryPictureRepository;
     }
 
     public NotebookDto notebookToDto(Notebook notebook){
 
         String mainPicture = this.transformUrl.urlToString(notebook.getMainPicture());
+
+        CategoryDto categoryDto = null;
+
+        if(notebook.getCategory() != null){
+            Category categoryFound = this.categoryRepository.findBySlug(notebook.getCategory().getSlug()).orElseThrow(CategoryNotFoundException::new);
+            categoryDto = this.transformCategory.categoryToDto(categoryFound);
+        }
 
         List<SecondaryPicture> secondaryPictures = this.secondaryPictureRepository.findAllByNotebook(notebook);
         List<String> secondaryPicturesUrl = new ArrayList<>();
@@ -50,7 +63,7 @@ public class TransformNotebook {
                 .secondaryPictures(secondaryPicturesUrl)
                 .description(notebook.getDescription())
                 .materialsDto(this.transformMaterial.materialsToDto(notebook.getMaterials()))
-                .categoryDto(this.transformCategory.categoryToDto(notebook.getCategory()))
+                .categoryDto(categoryDto)
                 .isAvailable(notebook.isAvailable())
                 .build();
     }

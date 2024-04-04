@@ -2,6 +2,7 @@ package fr.vitalitte.vitalittebackend.notebook.models;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import fr.vitalitte.vitalittebackend.category.models.Category;
+import fr.vitalitte.vitalittebackend.collection.models.Collection;
 import fr.vitalitte.vitalittebackend.materials.models.Material;
 import fr.vitalitte.vitalittebackend.materials.usecase.MaterialSerializer;
 import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
@@ -50,6 +51,9 @@ public class Notebook {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category")
     private Category category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "collection")
+    private Collection collection;
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonSerialize(using = MaterialSerializer.class)
     @JoinTable(name = "notebook_materials",
@@ -59,7 +63,7 @@ public class Notebook {
 
     public Notebook(){}
 
-    public Notebook(UUID id, String name, String slug, URL mainPicture, String introduction, BigDecimal price, String description, Category category, List<Material> materials, boolean isAvailable) {
+    public Notebook(UUID id, String name, String slug, URL mainPicture, String introduction, BigDecimal price, String description, Category category, Collection collection, List<Material> materials, boolean isAvailable) {
         this.id = id;
         this.name = name;
         this.slug = slug;
@@ -68,6 +72,7 @@ public class Notebook {
         this.price = price;
         this.description = description;
         this.category = category;
+        this.collection = collection;
         this.materials = materials;
         this.isAvailable = isAvailable;
     }
@@ -75,51 +80,39 @@ public class Notebook {
     public UUID getId() {
         return id;
     }
-
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public String getSlug() {
         return slug;
     }
-
     public void setSlug(String slug) {
         this.slug = slug;
     }
-
     public URL getMainPicture() {
         return mainPicture;
     }
-
     public void setMainPicture(URL mainPicture) {
         this.mainPicture = mainPicture;
     }
-
     public String getIntroduction() {
         return introduction;
     }
-
     public void setIntroduction(String introduction) {
         this.introduction = introduction;
     }
-
     public BigDecimal getPrice() {
         return price;
     }
-
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-
     public String getDescription() {
         return description;
     }
-
     public void setDescription(String description) {
         this.description = description;
     }
@@ -129,30 +122,20 @@ public class Notebook {
     public void setAvailable(boolean available) {
         isAvailable = available;
     }
-
     public List<Material> getMaterials() {
         return materials;
     }
-
     public void setMaterials(List<Material> materials) {
         this.materials = materials;
     }
-
     public Category getCategory() {
         return category;
     }
-
     public void setCategory(Category category) {
         this.category = category;
     }
-
-//    public List<SecondaryPicture> getSecondaryPictures() {
-//        return secondaryPictures;
-//    }
-//
-//    public void setSecondaryPictures(List<SecondaryPicture> secondaryPictures) {
-//        this.secondaryPictures = secondaryPictures;
-//    }
+    public Collection getCollection() {return collection;}
+    public void setCollection(Collection collection) {this.collection = collection;}
 
     public static NotebookBuilder builder(){return new NotebookBuilder();}
     public static class NotebookBuilder{
@@ -164,6 +147,7 @@ public class Notebook {
         private BigDecimal price;
         private String description;
         private Category category;
+        private Collection collection;
         private List<Material> materials;
         public NotebookBuilder name(String name){
             this.name = name;
@@ -193,12 +177,16 @@ public class Notebook {
             this.category = category;
             return this;
         }
+        public NotebookBuilder collection(Collection collection){
+            this.collection = collection;
+            return this;
+        }
         public NotebookBuilder materials(List<Material> materials){
             this.materials = materials;
             return this;
         }
         public Notebook build(){
-            return new Notebook(this.id, this.name, this.slug, this.mainPicture, this.introduction, this.price, this.description, this.category, this.materials, true);
+            return new Notebook(this.id, this.name, this.slug, this.mainPicture, this.introduction, this.price, this.description, this.category, this.collection, this.materials, true);
         }
     }
 }

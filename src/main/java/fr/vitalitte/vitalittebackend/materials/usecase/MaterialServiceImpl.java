@@ -105,11 +105,11 @@ public class MaterialServiceImpl implements MaterialService{
         this.materialRepository.save(materialToUpdate);
     }
     @Override
-    public void changeMAterialAvailabilityBySlug(String slug, boolean booleanValue){
+    public void changeMaterialAvailability(MaterialDto materialDtoBody){
 
-        Material materialToUpdate = this.materialRepository.findBySlug(slug)
+        Material materialToUpdate = this.materialRepository.findBySlug(materialDtoBody.getSlug())
                                             .orElseThrow(MaterialNotFoundException::new);;
-        materialToUpdate.setAvailable(booleanValue);
+        materialToUpdate.setAvailable(!materialToUpdate.isAvailable());
 
         this.materialRepository.save(materialToUpdate);
     }

@@ -12,7 +12,6 @@ import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
 import fr.vitalitte.vitalittebackend.notebook.persistence.NotebookRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -56,25 +55,16 @@ public class CategoryServiceImpl implements CategoryService {
             throw new SlugCategoryAlreadyExistsException();
         }
 
-        List<Notebook> notebooksToUpdate = this.notebookRepository.findAllByCategory(categoryToUpdate);
-
         categoryToUpdate.setSlug(newSlug);
         categoryToUpdate.setName(CapitalizeStringUtil.capitalizeFirstLetter(category.getName()));
 
-//        List<Notebook> notebooksUpdated = new ArrayList<>();
-//        for(Notebook notebook : notebooksToUpdate){
-//            notebook.setCategory(categoryToUpdate);
-//            notebooksUpdated.add(this.notebookRepository.save(notebook));
-//        }
-//
-//        categoryToUpdate.setNotebooks(notebooksUpdated);
         this.categoryRepository.save(categoryToUpdate);
     }
 
     @Override
     public List<CategoryDto> findAllCategories() {
-        List<Category> categoriesList = this.categoryRepository.findAll();
-        return this.transformCategory.categoriesToDtos(categoriesList);
+        List<Category> categories = this.categoryRepository.findAll();
+        return this.transformCategory.categoriesToDtos(categories);
     }
 
     @Override
