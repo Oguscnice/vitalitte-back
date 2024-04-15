@@ -67,7 +67,6 @@ public class MaterialController {
     @PutMapping("/{slug}")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateMaterialBySlug(@PathVariable String slug, @RequestBody MaterialDto materialDto) {
-
         this.materialService.updateMaterialBySlug(slug, materialDto);
         return ResponseEntity.ok(new MessageResponse("Matériel mise à jour avec succès."));
     }

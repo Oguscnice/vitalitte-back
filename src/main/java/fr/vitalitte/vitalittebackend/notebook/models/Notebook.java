@@ -138,7 +138,7 @@ public class Notebook {
     public void setCollection(Collection collection) {this.collection = collection;}
 
     public static NotebookBuilder builder(){return new NotebookBuilder();}
-    public static class NotebookBuilder{
+    public static class NotebookBuilder {
         private final UUID id = UUID.randomUUID();
         private String name;
         private String slug;

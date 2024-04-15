@@ -1,9 +1,7 @@
 package fr.vitalitte.vitalittebackend.notebook.rest;
 
-import fr.vitalitte.vitalittebackend.category.models.Category;
 import fr.vitalitte.vitalittebackend.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.collection.rest.CollectionDto;
-import fr.vitalitte.vitalittebackend.materials.models.Material;
 import fr.vitalitte.vitalittebackend.materials.rest.MaterialDto;
 
 import java.math.BigDecimal;
@@ -100,7 +98,7 @@ public class NotebookDto {
     }
 
     public static NotebookDtoBuilder builder(){return new NotebookDtoBuilder();}
-    public static class NotebookDtoBuilder{
+    public static class NotebookDtoBuilder {
         private String name;
         private String slug;
         private String mainPicture;

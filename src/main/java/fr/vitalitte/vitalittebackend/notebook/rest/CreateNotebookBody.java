@@ -52,9 +52,7 @@ public class CreateNotebookBody {
     public String getName() {
         return name;
     }
-    public String getMainPicture() {
-        return mainPicture;
-    }
+    public String getMainPicture() {return mainPicture;}
     public String getIntroduction() {
         return introduction;
     }

@@ -30,6 +30,15 @@ public class NotebookController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("Carnet créé avec succès."));
     }
+    @GetMapping("/category/{categorySlug}")
+    public List<NotebookDto> getNotebooksByCategory(@PathVariable String categorySlug) {
+        return this.notebookService.findNotebooksByCategory(categorySlug);
+    }
+    @GetMapping("/collection/{collectionSlug}")
+    public List<NotebookDto> getNotebooksByCollection(@PathVariable String collectionSlug) {
+        return this.notebookService.findNotebooksByCollection(collectionSlug);
+    }
+
     @GetMapping("/{slug}")
     public NotebookDto getNotebookBySlug(@PathVariable String slug) {
         return this.notebookService.getNotebookBySlug(slug);
@@ -39,10 +48,11 @@ public class NotebookController {
         return this.notebookService.findAllNotebooks();
     }
 
-    @PutMapping("/availability/{slug}")
-    public ResponseEntity<MessageResponse> updateAvailabilityNotebookBySlug(@PathVariable String slug, @RequestBody NotebookDto notebookDto) {
-        this.notebookService.changeNotebookAvailabilityBySlug(slug, notebookDto);
-        return ResponseEntity.ok(new MessageResponse("Carnet mis à jour avec succès."));
+    @PutMapping("/availability")
+    public ResponseEntity<MessageResponse> updateAvailabilityNotebook(@RequestBody NotebookDto notebookDto) {
+        NotebookDto notebookDtoUpdated =  this.notebookService.changeNotebookAvailability(notebookDto);
+        String message = String.format("Carnet %s est %s.", notebookDtoUpdated.getName(), notebookDtoUpdated.isAvailable() ? "Disponible" : "Indisponible");
+        return ResponseEntity.ok(new MessageResponse(message));
     }
 
     @PutMapping("/{slug}")

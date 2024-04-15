@@ -108,22 +108,33 @@ public class NotebookServiceImpl implements NotebookService {
     public List<NotebookDto> findAllNotebooks(){
         return this.transformNotebook.notebooksToDto(this.notebookRepository.findAll());
     }
+    public List<NotebookDto> findNotebooksByCategory(String categorySlug){
+        Category categoryFound = this.categoryRepository.findBySlug(categorySlug)
+                                        .orElseThrow(CategoryNotFoundException::new);
+        return this.transformNotebook.notebooksToDto(this.notebookRepository.findAllByCategory(categoryFound));
+    }
+    public List<NotebookDto> findNotebooksByCollection(String collectionSlug){
+        Collection collectionFound = this.collectionRepository.findBySlug(collectionSlug)
+                                                            .orElseThrow(CollectionNotFoundException::new);
+        return this.transformNotebook.notebooksToDto(this.notebookRepository.findAllByCollection(collectionFound));
+    }
 
-    public void changeNotebookAvailabilityBySlug(String slug, NotebookDto notebookDto){
-        Notebook notebookToUpdate = this.notebookRepository.findBySlug(slug)
+    public NotebookDto changeNotebookAvailability(NotebookDto notebookDto){
+        Notebook notebookToUpdate = this.notebookRepository.findBySlug(notebookDto.getSlug())
                                             .orElseThrow(NotebookNotFoundException::new);
         notebookToUpdate.setAvailable(!notebookToUpdate.isAvailable());
         this.notebookRepository.save(notebookToUpdate);
+        return this.transformNotebook.notebookToDto(notebookToUpdate);
     }
 
     public void updateNotebookBySlug(String slug, NotebookDto notebookDtoUpdated){
 
         Notebook notebookToUpdate = this.notebookRepository.findBySlug(slug)
-                .orElseThrow(NotebookNotFoundException::new);
+                                            .orElseThrow(NotebookNotFoundException::new);
 
         String newSlug = SlugifyUtil.stringToSlug(notebookDtoUpdated.getName());
 
-        if (this.notebookRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
+        if(this.notebookRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
             throw new SlugNotebookAlreadyExistsException();
         }
 
