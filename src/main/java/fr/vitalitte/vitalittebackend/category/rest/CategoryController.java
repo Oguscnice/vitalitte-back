@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/api/categories")
 public class CategoryController {
     CategoryService categoryService;
-    CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 

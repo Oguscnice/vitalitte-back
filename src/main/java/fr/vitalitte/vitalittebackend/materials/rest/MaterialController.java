@@ -58,16 +58,15 @@ public class MaterialController {
         return this.materialService.findMaterialBySlug(slug);
     }
 
-    @PutMapping("/availability/{slug}")
+    @PutMapping("/availability")
 //    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MessageResponse> changeAvailabilityBySlug(@PathVariable String slug, @RequestBody boolean booleanValue) {
-        this.materialService.changeMAterialAvailabilityBySlug(slug, booleanValue);
+    public ResponseEntity<MessageResponse> changeAvailabilityBySlug(@RequestBody MaterialDto materialDtoBody) {
+        this.materialService.changeMaterialAvailability(materialDtoBody);
         return ResponseEntity.ok(new MessageResponse("Disponibilité du Matériel mise à jour avec succès."));
     }
     @PutMapping("/{slug}")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateMaterialBySlug(@PathVariable String slug, @RequestBody MaterialDto materialDto) {
-
         this.materialService.updateMaterialBySlug(slug, materialDto);
         return ResponseEntity.ok(new MessageResponse("Matériel mise à jour avec succès."));
     }

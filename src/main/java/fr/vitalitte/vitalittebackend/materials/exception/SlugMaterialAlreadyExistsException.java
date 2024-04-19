@@ -1,8 +1,8 @@
 package fr.vitalitte.vitalittebackend.materials.exception;
 
-import fr.vitalitte.vitalittebackend.common.exception.ResourceNotFoundException;
+import fr.vitalitte.vitalittebackend.common.exception.ResourceAlreadyExistException;
 
-public class SlugMaterialAlreadyExistsException extends ResourceNotFoundException {
+public class SlugMaterialAlreadyExistsException extends ResourceAlreadyExistException {
     public SlugMaterialAlreadyExistsException() {
         super("Nom du matériel déjà existant");
     }

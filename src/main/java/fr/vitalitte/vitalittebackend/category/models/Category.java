@@ -1,18 +1,10 @@
 package fr.vitalitte.vitalittebackend.category.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
-import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -48,8 +40,6 @@ public class Category {
     public void setName(String name) {
         this.name = name;
     }
-//    public List<Notebook> getNotebooks() {return notebooks;}
-//    public void setNotebooks(List<Notebook> notebooks) {this.notebooks = notebooks;}
 
     public static CategoryBuilder builder(){
         return new CategoryBuilder();
