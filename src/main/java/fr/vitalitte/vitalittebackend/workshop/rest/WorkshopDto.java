@@ -9,7 +9,7 @@ public class WorkshopDto {
     private String slug;
     private String description;
     private LocalDateTime date;
-    private String adress;
+    private String address;
     private BigDecimal price;
     private String picture;
     private Long registrations;
@@ -17,12 +17,12 @@ public class WorkshopDto {
 
     public WorkshopDto() {}
 
-    public WorkshopDto(String title, String slug, String description, LocalDateTime date, String adress, BigDecimal price, String picture, Long registrations, boolean isAvailable) {
+    public WorkshopDto(String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, String picture, Long registrations, boolean isAvailable) {
         this.title = title;
         this.slug = slug;
         this.description = description;
         this.date = date;
-        this.adress = adress;
+        this.address = address;
         this.price = price;
         this.picture = picture;
         this.registrations = registrations;
@@ -37,8 +37,8 @@ public class WorkshopDto {
     public void setDescription(String description) {this.description = description;}
     public LocalDateTime getDate() {return date;}
     public void setDate(LocalDateTime date) {this.date = date;}
-    public String getAdress() {return adress;}
-    public void setAdress(String place) {this.adress = adress;}
+    public String getAddress() {return address;}
+    public void setAddress(String address) {this.address = address;}
     public BigDecimal getPrice() {return price;}
     public void setPrice(BigDecimal price) {this.price = price;}
     public String getPicture() {return picture;}
@@ -49,12 +49,12 @@ public class WorkshopDto {
     public void setAvailable(boolean available) {isAvailable = available;}
 
     public static WorkshopDtoBuilder builder(){ return new WorkshopDtoBuilder();}
-    public static class WorkshopDtoBuilder{
+    public static class WorkshopDtoBuilder {
         private String title;
         private String slug;
         private String description;
         private LocalDateTime date;
-        private String adress;
+        private String address;
         private BigDecimal price;
         private String picture;
         private Long registrations;
@@ -75,8 +75,8 @@ public class WorkshopDto {
             this.date = date;
             return this;
         }
-        public WorkshopDtoBuilder adress(String adress){
-            this.adress = adress;
+        public WorkshopDtoBuilder address(String address){
+            this.address = address;
             return this;
         }
         public WorkshopDtoBuilder price(BigDecimal price){
@@ -96,7 +96,7 @@ public class WorkshopDto {
             return this;
         }
         public WorkshopDto build(){
-            return new WorkshopDto(this.title, this.slug, this.description, this.date, this.adress, this.price, this.picture, this.registrations, this.isAvailable);
+            return new WorkshopDto(this.title, this.slug, this.description, this.date, this.address, this.price, this.picture, this.registrations, this.isAvailable);
         }
     }
 }

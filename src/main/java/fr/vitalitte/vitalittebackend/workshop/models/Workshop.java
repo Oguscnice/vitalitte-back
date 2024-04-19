@@ -4,7 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -18,15 +17,15 @@ public class Workshop {
     private UUID id;
     @NotNull
     private String title;
-    @NotBlank
+    @NotNull
     private String slug;
-    @NotBlank
+    @NotNull
     @Size(max = 1000)
     private String description;
     @NotNull
     private LocalDateTime date;
-    @NotBlank
-    private String adress;
+    @NotNull
+    private String address;
     @DecimalMin(value = "0.0", inclusive = true)
     @Digits(integer=3, fraction=2)
     private BigDecimal price;
@@ -37,13 +36,13 @@ public class Workshop {
 
     public Workshop() {}
 
-    public Workshop(UUID id, String title, String slug, String description, LocalDateTime date, String adress, BigDecimal price, URL picture, Long registrations, boolean isAvailable) {
+    public Workshop(UUID id, String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, URL picture, Long registrations, boolean isAvailable) {
         this.id = id;
         this.title = title;
         this.slug = slug;
         this.description = description;
         this.date = date;
-        this.adress = adress;
+        this.address = address;
         this.price = price;
         this.picture = picture;
         this.registrations = registrations;
@@ -59,8 +58,8 @@ public class Workshop {
     public void setDescription(String description) {this.description = description;}
     public LocalDateTime getDate() {return date;}
     public void setDate(LocalDateTime date) {this.date = date;}
-    public String getAdress() {return adress;}
-    public void setAdress(String adress) {this.adress = adress;}
+    public String getAddress() {return address;}
+    public void setAddress(String address) {this.address = address;}
     public BigDecimal getPrice() {return price;}
     public void setPrice(BigDecimal price) {this.price = price;}
     public URL getPicture() {return picture;}
@@ -71,13 +70,13 @@ public class Workshop {
     public void setAvailable(boolean available) {isAvailable = available;}
 
     public static WorkshopBuilder builder(){return new WorkshopBuilder();}
-    public static class WorkshopBuilder{
+    public static class WorkshopBuilder {
         private final UUID id = UUID.randomUUID();
         private String title;
         private String slug;
         private String description;
         private LocalDateTime date;
-        private String adress;
+        private String address;
         private BigDecimal price;
         private URL picture;
         private Long registrations;
@@ -97,8 +96,8 @@ public class Workshop {
             this.date = date;
             return this;
         }
-        public WorkshopBuilder adress(String adress){
-            this.adress = adress;
+        public WorkshopBuilder address(String address){
+            this.address = address;
             return this;
         }
         public WorkshopBuilder price(BigDecimal price){
@@ -114,7 +113,7 @@ public class Workshop {
             return this;
         }
         public Workshop build(){
-            return new Workshop(this.id, this.title, this.slug, this.description, this.date, this.adress, this.price, this.picture, this.registrations, true);
+            return new Workshop(this.id, this.title, this.slug, this.description, this.date, this.address, this.price, this.picture, this.registrations, true);
         }
     }
 }

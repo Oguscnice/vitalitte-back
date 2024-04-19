@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 public class CreateWorkshopBody {
     @NotNull
     private final String title;
-    @NotBlank
+    @NotNull
     @Size(max = 1000)
     private final String description;
     @NotNull
     private final LocalDateTime date;
-    @NotBlank
-    private final String adress;
+    @NotNull
+    private final String address;
     @DecimalMin(value = "0.0", inclusive = true)
     @Digits(integer=3, fraction=2)
     private final BigDecimal price;
@@ -26,11 +26,11 @@ public class CreateWorkshopBody {
     private final String picture;
     private final Long registrations;
 
-    public CreateWorkshopBody(String title, String description, LocalDateTime date, String adress, BigDecimal price, String picture, Long registrations) {
+    public CreateWorkshopBody(String title, String description, LocalDateTime date, String address, BigDecimal price, String picture, Long registrations) {
         this.title = title;
         this.description = description;
         this.date = date;
-        this.adress = adress;
+        this.address = address;
         this.price = price;
         this.picture = picture;
         this.registrations = registrations;
@@ -39,7 +39,7 @@ public class CreateWorkshopBody {
     public String getTitle() {return title;}
     public String getDescription() {return description;}
     public LocalDateTime getDate() {return date;}
-    public String getAdress() {return adress;}
+    public String getAddress() {return address;}
     public BigDecimal getPrice() {return price;}
     public String getPicture() {return picture;}
     public Long getRegistrations() {return registrations;}

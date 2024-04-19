@@ -37,6 +37,7 @@ public class WorkshopController {
     public WorkshopDto getWorkshopBySlug(@PathVariable String slug) {
         return this.workshopService.getWorkbookBySlug(slug);
     }
+
     @GetMapping("")
     public List<WorkshopDto> getAllWorkshops() {
         return this.workshopService.findAllWorkshops();

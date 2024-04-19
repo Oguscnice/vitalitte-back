@@ -27,7 +27,7 @@ public class TransformWorkshop {
                 .slug(workshop.getSlug())
                 .description(workshop.getDescription())
                 .date(workshop.getDate())
-                .adress(workshop.getAdress())
+                .address(workshop.getAddress())
                 .price(workshop.getPrice())
                 .picture(picture)
                 .registrations(workshop.getRegistrations())

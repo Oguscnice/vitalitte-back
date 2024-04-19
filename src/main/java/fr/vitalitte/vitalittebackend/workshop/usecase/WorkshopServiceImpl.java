@@ -43,7 +43,7 @@ public class WorkshopServiceImpl implements WorkshopService{
                 .slug(newSlug)
                 .description(createWorkshopBody.getDescription())
                 .date(createWorkshopBody.getDate())
-                .adress(createWorkshopBody.getAdress())
+                .address(createWorkshopBody.getAddress())
                 .price(createWorkshopBody.getPrice())
                 .picture(newPicture)
                 .registrations(createWorkshopBody.getRegistrations())
@@ -83,7 +83,7 @@ public class WorkshopServiceImpl implements WorkshopService{
         workshopToUpdate.setSlug(newSlug);
         workshopToUpdate.setDescription(workshopDtoUpdated.getDescription());
         workshopToUpdate.setDate(workshopDtoUpdated.getDate());
-        workshopToUpdate.setAdress(workshopDtoUpdated.getAdress());
+        workshopToUpdate.setAddress(workshopDtoUpdated.getAddress());
         workshopToUpdate.setPrice(workshopDtoUpdated.getPrice());
         workshopToUpdate.setPicture(newPicture);
         workshopToUpdate.setRegistrations(workshopDtoUpdated.getRegistrations());
