@@ -1,7 +1,5 @@
 package fr.vitalitte.vitalittebackend.collection.rest;
 
-import fr.vitalitte.vitalittebackend.category.rest.CategoryDto;
-
 public class CollectionDto {
     private String slug;
     private String name;
@@ -26,7 +24,7 @@ public class CollectionDto {
     }
 
     public static CollectionDtoBuilder builder(){return new CollectionDtoBuilder();}
-    public static class CollectionDtoBuilder{
+    public static class CollectionDtoBuilder {
         private String slug;
         private String name;
         public CollectionDtoBuilder slug(String slug){

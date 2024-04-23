@@ -1,9 +1,7 @@
 package fr.vitalitte.vitalittebackend.notebook.rest;
 
-import fr.vitalitte.vitalittebackend.category.models.Category;
 import fr.vitalitte.vitalittebackend.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.collection.rest.CollectionDto;
-import fr.vitalitte.vitalittebackend.materials.models.Material;
 import fr.vitalitte.vitalittebackend.materials.rest.MaterialDto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -12,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
-import java.net.URL;
 import java.util.List;
 
 public class CreateNotebookBody {
