@@ -1,7 +1,6 @@
 package fr.vitalitte.vitalittebackend.workshop.rest;
 
 import java.math.BigDecimal;
-import java.net.URL;
 import java.time.LocalDateTime;
 
 public class WorkshopDto {

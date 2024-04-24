@@ -34,6 +34,7 @@ public class NotebookController {
     public List<NotebookDto> getNotebooksByCategory(@PathVariable String categorySlug) {
         return this.notebookService.findNotebooksByCategory(categorySlug);
     }
+
     @GetMapping("/collection/{collectionSlug}")
     public List<NotebookDto> getNotebooksByCollection(@PathVariable String collectionSlug) {
         return this.notebookService.findNotebooksByCollection(collectionSlug);

@@ -26,8 +26,7 @@ public class Inscription {
     @Size(max = 255)
     private String lastname;
     @NotBlank
-    @Size(min = 10, max = 12)
-    @Pattern(regexp = "(\\+?\\d{10,12})")
+    @Pattern(regexp = "(\\+33\\d{9}|\\d{10})")
     private String phone;
     @NotBlank
     @Email

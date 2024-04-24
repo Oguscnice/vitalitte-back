@@ -51,9 +51,7 @@ public class Publication {
     public void setSpotlighted(boolean spotlighted) {isSpotlighted = spotlighted;}
     public static PublicationBuilder builder(){return new PublicationBuilder();}
     public Timestamp getCreatedAt() {return createdAt;}
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
+    public void setCreatedAt(Timestamp createdAt) {this.createdAt = createdAt;}
 
     public static class PublicationBuilder {
         private final UUID id = UUID.randomUUID();
