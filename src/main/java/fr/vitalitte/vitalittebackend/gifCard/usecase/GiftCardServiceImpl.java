@@ -47,6 +47,13 @@ public class GiftCardServiceImpl implements GiftCardService {
         return giftCard.getExpiryDate().isAfter(LocalDateTime.now());
     };
 
+    public GiftCardDto findGiftCardByCode(String code){
+        GiftCard giftCardFound = this.giftCardRepository.findByCode(code)
+                .orElseThrow(GifCardNotFoundException::new);
+
+        return this.transformGiftCard.giftCardToDto(giftCardFound);
+    }
+
     public void deleteGiftCardByCode(String code){
         GiftCard giftCardToDelete = this.giftCardRepository.findByCode(code)
                 .orElseThrow(GifCardNotFoundException::new);

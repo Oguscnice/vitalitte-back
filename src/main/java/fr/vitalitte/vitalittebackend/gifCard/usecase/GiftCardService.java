@@ -8,6 +8,7 @@ import java.util.List;
 public interface GiftCardService {
     void createGiftCard(CreateGiftCardBody createGiftCardBody);
     List<GiftCardDto> findAllGiftCards();
+    GiftCardDto findGiftCardByCode(String code);
     boolean isExpired(String code);
     void deleteGiftCardByCode(String code);
 }

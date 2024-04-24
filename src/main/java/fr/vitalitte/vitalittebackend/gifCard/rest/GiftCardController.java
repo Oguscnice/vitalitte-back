@@ -38,10 +38,15 @@ public class GiftCardController {
         return this.giftCardService.isExpired(code);
     }
 
+    @GetMapping("/{code}")
+    public GiftCardDto findGiftCardByCode(@PathVariable String code) {
+        return this.giftCardService.findGiftCardByCode(code);
+    }
     @GetMapping("")
     public List<GiftCardDto> findAllGiftCards() {
         return this.giftCardService.findAllGiftCards();
     }
+
 
     @DeleteMapping("/{code}")
     public ResponseEntity<MessageResponse> deleteGiftCard(@PathVariable String code) {
