@@ -33,6 +33,25 @@ public class WorkshopController {
                 .body(new MessageResponse("Atelier créé avec succès."));
     }
 
+    @GetMapping("/date-to-come")
+    public List<WorkshopDto> getWorkshopsByDateToCome() {
+        return this.workshopService.findWorkshopsByDateToCome();
+    }
+
+    @GetMapping("/past-date/page-{pageNumber}")
+    public List<WorkshopDto> getWorkshopsByPastDate(@PathVariable Long pageNumber) {
+        return this.workshopService.findWorkshopsByPastDate(pageNumber.intValue());
+    }
+
+    @GetMapping("/past-date/counter")
+    public Long getCounterWorkshopsByPastDate() {
+        return this.workshopService.getCounterWorkshopsByPastDate();
+    }
+    @GetMapping("/isAvailable/{value}")
+    public List<WorkshopDto> getWorkshopByisAvailable(@PathVariable boolean value) {
+        return this.workshopService.findWorkshopsIsAvailable(value);
+    }
+
     @GetMapping("/{slug}")
     public WorkshopDto getWorkshopBySlug(@PathVariable String slug) {
         return this.workshopService.getWorkbookBySlug(slug);

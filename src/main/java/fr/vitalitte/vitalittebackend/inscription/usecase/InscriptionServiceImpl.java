@@ -1,6 +1,7 @@
 package fr.vitalitte.vitalittebackend.inscription.usecase;
 
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotAvailableException;
 import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotFoundException;
 import fr.vitalitte.vitalittebackend.inscription.exception.SlugInscriptionAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.inscription.models.Inscription;
@@ -15,6 +16,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -32,16 +35,20 @@ public class InscriptionServiceImpl implements InscriptionService{
         this.transformInscription = transformInscription;
     }
 
-    public void createInscription(CreateInscriptionBody createInscriptionBody){
+    @Override
+    public String createInscription(CreateInscriptionBody createInscriptionBody){
 
-        String newSlug = SlugifyUtil.stringToSlug(createInscriptionBody.getLastname() + '-' + createInscriptionBody.getWorkshopDto().getSlug());
+        String newSlug = SlugifyUtil.stringToSlug(SlugifyUtil.dateToFormatDDmmYY(new Date()) + '-' + createInscriptionBody.getLastname() + '-' + createInscriptionBody.getFirstname() + '-' + createInscriptionBody.getEmail() + '-' + createInscriptionBody.getWorkshopDto().getSlug());
 
         if (this.inscriptionRepository.existsBySlug(newSlug)) {
             throw new SlugInscriptionAlreadyExistsException();
         }
 
-        Workshop workshop = this.workshopRepository.findBySlug(createInscriptionBody.getWorkshopDto().getSlug())
-                                    .orElseThrow(WorkshopNotFoundException::new);
+        Workshop workshop = this.findWorkshopBySlug(createInscriptionBody.getWorkshopDto().getSlug());
+
+        if((workshop.getRegistrations() != 0) && (workshop.getRegistrations() < this.countInscriptionsByWorkshopSlug(workshop.getSlug()))) {
+            throw  new InscriptionNotAvailableException();
+        }
 
         final Inscription newInscription = Inscription.builder()
                 .slug(newSlug)
@@ -50,31 +57,73 @@ public class InscriptionServiceImpl implements InscriptionService{
                 .phone(createInscriptionBody.getPhone())
                 .email(createInscriptionBody.getEmail())
                 .workshop(workshop)
+                .quantity(createInscriptionBody.getQuantity())
                 .build();
 
         this.inscriptionRepository.save(newInscription);
+
+        return newInscription.getSlug();
     };
-    public InscriptionDto findInscriptionBySlug(String slug){
-        return this.transformInscription.inscriptionToDto(this.inscriptionRepository.findBySlug(slug)
-                                                                    .orElseThrow(InscriptionNotFoundException::new));
+
+    @Override
+    public InscriptionDto findInscription(String slug){
+        return this.transformInscription.inscriptionToDto(this.findInscriptionBySlug(slug));
     };
+
+    @Override
     public List<InscriptionDto> findAllInscriptions(){
         return this.transformInscription.inscriptionsToDto(this.inscriptionRepository.findAll());
     };
+
+    @Override
     public List<InscriptionDto> findAllInscriptionsByWorkshop(String workshopSlug){
-        Workshop workshop = this.workshopRepository.findBySlug(workshopSlug)
-                                    .orElseThrow(WorkshopNotFoundException::new);
+        Workshop workshop = this.findWorkshopBySlug(workshopSlug);
         return this.transformInscription.inscriptionsToDto(this.inscriptionRepository.findAllByWorkshop(workshop));
     };
+
+    @Override
     public void deleteInscriptionBySlug(String slug){
-        Inscription inscriptionToDelete = this.inscriptionRepository.findBySlug(slug)
-                                                    .orElseThrow(InscriptionNotFoundException::new);
+        Inscription inscriptionToDelete = this.findInscriptionBySlug(slug);
         this.inscriptionRepository.delete(inscriptionToDelete);
     };
 
+    @Override
+    public String confirmInscriptionBySlug(String inscriptionSlug) {
+
+        Inscription inscriptionToUpdated = this.findInscriptionBySlug(inscriptionSlug);
+        Workshop workshop = this.findWorkshopBySlug(inscriptionToUpdated.getWorkshop().getSlug());
+
+        inscriptionToUpdated.setConfirmed(true);
+        this.inscriptionRepository.save(inscriptionToUpdated);
+
+        return String.format("L'inscription pour %d personne(s) au nom de %s %s pour l'atelier : %s du %s, est réalisé avec succès.", inscriptionToUpdated.getQuantity(), inscriptionToUpdated.getFirstname(), inscriptionToUpdated.getLastname(), workshop.getTitle(), workshop.getDate());
+
+    }
+
+    @Override
     public Long countInscriptionsByWorkshopSlug(String workshopSlug){
-        Workshop workshopFound = this.workshopRepository.findBySlug(workshopSlug)
-                .orElseThrow(WorkshopNotFoundException::new);
-       return this.inscriptionRepository.countInscriptionsByWorkshop(workshopFound);
+        Workshop workshop = this.findWorkshopBySlug(workshopSlug);
+        List<Inscription> inscriptions = this.inscriptionRepository.findAllByWorkshop(workshop);
+        return (long) this.countInscriptionQuantityByInscriptions(inscriptions);
     };
+
+    private Workshop findWorkshopBySlug(String slug) {
+        return this.workshopRepository.findBySlug(slug)
+                .orElseThrow(WorkshopNotFoundException::new);
+    }
+
+    private Inscription findInscriptionBySlug(String slug) {
+        return this.inscriptionRepository.findBySlug(slug)
+                .orElseThrow(InscriptionNotFoundException::new);
+    }
+
+    private int countInscriptionQuantityByInscriptions(List<Inscription> inscriptions) {
+        int inscriptionCounter = 0;
+
+        for (Inscription inscription : inscriptions) {
+            inscriptionCounter = inscriptionCounter + inscription.getQuantity();
+        }
+        return inscriptionCounter;
+    }
+
 }

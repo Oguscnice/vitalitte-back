@@ -9,6 +9,10 @@ public interface WorkshopService {
     void createWorkshop(CreateWorkshopBody createWorkshopBody);
     WorkshopDto getWorkbookBySlug(String slug);
     List<WorkshopDto> findAllWorkshops();
+    List<WorkshopDto> findWorkshopsByDateToCome();
+    List<WorkshopDto> findWorkshopsByPastDate(int pageNumber);
+    Long getCounterWorkshopsByPastDate();
+    List<WorkshopDto> findWorkshopsIsAvailable(boolean value);
     WorkshopDto changeWorkshopAvailability(WorkshopDto workshopDto);
     void updateWorkshopBySlug(WorkshopDto workshopDto);
     void deleteWorkshopBySlug(String slug);

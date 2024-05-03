@@ -8,9 +8,13 @@ import fr.vitalitte.vitalittebackend.workshop.models.Workshop;
 import fr.vitalitte.vitalittebackend.workshop.persistence.WorkshopRepository;
 import fr.vitalitte.vitalittebackend.workshop.rest.CreateWorkshopBody;
 import fr.vitalitte.vitalittebackend.workshop.rest.WorkshopDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -58,6 +62,28 @@ public class WorkshopServiceImpl implements WorkshopService{
     public List<WorkshopDto> findAllWorkshops(){
         return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAll());
     };
+
+    public List<WorkshopDto> findWorkshopsByDateToCome(){
+        LocalDateTime date = LocalDateTime.now();
+        return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByDateAfterOrderByDateDesc(date));
+    };
+
+    public List<WorkshopDto> findWorkshopsByPastDate(int pageNumber){
+        LocalDateTime date = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(pageNumber, 6);
+        Page<Workshop> workshopPage = this.workshopRepository.findAllWorkshopByDateBeforeOrderByDateDesc(date, pageable);
+        return this.transformWorkshop.workshopsToDto(workshopPage.getContent());
+    };
+
+    public Long getCounterWorkshopsByPastDate(){
+        LocalDateTime date = LocalDateTime.now();
+        return this.workshopRepository.countWorkshopsByDateBefore(date);
+    };
+
+    public List<WorkshopDto> findWorkshopsIsAvailable(boolean value){
+        return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByIsAvailable(value));
+    };
+
     public WorkshopDto changeWorkshopAvailability(WorkshopDto workshopDtoUpdated){
         Workshop workshopToUpdate = this.workshopRepository.findBySlug(workshopDtoUpdated.getSlug())
                                             .orElseThrow(WorkshopNotFoundException::new);
