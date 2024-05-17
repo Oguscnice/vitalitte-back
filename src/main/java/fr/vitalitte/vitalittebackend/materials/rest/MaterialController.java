@@ -23,11 +23,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/materials")
 public class MaterialController {
+
     MaterialService materialService;
 
     public MaterialController(MaterialService materialService) {
         this.materialService = materialService;
     }
+
     @PostMapping("")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> createMaterial(@RequestBody CreateMaterialBody createMaterialBody) {
@@ -40,6 +42,7 @@ public class MaterialController {
     public List<MaterialDto> getAllMaterials() {
         return this.materialService.findAllMaterials();
     }
+
     @GetMapping("/types")
 //    @PreAuthorize("hasRole('ADMIN')")
     public List<EMaterialType> getAllMaterialsTypeEnum() {

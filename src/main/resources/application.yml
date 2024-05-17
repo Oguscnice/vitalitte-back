@@ -1,0 +1,32 @@
+spring:
+  config:
+    activate:
+      #                 Penser à mettre configuration -> Edit -> Active Profil -> local
+      on-profile: local
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://localhost:3306/vitalittedb?allowPublicKeyRetrieval=true&useSSL=false
+    password: password
+    username: gus
+#__________pour les mails _______________________________________
+  mail:
+    host: smtp.mailjet.com
+    port: 587
+    username: 01bc950fcb3cf0c8a764f3ca631b35c2
+    password: 4451b586d8c764578fe3f63cc78133f5
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+#_________________________________________________________________
+
+project:
+  app:
+    jwtSecret: 25e34212-3809-4c08-a867-d6633feb1e29
+    #                    8h de connexion
+    jwtExpirationMs: 36000000

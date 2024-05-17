@@ -15,10 +15,10 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("myProjectSecretKey")
+    @Value("${project.app.jwtExpirationMs}")
     private String jwtSecret;
 
-    @Value("28000000")
+    @Value("${project.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
