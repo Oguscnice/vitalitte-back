@@ -39,24 +39,14 @@ public class PublicationController {
         return this.publicationService.getPublicationsSpotlighted(boolbool);
     }
 
-    @GetMapping("/count/{value}")
-    public Long getCounterPublicationsByTitleOrDescriptionContainingValue(@PathVariable String value) {
-        return this.publicationService.countPublicationsByTitleOrDescriptionContainingValue(value);
+    @PostMapping("/count")
+    public Long getCounterPublications(@RequestBody PublicationPaginated publicationPaginated) {
+        return this.publicationService.countPublications(publicationPaginated);
     }
 
-    @GetMapping("/count")
-    public Long getCounterAllPublications() {
-        return this.publicationService.countAllPublications();
-    }
-
-    @GetMapping("/page-{pageNumber}/{value}")
-    public List<PublicationDto> getPublicationsByPageByTitleOrDescriptionContainingValue(@PathVariable Long pageNumber, @PathVariable String value) {
-        return this.publicationService.getPublicationsByTitleOrDescriptionContainingValue(pageNumber.intValue(), value);
-    }
-
-    @GetMapping("/page-{pageNumber}")
-    public List<PublicationDto> getAllPublicationsByPage(@PathVariable Long pageNumber) {
-        return this.publicationService.getPublicationsByPage(pageNumber.intValue());
+    @PostMapping("/paginated")
+    public List<PublicationDto> getPublicationsByPageAndSize(@RequestBody PublicationPaginated publicationPaginated) {
+        return this.publicationService.getPublicationsByPageAndSize(publicationPaginated);
     }
 
     @GetMapping("/{slug}")

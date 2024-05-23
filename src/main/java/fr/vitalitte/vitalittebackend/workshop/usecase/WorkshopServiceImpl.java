@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.workshop.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.Pagination;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.workshop.exception.SlugWorkshopAlreadyExistsException;
@@ -19,7 +20,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class WorkshopServiceImpl implements WorkshopService{
+public class WorkshopServiceImpl implements WorkshopService {
+
     WorkshopRepository workshopRepository;
     TransformWorkshop transformWorkshop;
     TransformUrl transformUrl;
@@ -30,6 +32,7 @@ public class WorkshopServiceImpl implements WorkshopService{
         this.transformUrl = transformUrl;
     }
 
+    @Override
     public void createWorkshop(CreateWorkshopBody createWorkshopBody){
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy");
@@ -55,10 +58,14 @@ public class WorkshopServiceImpl implements WorkshopService{
 
         this.workshopRepository.save(newWorkshop);
     };
+
+    @Override
     public WorkshopDto getWorkbookBySlug(String slug){
         return this.transformWorkshop.workshopToDto(this.workshopRepository.findBySlug(slug)
                                                             .orElseThrow(WorkshopNotFoundException::new));
     };
+
+    @Override
     public List<WorkshopDto> findAllWorkshops(){
         return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAll());
     };
@@ -68,22 +75,26 @@ public class WorkshopServiceImpl implements WorkshopService{
         return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByDateAfterOrderByDateDesc(date));
     };
 
-    public List<WorkshopDto> findWorkshopsByPastDate(int pageNumber){
+    @Override
+    public List<WorkshopDto> findWorkshopsPaginatedByPastDate(Pagination pagination){
         LocalDateTime date = LocalDateTime.now();
-        Pageable pageable = PageRequest.of(pageNumber, 6);
+        Pageable pageable = PageRequest.of(pagination.getPage(), pagination.getSize());
         Page<Workshop> workshopPage = this.workshopRepository.findAllWorkshopByDateBeforeOrderByDateDesc(date, pageable);
         return this.transformWorkshop.workshopsToDto(workshopPage.getContent());
     };
 
+    @Override
     public Long getCounterWorkshopsByPastDate(){
         LocalDateTime date = LocalDateTime.now();
         return this.workshopRepository.countWorkshopsByDateBefore(date);
     };
 
+    @Override
     public List<WorkshopDto> findWorkshopsIsAvailable(boolean value){
         return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByIsAvailable(value));
     };
 
+    @Override
     public WorkshopDto changeWorkshopAvailability(WorkshopDto workshopDtoUpdated){
         Workshop workshopToUpdate = this.workshopRepository.findBySlug(workshopDtoUpdated.getSlug())
                                             .orElseThrow(WorkshopNotFoundException::new);
@@ -92,6 +103,8 @@ public class WorkshopServiceImpl implements WorkshopService{
         this.workshopRepository.save(workshopToUpdate);
         return this.transformWorkshop.workshopToDto(workshopToUpdate);
     };
+
+    @Override
     public void updateWorkshopBySlug(WorkshopDto workshopDtoUpdated){
         Workshop workshopToUpdate = this.workshopRepository.findBySlug(workshopDtoUpdated.getSlug())
                                             .orElseThrow(WorkshopNotFoundException::new);
@@ -116,6 +129,8 @@ public class WorkshopServiceImpl implements WorkshopService{
 
         this.workshopRepository.save(workshopToUpdate);
     };
+
+    @Override
     public void deleteWorkshopBySlug(String slug){
         Workshop workshopToDelete = this.workshopRepository.findBySlug(slug)
                                             .orElseThrow(WorkshopNotFoundException::new);

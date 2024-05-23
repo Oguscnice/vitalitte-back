@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class MaterialServiceImpl implements MaterialService{
+public class MaterialServiceImpl implements MaterialService {
+
     MaterialRepository materialRepository;
     TransformMaterial transformMaterial;
     TransformUrl transformUrl;
@@ -63,15 +64,19 @@ public class MaterialServiceImpl implements MaterialService{
     }
 
     @Override
+    public List<MaterialDto> findMaterialsAvailableForCustomization(){
+        return this.transformMaterial.materialsToDto(this.materialRepository.findAllMaterialsByIsAvailableForCustomization(true));
+    }
+
+    @Override
     public MaterialDto findMaterialBySlug(String materialSlug){
-        return this.transformMaterial.materialToDto(this.materialRepository.findBySlug(materialSlug).orElseThrow(MaterialNotFoundException::new));
+        return this.transformMaterial.materialToDto(this.findOneMaterialBySlugOrThrow(materialSlug));
     }
 
     @Override
     public void updateMaterialBySlug(String slug, MaterialDto materialDtoUpdated){
 
-        Material materialToUpdate = this.materialRepository.findBySlug(slug)
-                                            .orElseThrow(MaterialNotFoundException::new);
+        Material materialToUpdate = this.findOneMaterialBySlugOrThrow(slug);
 
         String newSlug = SlugifyUtil.stringToSlug(materialDtoUpdated.getName());
         if (this.materialRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
@@ -104,11 +109,20 @@ public class MaterialServiceImpl implements MaterialService{
         }
         this.materialRepository.save(materialToUpdate);
     }
+
+    @Override
+    public void changeMaterialAvailabilityForCustomization(MaterialDto materialDtoBody){
+
+        Material materialToUpdate = this.findOneMaterialBySlugOrThrow(materialDtoBody.getSlug());
+        materialToUpdate.setAvailableForCustomization(!materialToUpdate.isAvailableForCustomization());
+
+        this.materialRepository.save(materialToUpdate);
+    }
+
     @Override
     public void changeMaterialAvailability(MaterialDto materialDtoBody){
 
-        Material materialToUpdate = this.materialRepository.findBySlug(materialDtoBody.getSlug())
-                                            .orElseThrow(MaterialNotFoundException::new);;
+        Material materialToUpdate = this.findOneMaterialBySlugOrThrow(materialDtoBody.getSlug());
         materialToUpdate.setAvailable(!materialToUpdate.isAvailable());
 
         this.materialRepository.save(materialToUpdate);
@@ -116,8 +130,7 @@ public class MaterialServiceImpl implements MaterialService{
 
     @Override
     public void deleteMaterialBySlug(String slug){
-        Material materialToDelete = this.materialRepository.findBySlug(slug)
-                                            .orElseThrow(MaterialNotFoundException::new);
+        Material materialToDelete = this.findOneMaterialBySlugOrThrow(slug);
 
         List<Notebook> notebooks = this.notebookRepository.findAllByMaterialsContaining(materialToDelete);
 
@@ -131,5 +144,10 @@ public class MaterialServiceImpl implements MaterialService{
         }
 
         this.materialRepository.delete(materialToDelete);
+    }
+
+    private Material findOneMaterialBySlugOrThrow(String slug){
+        return this.materialRepository.findBySlug(slug)
+                .orElseThrow(MaterialNotFoundException::new);
     }
 }

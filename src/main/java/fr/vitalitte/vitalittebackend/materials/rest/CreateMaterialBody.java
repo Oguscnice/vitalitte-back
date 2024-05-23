@@ -9,17 +9,22 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public class CreateMaterialBody {
+
     @NotBlank
     @Size(min = 1, max = 255)
     private final String name;
+
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer=3, fraction=2)
     private final BigDecimal price;
+
     @NotBlank
     @Size(max = 1000)
     private final String description;
+
     @NotNull
     private final String picture;
+
     @NotNull
     private final String materialType;
 

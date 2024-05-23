@@ -20,7 +20,8 @@ public class TransformMaterial {
         this.transformUrl = transformUrl;
     }
 
-    public MaterialDto materialToDto(Material material){
+    public MaterialDto materialToDto(Material material) {
+
         String materialType = ConvertEumMaterialType.EMaterialToString(material.getMaterialType());
         String picture = this.transformUrl.urlToString(material.getPicture());
 
@@ -32,8 +33,10 @@ public class TransformMaterial {
                 .price(material.getPrice())
                 .picture(picture)
                 .isAvailable(material.isAvailable())
+                .isAvailableForCustomization(material.isAvailableForCustomization())
                 .build();
     }
+
     public List<MaterialDto> materialsToDto(List<Material> materials) {
         return mapList(this::materialToDto, materials);
     }
@@ -42,6 +45,7 @@ public class TransformMaterial {
         return this.materialRepository.findBySlug(materialDto.getSlug())
                         .orElseThrow(MaterialNotFoundException::new);
     }
+
     public List<Material> DtosToMaterials(List<MaterialDto> materialsDto) {
         return mapList(this::DtoToMaterial, materialsDto);
     }

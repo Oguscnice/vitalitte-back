@@ -3,6 +3,7 @@ package fr.vitalitte.vitalittebackend.materials.rest;
 import java.math.BigDecimal;
 
 public class MaterialDto {
+
     private String name;
     private String slug;
     private BigDecimal price;
@@ -10,8 +11,9 @@ public class MaterialDto {
     private String picture;
     private String materialType;
     private boolean isAvailable;
+    private boolean isAvailableForCustomization;
 
-    public MaterialDto(String name, String slug, BigDecimal price, String description, String picture, String materialType, boolean isAvailable) {
+    public MaterialDto(String name, String slug, BigDecimal price, String description, String picture, String materialType, boolean isAvailable, boolean isAvailableForCustomization) {
         this.name = name;
         this.slug = slug;
         this.price = price;
@@ -19,6 +21,7 @@ public class MaterialDto {
         this.picture = picture;
         this.materialType = materialType;
         this.isAvailable = isAvailable;
+        this.isAvailableForCustomization = isAvailableForCustomization;
     }
 
     public String getName() {
@@ -61,6 +64,14 @@ public class MaterialDto {
         this.picture = picture;
     }
 
+    public boolean isAvailableForCustomization() {
+        return isAvailableForCustomization;
+    }
+
+    public void setAvailableForCustomization(boolean availableForCustomization) {
+        isAvailableForCustomization = availableForCustomization;
+    }
+
     public String getMaterialType() {
         return this.materialType;
     }
@@ -80,7 +91,9 @@ public class MaterialDto {
     public static MaterialDtoBuilder builder(){
         return new MaterialDtoBuilder();
     }
-    public static class MaterialDtoBuilder{
+
+    public static class MaterialDtoBuilder {
+
         private String name;
         private String slug;
         private BigDecimal price;
@@ -88,36 +101,48 @@ public class MaterialDto {
         private String picture;
         private String materialType;
         private boolean isAvailable;
+        private boolean isAvailableForCustomization;
+
         public MaterialDtoBuilder name(String name){
             this.name = name;
             return this;
         }
+
         public MaterialDtoBuilder slug(String slug){
             this.slug = slug;
             return this;
         }
+
         public MaterialDtoBuilder price(BigDecimal price){
             this.price = price;
             return this;
         }
+
         public MaterialDtoBuilder description(String description){
             this.description = description;
             return this;
         }
+
         public MaterialDtoBuilder picture(String picture){
             this.picture = picture;
             return this;
         }
+
         public MaterialDtoBuilder materialType(String materialType){
             this.materialType = materialType;
             return this;
         }
+
         public MaterialDtoBuilder isAvailable(boolean isAvailable){
             this.isAvailable = isAvailable;
             return this;
         }
+        public MaterialDtoBuilder isAvailableForCustomization(boolean isAvailableForCustomization){
+            this.isAvailableForCustomization = isAvailableForCustomization;
+            return this;
+        }
         public MaterialDto build(){
-            return new MaterialDto(this.name, this.slug, this.price, this.description, this.picture, this.materialType, this.isAvailable);
+            return new MaterialDto(this.name, this.slug, this.price, this.description, this.picture, this.materialType, this.isAvailable, this.isAvailableForCustomization);
         }
     }
 }

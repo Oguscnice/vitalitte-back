@@ -15,26 +15,31 @@ import java.util.UUID;
 
 @Entity
 public class User {
+
     @Id
     private UUID id;
+
     @NotNull
     @Size(max = 255)
     private String firstname;
+
     @NotNull
     @Size(max = 255)
     private String lastname;
+
     @NotBlank
     @Size(max = 255)
     private String email;
+
     @NotBlank
     @JsonIgnore
     @Size(max = 255)
     private String password;
+
     @NotNull
     private Set<ERole> roles;
 
-    public User() {
-    }
+    public User() {}
 
     public User(UUID id, String firstname, String lastname, String email, String password, Set<ERole> roles) {
         this.id = id;
@@ -88,34 +93,43 @@ public class User {
     public void setRoles(Set<ERole> roles) {
         this.roles = roles;
     }
+
     public static UserBuilder builder(){return new UserBuilder();}
+
     public static class UserBuilder{
+
         private final UUID id = UUID.randomUUID();
         private String firstname;
         private String lastname;
         private String email;
         private String password;
         private Set<ERole> roles;
+
         public UserBuilder firstname(String firstname){
             this.firstname = firstname;
             return this;
         }
+
         public UserBuilder lastname(String lastname){
             this.lastname = lastname;
             return this;
         }
+
         public UserBuilder email(String email){
             this.email = email;
             return this;
         }
+
         public UserBuilder password(String password){
             this.password = password;
             return this;
         }
+
         public UserBuilder roles(Set<ERole> roles){
             this.roles = roles;
             return this;
         }
+        
         public User build(){return new User(this.id, this.firstname, this.lastname, this.email, this.password, this.roles);}
     }
 }

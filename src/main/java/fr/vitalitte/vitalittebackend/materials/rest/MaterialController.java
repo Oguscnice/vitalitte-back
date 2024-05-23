@@ -37,10 +37,11 @@ public class MaterialController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("Matériel créé avec succès."));
     }
-    @GetMapping("")
+
+    @GetMapping("/availability-for-customization")
 //    @PreAuthorize("hasRole('ADMIN')")
-    public List<MaterialDto> getAllMaterials() {
-        return this.materialService.findAllMaterials();
+    public List<MaterialDto> getAllMaterialsAvailableForCustomization() {
+        return this.materialService.findMaterialsAvailableForCustomization();
     }
 
     @GetMapping("/types")
@@ -61,18 +62,33 @@ public class MaterialController {
         return this.materialService.findMaterialBySlug(slug);
     }
 
+    @GetMapping("")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public List<MaterialDto> getAllMaterials() {
+        return this.materialService.findAllMaterials();
+    }
+
+    @PutMapping("/availability-for-customization")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> changeAvailabilityForCustomizationBySlug(@RequestBody MaterialDto materialDtoBody) {
+        this.materialService.changeMaterialAvailabilityForCustomization(materialDtoBody);
+        return ResponseEntity.ok(new MessageResponse("Disponibilité du Matériel mise à jour avec succès."));
+    }
+
     @PutMapping("/availability")
 //    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MessageResponse> changeAvailabilityBySlug(@RequestBody MaterialDto materialDtoBody) {
+    public ResponseEntity<MessageResponse> changeAvailability(@RequestBody MaterialDto materialDtoBody) {
         this.materialService.changeMaterialAvailability(materialDtoBody);
         return ResponseEntity.ok(new MessageResponse("Disponibilité du Matériel mise à jour avec succès."));
     }
+
     @PutMapping("/{slug}")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateMaterialBySlug(@PathVariable String slug, @RequestBody MaterialDto materialDto) {
         this.materialService.updateMaterialBySlug(slug, materialDto);
         return ResponseEntity.ok(new MessageResponse("Matériel mise à jour avec succès."));
     }
+
     @DeleteMapping("/{slug}")
 //    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> deleteMaterialBySlug(@PathVariable String slug) {
