@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 @Service
 public class GiftCardServiceImpl implements GiftCardService {
+
     GiftCardRepository giftCardRepository;
     TransformGiftCard transformGiftCard;
 
@@ -23,12 +24,14 @@ public class GiftCardServiceImpl implements GiftCardService {
 
     public void createGiftCard(CreateGiftCardBody createGiftCardBody){
 
-        if (this.giftCardRepository.existsByCode(createGiftCardBody.getCode()) ) {
+        if (existsByCode(createGiftCardBody.getCode())) {
             throw new SlugOrCodeGiftCardAlreadyExistsException();
         }
 
+        String slugifiedCode = SlugifyUtil.stringToSlug(createGiftCardBody.getCode());
+
         final GiftCard newGiftCard = GiftCard.builder()
-                .code(createGiftCardBody.getCode())
+                .code(slugifiedCode)
                 .rising(createGiftCardBody.getRising())
                 .expiryDate(createGiftCardBody.getExpiryDate())
                 .isPercentage(createGiftCardBody.isPercentage())
@@ -37,28 +40,31 @@ public class GiftCardServiceImpl implements GiftCardService {
         this.giftCardRepository.save(newGiftCard);
     };
 
-    public List<GiftCardDto> findAllGiftCards(){
+    public List<GiftCardDto> findAllGiftCards() {
         return this.transformGiftCard.giftCardsToDtos(this.giftCardRepository.findAll());
     };
 
-    public boolean isExpired(String code){
-        GiftCard giftCard = this.giftCardRepository.findByCode(code)
-                                    .orElseThrow(GifCardNotFoundException::new);
+    public boolean isExpired(String code) {
+        GiftCard giftCard = findOneGiftCardOrThrow(code);
         return giftCard.getExpiryDate().isAfter(LocalDateTime.now());
     };
 
-    public GiftCardDto findGiftCardByCode(String code){
-        GiftCard giftCardFound = this.giftCardRepository.findByCode(code)
-                .orElseThrow(GifCardNotFoundException::new);
-
+    public GiftCardDto findGiftCardByCode(String code) {
+        GiftCard giftCardFound = findOneGiftCardOrThrow(code);
         return this.transformGiftCard.giftCardToDto(giftCardFound);
     }
 
-    public void deleteGiftCardByCode(String code){
-        GiftCard giftCardToDelete = this.giftCardRepository.findByCode(code)
-                .orElseThrow(GifCardNotFoundException::new);
-
+    public void deleteGiftCardByCode(String code) {
+        GiftCard giftCardToDelete = findOneGiftCardOrThrow(code);
         this.giftCardRepository.delete(giftCardToDelete);
     };
+
+    private GiftCard findOneGiftCardOrThrow(String code) {
+        return this.giftCardRepository.findByCode(code).orElseThrow(GifCardNotFoundException::new);
+    }
+
+    private boolean existsByCode(String code) {
+        return this.giftCardRepository.existsByCode(code);
+    }
 }
 

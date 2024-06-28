@@ -16,6 +16,6 @@ public interface WorkshopRepository extends JpaRepository<Workshop, String> {
     Optional<Workshop> findBySlug(String slug);
     List<Workshop> findAllWorkshopByIsAvailable(boolean value);
     List<Workshop> findAllWorkshopByDateAfterOrderByDateDesc(LocalDateTime date);
-    Page<Workshop> findAllWorkshopByDateBeforeOrderByDateDesc(LocalDateTime date, Pageable pageable);
+    Page<Workshop> findWorkshopsByTitleContainsIgnoreCaseAndDateBeforeOrderByDateDesc(String value, LocalDateTime date, Pageable pageable);
     Long countWorkshopsByDateBefore(LocalDateTime date);
 }

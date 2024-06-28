@@ -1,6 +1,7 @@
 package fr.vitalitte.vitalittebackend.workshop.usecase;
 
 import fr.vitalitte.vitalittebackend.common.models.Pagination;
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.workshop.rest.CreateWorkshopBody;
 import fr.vitalitte.vitalittebackend.workshop.rest.WorkshopDto;
 
@@ -11,7 +12,7 @@ public interface WorkshopService {
     WorkshopDto getWorkbookBySlug(String slug);
     List<WorkshopDto> findAllWorkshops();
     List<WorkshopDto> findWorkshopsByDateToCome();
-    List<WorkshopDto> findWorkshopsPaginatedByPastDate(Pagination pagination);
+    List<WorkshopDto> findWorkshopsPaginatedByPastDate(PaginationItemBySearchValue paginationItemBySearchValue);
     Long getCounterWorkshopsByPastDate();
     List<WorkshopDto> findWorkshopsIsAvailable(boolean value);
     WorkshopDto changeWorkshopAvailability(WorkshopDto workshopDto);

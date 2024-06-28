@@ -2,6 +2,7 @@ package fr.vitalitte.vitalittebackend.workshop.rest;
 
 import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
 import fr.vitalitte.vitalittebackend.common.models.Pagination;
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.workshop.usecase.WorkshopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +41,8 @@ public class WorkshopController {
     }
 
     @PostMapping("/past-date/paginated")
-    public List<WorkshopDto> getWorkshopsPaginatedByPastDate(@RequestBody Pagination pagination) {
-        System.out.println(pagination.getPage());
-        return this.workshopService.findWorkshopsPaginatedByPastDate(pagination);
+    public List<WorkshopDto> getWorkshopsPaginatedByPastDate(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return this.workshopService.findWorkshopsPaginatedByPastDate(paginationItemBySearchValue);
     }
 
     @GetMapping("/past-date/counter")

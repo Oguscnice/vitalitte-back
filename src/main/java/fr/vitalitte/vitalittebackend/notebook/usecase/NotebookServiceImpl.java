@@ -10,10 +10,8 @@ import fr.vitalitte.vitalittebackend.collection.persistence.CollectionRepository
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.materials.exception.MaterialNotFoundException;
-import fr.vitalitte.vitalittebackend.materials.exception.MaterialTypeNotFoundException;
 import fr.vitalitte.vitalittebackend.materials.models.Material;
 import fr.vitalitte.vitalittebackend.materials.persistence.MaterialRepository;
-import fr.vitalitte.vitalittebackend.materials.rest.MaterialDto;
 import fr.vitalitte.vitalittebackend.materials.usecase.TransformMaterial;
 import fr.vitalitte.vitalittebackend.notebook.exception.NotebookNotFoundException;
 import fr.vitalitte.vitalittebackend.notebook.exception.SlugNotebookAlreadyExistsException;
@@ -24,12 +22,13 @@ import fr.vitalitte.vitalittebackend.notebook.rest.NotebookDto;
 import fr.vitalitte.vitalittebackend.secondaryPicture.exception.SecondaryPictureNotFoundException;
 import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
 import fr.vitalitte.vitalittebackend.secondaryPicture.persistence.SecondaryPictureRepository;
+import fr.vitalitte.vitalittebackend.secondaryPicture.rest.SecondaryPictureDto;
 import fr.vitalitte.vitalittebackend.secondaryPicture.usecase.SecondaryPictureService;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotebookServiceImpl implements NotebookService {
@@ -57,32 +56,26 @@ public class NotebookServiceImpl implements NotebookService {
         this.transformUrl = transformUrl;
     }
 
-    public void createNotebook(CreateNotebookBody createNotebookBody){
+    public void createNotebook(CreateNotebookBody createNotebookBody) {
 
-        String newSlug = SlugifyUtil.stringToSlug(createNotebookBody.getName());
+        String newNotebookSlug = slugifyNotebookByName(createNotebookBody.getName());
+        verifyIfSlugAlreadyExists(newNotebookSlug);
 
-        if (this.notebookRepository.existsBySlug(newSlug)) {
-            throw new SlugNotebookAlreadyExistsException();
-        }
+        URL picture = this.transformUrl.stringToUrl(createNotebookBody.getPicture());
+        URL pictureThumbnail = this.transformUrl.stringToUrl(createNotebookBody.getPictureThumbnail());
 
-//      vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
-        URL newUrlMainPicture = this.transformUrl.stringToUrl(createNotebookBody.getMainPicture());
-        final Collection collectionFound = this.collectionRepository.findBySlug(createNotebookBody.getCollectionDto().getSlug())
-                                            .orElseThrow(CollectionNotFoundException::new);
-        final Category categoryFound = this.categoryRepository.findBySlug(createNotebookBody.getCategoryDto().getSlug())
-                                            .orElseThrow(CategoryNotFoundException::new);
+        final Collection collectionFound = findOneCollectionBySlugOrThrow(createNotebookBody.getCollectionDto().getSlug());
+        final Category categoryFound = findOneCategoryBySlugOrThrow(createNotebookBody.getCategoryDto().getSlug());
 
-        final List<Material> materials = new ArrayList<>();
-        for(MaterialDto materialDto : createNotebookBody.getMaterialsDto()){
-            final Material materialFound = this.materialRepository.findBySlug(materialDto.getSlug())
-                                                    .orElseThrow(MaterialTypeNotFoundException::new);
-            materials.add(materialFound);
-        }
+        final List<Material> materials = createNotebookBody.getMaterialsDto().stream()
+                                                           .map(materialDto -> findOneMaterialBySlugOrThrow(materialDto.getSlug()))
+                                                           .collect(Collectors.toList());
 
         final Notebook newNotebook = Notebook.builder()
                 .name(createNotebookBody.getName())
-                .slug(newSlug)
-                .mainPicture(newUrlMainPicture)
+                .slug(newNotebookSlug)
+                .picture(picture)
+                .pictureThumbnail(pictureThumbnail)
                 .introduction(createNotebookBody.getIntroduction())
                 .price(createNotebookBody.getPrice())
                 .description(createNotebookBody.getDescription())
@@ -93,116 +86,160 @@ public class NotebookServiceImpl implements NotebookService {
 
         this.notebookRepository.save(newNotebook);
 
-        if (!createNotebookBody.getSecondaryPictures().isEmpty()) {
-            for (String pictureUrl : createNotebookBody.getSecondaryPictures()) {
-                this.secondaryPictureService.createSecondaryPicture(newSlug, pictureUrl);
-            }
-        }
+        createSecondaryPictures(newNotebookSlug, createNotebookBody.getSecondaryPicturesDto());
     }
 
     public NotebookDto getNotebookBySlug(String slug){
-        return this.transformNotebook.notebookToDto(this.notebookRepository.findBySlug(slug)
-                                                            .orElseThrow(NotebookNotFoundException::new));
+        return this.transformNotebook.notebookToDto(findOneNotebookBySlugOrThrow(slug));
     }
 
     public List<NotebookDto> findAllNotebooks(){
         return this.transformNotebook.notebooksToDto(this.notebookRepository.findAll());
     }
+
     public List<NotebookDto> findNotebooksByCategory(String categorySlug){
-        Category categoryFound = this.categoryRepository.findBySlug(categorySlug)
-                                        .orElseThrow(CategoryNotFoundException::new);
+        Category categoryFound = findOneCategoryBySlugOrThrow(categorySlug);
         return this.transformNotebook.notebooksToDto(this.notebookRepository.findAllByCategory(categoryFound));
     }
+
     public List<NotebookDto> findNotebooksByCollection(String collectionSlug){
-        Collection collectionFound = this.collectionRepository.findBySlug(collectionSlug)
-                                                            .orElseThrow(CollectionNotFoundException::new);
+        Collection collectionFound = findOneCollectionBySlugOrThrow(collectionSlug);
         return this.transformNotebook.notebooksToDto(this.notebookRepository.findAllByCollection(collectionFound));
     }
 
     public NotebookDto changeNotebookAvailability(NotebookDto notebookDto){
-        Notebook notebookToUpdate = this.notebookRepository.findBySlug(notebookDto.getSlug())
-                                            .orElseThrow(NotebookNotFoundException::new);
+        Notebook notebookToUpdate = findOneNotebookBySlugOrThrow(notebookDto.getSlug());
         notebookToUpdate.setAvailable(!notebookToUpdate.isAvailable());
-        this.notebookRepository.save(notebookToUpdate);
-        return this.transformNotebook.notebookToDto(notebookToUpdate);
+        return this.transformNotebook.notebookToDto(this.notebookRepository.save(notebookToUpdate));
     }
 
-    public void updateNotebookBySlug(String slug, NotebookDto notebookDtoUpdated){
+    public void updateNotebookBySlug(String oldNotebookSlug, NotebookDto notebookDtoUpdated){
 
-        Notebook notebookToUpdate = this.notebookRepository.findBySlug(slug)
-                                            .orElseThrow(NotebookNotFoundException::new);
+        Notebook notebookToUpdate = findOneNotebookBySlugOrThrow(oldNotebookSlug);
+        List<SecondaryPicture> oldSecondaryPictures = this.secondaryPictureRepository.findAllByNotebook(notebookToUpdate);
 
-        String newSlug = SlugifyUtil.stringToSlug(notebookDtoUpdated.getName());
-
-        if(this.notebookRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
-            throw new SlugNotebookAlreadyExistsException();
+        String newNotebookSlug = slugifyNotebookByName(notebookDtoUpdated.getName());
+        if (!oldNotebookSlug.equals(newNotebookSlug)) {
+            verifyIfSlugAlreadyExists(newNotebookSlug);
         }
 
-        List<SecondaryPicture> actualSecondaryPictures = this.secondaryPictureRepository.findAllByNotebook(notebookToUpdate);
+        URL picture = this.transformUrl.stringToUrl(notebookDtoUpdated.getPicture());
+        URL pictureThumbnail = this.transformUrl.stringToUrl(notebookDtoUpdated.getPictureThumbnail());
 
         notebookToUpdate.setName(notebookDtoUpdated.getName());
-        notebookToUpdate.setSlug(newSlug);
-        notebookToUpdate.setMainPicture(this.transformUrl.stringToUrl(notebookDtoUpdated.getMainPicture()));
+        notebookToUpdate.setSlug(newNotebookSlug);
+        notebookToUpdate.setPicture(picture);
+        notebookToUpdate.setPictureThumbnail(pictureThumbnail);
         notebookToUpdate.setIntroduction(notebookDtoUpdated.getIntroduction());
         notebookToUpdate.setPrice(notebookDtoUpdated.getPrice());
         notebookToUpdate.setDescription(notebookDtoUpdated.getDescription());
 
         Category categoryToUpdated = null;
-        if(this.categoryRepository.findBySlug(notebookDtoUpdated.getCategoryDto().getSlug()).isPresent()){
-            categoryToUpdated = this.categoryRepository.findBySlug(notebookDtoUpdated.getCategoryDto().getSlug()).orElseThrow(CategoryNotFoundException::new);
+        if (this.categoryRepository.existsBySlug(notebookDtoUpdated.getCategoryDto().getSlug())) {
+            categoryToUpdated = findOneCategoryBySlugOrThrow(notebookDtoUpdated.getCategoryDto().getSlug());
         }
         notebookToUpdate.setCategory(categoryToUpdated);
 
         Collection collectionToUpdated = null;
-        if(this.collectionRepository.findBySlug(notebookDtoUpdated.getCollectionDto().getSlug()).isPresent()){
-            collectionToUpdated = this.collectionRepository.findBySlug(notebookDtoUpdated.getCollectionDto().getSlug()).orElseThrow(CollectionNotFoundException::new);
+        if (this.collectionRepository.existsBySlug(notebookDtoUpdated.getCollectionDto().getSlug())) {
+            collectionToUpdated = findOneCollectionBySlugOrThrow(notebookDtoUpdated.getCollectionDto().getSlug());
         }
         notebookToUpdate.setCollection(collectionToUpdated);
 
-        List<Material> materials = new ArrayList<>();
-        for(MaterialDto materialDto : notebookDtoUpdated.getMaterialsDto()){
-            materials.add(this.materialRepository.findBySlug(materialDto.getSlug()).orElseThrow(MaterialNotFoundException::new));
-        }
+        final List<Material> materials = notebookDtoUpdated.getMaterialsDto().stream()
+                                                     .map(materialDto -> findOneMaterialBySlugOrThrow(materialDto.getSlug()))
+                                                     .collect(Collectors.toList());
         notebookToUpdate.setMaterials(materials);
 
         this.notebookRepository.save(notebookToUpdate);
 
-        List<SecondaryPicture> newSecondaryPictures = new ArrayList<>();
-        for(String picture : notebookDtoUpdated.getSecondaryPictures()){
-            if(this.secondaryPictureRepository.findByUrlAndNotebook(this.transformUrl.stringToUrl(picture), notebookToUpdate).isPresent()){
-                SecondaryPicture secondaryPicture = this.secondaryPictureRepository.findByUrlAndNotebook(this.transformUrl.stringToUrl(picture), notebookToUpdate).orElseThrow(SecondaryPictureNotFoundException::new);
-                secondaryPicture.setNotebook(notebookToUpdate);
-                this.secondaryPictureRepository.save(secondaryPicture);
-                newSecondaryPictures.add(secondaryPicture);
-            }else{
-                SecondaryPicture newSecondaryPicture = SecondaryPicture.builder()
-                                                                .notebook(notebookToUpdate)
-                                                                .url(this.transformUrl.stringToUrl(picture))
-                                                                .build();
-                this.secondaryPictureRepository.save(newSecondaryPicture);
-                newSecondaryPictures.add(newSecondaryPicture);
-            }
-        }
+        compareOldSecPicListAndNewPicList(newNotebookSlug, oldSecondaryPictures, notebookDtoUpdated.getSecondaryPicturesDto());
 
-        if (!actualSecondaryPictures.isEmpty()){
-            for(SecondaryPicture actualPicture : actualSecondaryPictures){
-                boolean exists = false;
-                for(SecondaryPicture newPicture : newSecondaryPictures){
-                    if (actualPicture.getUrl() == newPicture.getUrl()) {
-                        exists = true;
+    }
+
+    public void deleteNotebookBySlug(String slug){
+        Notebook notebookToDelete = findOneNotebookBySlugOrThrow(slug);
+        this.notebookRepository.delete(notebookToDelete);
+    }
+
+    private String slugifyNotebookByName(String name) {
+        return SlugifyUtil.stringToSlug(name);
+    }
+
+    private void verifyIfSlugAlreadyExists(String slug) {
+        if (this.notebookRepository.existsBySlug(slug)) {
+            throw new SlugNotebookAlreadyExistsException();
+        }
+    }
+
+    private Notebook findOneNotebookBySlugOrThrow(String slug) {
+        return this.notebookRepository.findBySlug(slug).orElseThrow(NotebookNotFoundException::new);
+    }
+
+    private Category findOneCategoryBySlugOrThrow(String slug) {
+        return this.categoryRepository.findBySlug(slug).orElseThrow(CategoryNotFoundException::new);
+    }
+
+    private Collection findOneCollectionBySlugOrThrow(String slug) {
+        return this.collectionRepository.findBySlug(slug).orElseThrow(CollectionNotFoundException::new);
+    }
+
+    private Material findOneMaterialBySlugOrThrow(String slug) {
+        return this.materialRepository.findBySlug(slug).orElseThrow(MaterialNotFoundException::new);
+    }
+
+    private void createSecondaryPictures(String notebookSlug, List<SecondaryPictureDto> newSecondaryPicturesDto) {
+        if (!newSecondaryPicturesDto.isEmpty()) {
+            newSecondaryPicturesDto.forEach(secondaryPictureDto -> this.secondaryPictureService.createSecondaryPicture(notebookSlug, secondaryPictureDto));
+        }
+    }
+
+    private void compareOldSecPicListAndNewPicList(String newNotebookSlug, List<SecondaryPicture> oldSecondaryPicturesDto, List<SecondaryPictureDto> newSecondaryPicturesDto) {
+
+        final Notebook newNotebook = findOneNotebookBySlugOrThrow(newNotebookSlug);
+
+        if (!newSecondaryPicturesDto.isEmpty()) {
+
+//            Si dans l' "ancienne liste" d'image, une image existe, on met la relation Notebook à jour,
+//            si elle n'existe pas dans la "nouvelle liste" on la supprime
+            for (SecondaryPicture oldPicture : oldSecondaryPicturesDto) {
+                boolean existsInNewList = false;
+                SecondaryPicture secondaryPicture = findOneSecondaryPictureByPictureUrl(oldPicture.getPicture());
+
+                for(SecondaryPictureDto newPicture : newSecondaryPicturesDto) {
+
+                    if (oldPicture.getPicture().equals(newPicture.getPicture())) {
+                        secondaryPicture.setNotebook(newNotebook);
+                        this.secondaryPictureRepository.save(secondaryPicture);
+                        existsInNewList = true;
                         break;
                     }
                 }
-                if(!exists){
-                    this.secondaryPictureRepository.delete(actualPicture);
+                if (!existsInNewList) {
+                    this.secondaryPictureRepository.delete(secondaryPicture);
                 }
             }
+//            Si dans la "nouvelle liste" d'image, une image n'existe pas dans l' "ancienne liste", on créé l'image,
+            for (SecondaryPictureDto newPicture : newSecondaryPicturesDto) {
+                boolean existsInOldList = false;
+
+                for(SecondaryPicture oldPicture : oldSecondaryPicturesDto) {
+
+                    if (oldPicture.getPicture() == this.transformUrl.stringToUrl(newPicture.getPicture())) {
+                        existsInOldList = true;
+                        break;
+                    }
+                }
+                if (!existsInOldList) {
+                    this.secondaryPictureService.createSecondaryPicture(newNotebook.getSlug(), newPicture);
+                }
+            }
+        } else {
+            oldSecondaryPicturesDto.forEach(secPicDto -> this.secondaryPictureRepository.delete(findOneSecondaryPictureByPictureUrl(secPicDto.getPicture())));
         }
     }
-    public void deleteNotebookBySlug(String slug){
-        Notebook notebookToDelete = this.notebookRepository.findBySlug(slug)
-                .orElseThrow(NotebookNotFoundException::new);
 
-        this.notebookRepository.delete(notebookToDelete);
+    private SecondaryPicture findOneSecondaryPictureByPictureUrl(URL pictureUrl) {
+        return this.secondaryPictureRepository.findByPicture(pictureUrl).orElseThrow(SecondaryPictureNotFoundException::new);
     }
 }

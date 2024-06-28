@@ -1,6 +1,7 @@
 package fr.vitalitte.vitalittebackend.materials.rest;
 
 import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.materials.models.EMaterialType;
 import fr.vitalitte.vitalittebackend.materials.usecase.MaterialService;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,22 @@ public class MaterialController {
 
     public MaterialController(MaterialService materialService) {
         this.materialService = materialService;
+    }
+
+    @PostMapping("/paginated")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<MaterialDto>> getMaterialsPaginatedBySearchValue(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.materialService.getMaterialsPaginatedBySearchValue(paginationItemBySearchValue));
+    }
+
+    @PostMapping("/counter")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Long> getCounterMaterialsBySearchValue(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.materialService.getCounterMaterialsBySearchValue(paginationItemBySearchValue));
     }
 
     @PostMapping("")

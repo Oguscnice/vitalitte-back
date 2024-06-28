@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.materials.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.materials.rest.CreateMaterialBody;
 import fr.vitalitte.vitalittebackend.materials.rest.MaterialDto;
 
@@ -8,6 +9,8 @@ import java.util.List;
 public interface MaterialService {
     void createMaterial(CreateMaterialBody createMaterialBody);
     List<MaterialDto> findAllMaterials();
+    List<MaterialDto> getMaterialsPaginatedBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue);
+    long getCounterMaterialsBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue);
     List<MaterialDto> findMaterialsAvailableForCustomization();
     MaterialDto findMaterialBySlug(String materialSlug);
     void changeMaterialAvailabilityForCustomization(MaterialDto materialDtoBody);

@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.workshop.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.DecimalMin;
@@ -26,7 +27,7 @@ public class Workshop {
     private String slug;
 
     @NotNull
-    @Size(max = 1000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @NotNull
@@ -42,13 +43,16 @@ public class Workshop {
     @NotNull
     private URL picture;
 
+    @NotNull
+    private URL pictureThumbnail;
+
     private Long registrations;
 
     private boolean isAvailable;
 
     public Workshop() {}
 
-    public Workshop(UUID id, String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, URL picture, Long registrations, boolean isAvailable) {
+    public Workshop(UUID id, String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, URL picture, URL pictureThumbnail, Long registrations, boolean isAvailable) {
         this.id = id;
         this.title = title;
         this.slug = slug;
@@ -57,6 +61,7 @@ public class Workshop {
         this.address = address;
         this.price = price;
         this.picture = picture;
+        this.pictureThumbnail = pictureThumbnail;
         this.registrations = registrations;
         this.isAvailable = isAvailable;
     }
@@ -121,6 +126,14 @@ public class Workshop {
         this.picture = picture;
     }
 
+    public URL getPictureThumbnail() {
+        return pictureThumbnail;
+    }
+
+    public void setPictureThumbnail(URL pictureThumbnail) {
+        this.pictureThumbnail = pictureThumbnail;
+    }
+
     public Long getRegistrations() {
         return registrations;
     }
@@ -137,7 +150,7 @@ public class Workshop {
         isAvailable = available;
     }
 
-    public static WorkshopBuilder builder(){
+    public static WorkshopBuilder builder() {
         return new WorkshopBuilder();
     }
 
@@ -151,9 +164,10 @@ public class Workshop {
         private String address;
         private BigDecimal price;
         private URL picture;
+        private URL pictureThumbnail;
         private Long registrations;
 
-        public WorkshopBuilder title(String title){
+        public WorkshopBuilder title(String title) {
             this.title = title;
             return this;
         }
@@ -188,13 +202,18 @@ public class Workshop {
             return this;
         }
 
+        public WorkshopBuilder pictureThumbnail(URL pictureThumbnail) {
+            this.pictureThumbnail = pictureThumbnail;
+            return this;
+        }
+
         public WorkshopBuilder registrations(Long registrations) {
             this.registrations = registrations;
             return this;
         }
 
         public Workshop build() {
-            return new Workshop(this.id, this.title, this.slug, this.description, this.date, this.address, this.price, this.picture, this.registrations, true);
+            return new Workshop(this.id, this.title, this.slug, this.description, this.date, this.address, this.price, this.picture, this.pictureThumbnail, this.registrations, true);
         }
     }
 }

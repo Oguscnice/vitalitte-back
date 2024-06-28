@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface InscriptionService {
 
-    String createInscription(CreateInscriptionBody createInscriptionBody);
+    InscriptionDto createInscription(CreateInscriptionBody createInscriptionBody);
     InscriptionDto findInscription(String slug);
     List<InscriptionDto> findAllInscriptions();
     List<InscriptionDto> findAllInscriptionsByWorkshop(String workshopSlug);

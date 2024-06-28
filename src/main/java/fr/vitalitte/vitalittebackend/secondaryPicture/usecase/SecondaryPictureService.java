@@ -8,7 +8,8 @@ import fr.vitalitte.vitalittebackend.secondaryPicture.rest.SecondaryPictureDto;
 import java.util.List;
 
 public interface SecondaryPictureService {
-    SecondaryPicture createSecondaryPicture(String notebookSlug, String url);
-    List<SecondaryPictureDto> findAllSecondaryPictureByNotebook(Notebook notebook);
+
+    void createSecondaryPicture(String notebookSlug, SecondaryPictureDto secondaryPictureDto);
+    List<SecondaryPictureDto> findAllSecondaryPicturesByNotebook(Notebook notebook);
 
 }

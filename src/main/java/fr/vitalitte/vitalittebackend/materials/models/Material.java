@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.materials.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.DecimalMin;
@@ -30,11 +31,14 @@ public class Material {
     private BigDecimal price;
 
     @NotBlank
-    @Size(max = 1000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @NotNull
     private URL picture;
+
+    @NotNull
+    private URL pictureThumbnail;
 
     @NotNull
     private EMaterialType materialType;
@@ -45,13 +49,14 @@ public class Material {
 
     public Material() {}
 
-    public Material(UUID id, String name, String slug, BigDecimal price, String description, URL picture, EMaterialType materialType, boolean isAvailable, boolean isAvailableForCustomization) {
+    public Material(UUID id, String name, String slug, BigDecimal price, String description, URL picture, URL pictureThumbnail, EMaterialType materialType, boolean isAvailable, boolean isAvailableForCustomization) {
         this.id = id;
         this.name = name;
         this.slug = slug;
         this.price = price;
         this.description = description;
         this.picture = picture;
+        this.pictureThumbnail = pictureThumbnail;
         this.materialType = materialType;
         this.isAvailable = isAvailable;
         this.isAvailableForCustomization = isAvailableForCustomization;
@@ -101,6 +106,14 @@ public class Material {
         this.picture = picture;
     }
 
+    public URL getPictureThumbnail() {
+        return pictureThumbnail;
+    }
+
+    public void setPictureThumbnail(URL pictureThumbnail) {
+        this.pictureThumbnail = pictureThumbnail;
+    }
+
     public EMaterialType getMaterialType() {
         return materialType;
     }
@@ -137,6 +150,7 @@ public class Material {
         private BigDecimal price;
         private String description;
         private URL picture;
+        private URL pictureThumbnail;
         private EMaterialType materialType;
 
         public MaterialBuilder name(String name) {
@@ -164,13 +178,18 @@ public class Material {
             return this;
         }
 
+        public MaterialBuilder pictureThumbnail(URL pictureThumbnail) {
+            this.pictureThumbnail = pictureThumbnail;
+            return this;
+        }
+
         public MaterialBuilder materialType(EMaterialType materialType) {
             this.materialType = materialType;
             return this;
         }
 
         public Material build() {
-            return new Material(this.uuid, this.name, this.slug, this.price, this.description, this.picture, this.materialType, true, true);
+            return new Material(this.uuid, this.name, this.slug, this.price, this.description, this.picture, this.pictureThumbnail, this.materialType, true, true);
         }
     }
 }

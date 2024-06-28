@@ -12,6 +12,7 @@ import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
 
 @Service
 public class TransformSecondaryPicture {
+
     SecondaryPictureRepository secondaryPictureRepository;
     TransformUrl transformUrl;
 
@@ -22,11 +23,12 @@ public class TransformSecondaryPicture {
 
     public SecondaryPictureDto pictureToDto(SecondaryPicture secondaryPicture){
         return SecondaryPictureDto.builder()
-                .url(this.transformUrl.urlToString(secondaryPicture.getUrl()))
+                .picture(this.transformUrl.urlToString(secondaryPicture.getPicture()))
+                .pictureThumbnail(this.transformUrl.urlToString(secondaryPicture.getPictureThumbnail()))
                 .build();
     }
+
     public List<SecondaryPictureDto> picturesToDtos(List<SecondaryPicture> secondaryPictures) {
         return mapList(this::pictureToDto, secondaryPictures);
     }
-
 }

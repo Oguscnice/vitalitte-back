@@ -3,6 +3,7 @@ package fr.vitalitte.vitalittebackend.common.models;
 import jakarta.validation.constraints.NotBlank;
 
 public class Pagination {
+
     @NotBlank
     private final int page;
 

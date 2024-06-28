@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      #                 Penser à mettre configuration -> Edit -> Active Profil -> local
+      #                 Penser ï¿½ mettre configuration -> Edit -> Active Profil -> local
       on-profile: local
   jpa:
     show-sql: true

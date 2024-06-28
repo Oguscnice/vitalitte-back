@@ -9,16 +9,18 @@ public class MaterialDto {
     private BigDecimal price;
     private String description;
     private String picture;
+    private String pictureThumbnail;
     private String materialType;
     private boolean isAvailable;
     private boolean isAvailableForCustomization;
 
-    public MaterialDto(String name, String slug, BigDecimal price, String description, String picture, String materialType, boolean isAvailable, boolean isAvailableForCustomization) {
+    public MaterialDto(String name, String slug, BigDecimal price, String description, String picture, String pictureThumbnail,String materialType, boolean isAvailable, boolean isAvailableForCustomization) {
         this.name = name;
         this.slug = slug;
         this.price = price;
         this.description = description;
         this.picture = picture;
+        this.pictureThumbnail = pictureThumbnail;
         this.materialType = materialType;
         this.isAvailable = isAvailable;
         this.isAvailableForCustomization = isAvailableForCustomization;
@@ -64,6 +66,14 @@ public class MaterialDto {
         this.picture = picture;
     }
 
+    public String getPictureThumbnail() {
+        return pictureThumbnail;
+    }
+
+    public void setPictureThumbnail(String pictureThumbnail) {
+        this.pictureThumbnail = pictureThumbnail;
+    }
+
     public boolean isAvailableForCustomization() {
         return isAvailableForCustomization;
     }
@@ -99,6 +109,7 @@ public class MaterialDto {
         private BigDecimal price;
         private String description;
         private String picture;
+        private String pictureThumbnail;
         private String materialType;
         private boolean isAvailable;
         private boolean isAvailableForCustomization;
@@ -128,6 +139,11 @@ public class MaterialDto {
             return this;
         }
 
+        public MaterialDtoBuilder pictureThumbnail(String pictureThumbnail){
+            this.pictureThumbnail = pictureThumbnail;
+            return this;
+        }
+
         public MaterialDtoBuilder materialType(String materialType){
             this.materialType = materialType;
             return this;
@@ -142,7 +158,7 @@ public class MaterialDto {
             return this;
         }
         public MaterialDto build(){
-            return new MaterialDto(this.name, this.slug, this.price, this.description, this.picture, this.materialType, this.isAvailable, this.isAvailableForCustomization);
+            return new MaterialDto(this.name, this.slug, this.price, this.description, this.picture, this.pictureThumbnail, this.materialType, this.isAvailable, this.isAvailableForCustomization);
         }
     }
 }

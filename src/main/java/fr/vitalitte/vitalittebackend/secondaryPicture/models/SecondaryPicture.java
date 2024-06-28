@@ -16,48 +16,85 @@ import java.util.UUID;
 
 @Entity
 public class SecondaryPicture {
+
     @Id
     private UUID id;
+
     @NotNull
-    private URL url;
+    private URL picture;
+
+    @NotNull
+    private URL pictureThumbnail;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notebook")
     private Notebook notebook;
 
     public SecondaryPicture(){}
 
-    public SecondaryPicture(UUID id, URL url, Notebook notebook) {
+    public SecondaryPicture(UUID id, URL picture, URL pictureThumbnail, Notebook notebook) {
         this.id = id;
-        this.url = url;
+        this.picture = picture;
+        this.pictureThumbnail = pictureThumbnail;
         this.notebook = notebook;
     }
 
     public UUID getId() {
         return id;
     }
-    public URL getUrl() {
-        return url;
+
+    public URL getPicture() {
+        return picture;
     }
-    public void setUrl(URL url) {
-        this.url = url;
+
+    public void setPicture(URL picture) {
+        this.picture = picture;
     }
-    public Notebook getNotebook() {return notebook;}
-    public void setNotebook(Notebook notebook) {this.notebook = notebook;}
-    public static SecondaryPictureBuilder builder(){return new SecondaryPictureBuilder();}
-    public static class SecondaryPictureBuilder{
+
+    public URL getPictureThumbnail() {
+        return pictureThumbnail;
+    }
+
+    public void setPictureThumbnail(URL pictureThumbnail) {
+        this.pictureThumbnail = pictureThumbnail;
+    }
+
+    public Notebook getNotebook() {
+        return notebook;
+    }
+
+    public void setNotebook(Notebook notebook) {
+        this.notebook = notebook;
+    }
+
+    public static SecondaryPictureBuilder builder() {
+        return new SecondaryPictureBuilder();
+    }
+
+    public static class SecondaryPictureBuilder {
+
         private final UUID id = UUID.randomUUID();
-        private URL url;
+        private URL picture;
+        private URL pictureThumbnail;
         private Notebook notebook;
-        public SecondaryPictureBuilder url(URL url){
-            this.url = url;
+
+        public SecondaryPictureBuilder picture(URL picture){
+            this.picture = picture;
             return this;
         }
+
+        public SecondaryPictureBuilder pictureThumbnail(URL pictureThumbnail){
+            this.pictureThumbnail = pictureThumbnail;
+            return this;
+        }
+
         public SecondaryPictureBuilder notebook(Notebook notebook){
             this.notebook = notebook;
             return this;
         }
+
         public SecondaryPicture build(){
-            return new SecondaryPicture(this.id, this.url, this.notebook);
+            return new SecondaryPicture(this.id, this.picture, this.pictureThumbnail, this.notebook);
         }
     }
 }

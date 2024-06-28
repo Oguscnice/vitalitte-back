@@ -1,6 +1,7 @@
 package fr.vitalitte.vitalittebackend.publication.rest;
 
 import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.publication.usecase.PublicationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,14 +40,16 @@ public class PublicationController {
         return this.publicationService.getPublicationsSpotlighted(boolbool);
     }
 
-    @PostMapping("/count")
-    public Long getCounterPublications(@RequestBody PublicationPaginated publicationPaginated) {
-        return this.publicationService.countPublications(publicationPaginated);
+    @PostMapping("/counter")
+    public ResponseEntity<Long> getCounterPublications(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.publicationService.countPublications(paginationItemBySearchValue));
     }
 
     @PostMapping("/paginated")
-    public List<PublicationDto> getPublicationsByPageAndSize(@RequestBody PublicationPaginated publicationPaginated) {
-        return this.publicationService.getPublicationsByPageAndSize(publicationPaginated);
+    public List<PublicationDto> getPublicationsByPageAndSize(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return this.publicationService.getPublicationsPaginated(paginationItemBySearchValue);
     }
 
     @GetMapping("/{slug}")

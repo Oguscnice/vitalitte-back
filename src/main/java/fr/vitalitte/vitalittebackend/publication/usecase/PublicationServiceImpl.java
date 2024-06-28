@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.publication.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.publication.exception.PublicationNotFoundException;
@@ -8,7 +9,6 @@ import fr.vitalitte.vitalittebackend.publication.models.Publication;
 import fr.vitalitte.vitalittebackend.publication.persistence.PublicationRepository;
 import fr.vitalitte.vitalittebackend.publication.rest.CreatePublicationBody;
 import fr.vitalitte.vitalittebackend.publication.rest.PublicationDto;
-import fr.vitalitte.vitalittebackend.publication.rest.PublicationPaginated;
 import fr.vitalitte.vitalittebackend.workshop.exception.SlugWorkshopAlreadyExistsException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,9 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 @Service
 public class PublicationServiceImpl implements PublicationService {
 
@@ -70,9 +70,9 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public Long countPublications(PublicationPaginated publicationPaginated) {
+    public Long countPublications(PaginationItemBySearchValue paginationItemBySearchValue) {
 
-        String value = publicationPaginated.getValueSearch();
+        String value = paginationItemBySearchValue.getSearchValue();
 
         if (value.isBlank()) {
             return this.publicationRepository.count();
@@ -82,12 +82,12 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public List<PublicationDto> getPublicationsByPageAndSize(PublicationPaginated publicationPaginated) {
+    public List<PublicationDto> getPublicationsPaginated(PaginationItemBySearchValue paginationItemBySearchValue) {
 
-        Pageable pageable = PageRequest.of(publicationPaginated.getPagination().getPage(), publicationPaginated.getPagination().getSize());
+        Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPagination().getPage(), paginationItemBySearchValue.getPagination().getSize());
         Page<Publication> publicationPage;
 
-        String value = publicationPaginated.getValueSearch();
+        String value = paginationItemBySearchValue.getSearchValue();
 
         if (value.isBlank()) {
             publicationPage = this.publicationRepository.findAllByOrderByCreatedAtDesc(pageable);

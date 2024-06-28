@@ -1,5 +1,7 @@
 package fr.vitalitte.vitalittebackend.materials.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.Pagination;
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.materials.exception.MaterialNotFoundException;
@@ -11,6 +13,8 @@ import fr.vitalitte.vitalittebackend.materials.rest.CreateMaterialBody;
 import fr.vitalitte.vitalittebackend.materials.rest.MaterialDto;
 import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
 import fr.vitalitte.vitalittebackend.notebook.persistence.NotebookRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -43,7 +47,8 @@ public class MaterialServiceImpl implements MaterialService {
         }
 
         // transform et vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
-        URL newUrlPicture = this.transformUrl.stringToUrl(createMaterialBody.getPicture());
+        URL urlPicture = this.transformUrl.stringToUrl(createMaterialBody.getPicture());
+        URL urlPictureThumbnail = this.transformUrl.stringToUrl(createMaterialBody.getPictureThumbnail());
 
         EMaterialType materialType = ConvertEumMaterialType.stringToEMaterial(createMaterialBody.getMaterialType());
         final Material newMaterial = Material.builder()
@@ -52,7 +57,8 @@ public class MaterialServiceImpl implements MaterialService {
                                              .description(createMaterialBody.getDescription())
                                              .materialType(materialType)
                                              .price(createMaterialBody.getPrice())
-                                             .picture(newUrlPicture)
+                                             .picture(urlPicture)
+                                             .pictureThumbnail(urlPictureThumbnail)
                                              .build();
 
         this.materialRepository.save(newMaterial);
@@ -66,6 +72,21 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public List<MaterialDto> findMaterialsAvailableForCustomization(){
         return this.transformMaterial.materialsToDto(this.materialRepository.findAllMaterialsByIsAvailableForCustomization(true));
+    }
+
+    @Override
+    public List<MaterialDto> getMaterialsPaginatedBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue) {
+        String searchValue = paginationItemBySearchValue.getSearchValue();
+        Pagination pagination = paginationItemBySearchValue.getPagination();
+        Pageable pageable = PageRequest.of(pagination.getPage(), pagination.getSize());
+        List<Material> materials = this.materialRepository.findAllByNameContainsIgnoreCaseOrderByName(searchValue, pageable);
+        return this.transformMaterial.materialsToDto(materials);
+    }
+
+    @Override
+    public long getCounterMaterialsBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue) {
+        String searchValue = paginationItemBySearchValue.getSearchValue();
+        return this.materialRepository.countByNameContainsIgnoreCase(searchValue);
     }
 
     @Override
@@ -88,12 +109,14 @@ public class MaterialServiceImpl implements MaterialService {
 
         // transform et vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
         URL newUrlPicture = this.transformUrl.stringToUrl(materialDtoUpdated.getPicture());
+        URL newUrlPictureThumbnail = this.transformUrl.stringToUrl(materialDtoUpdated.getPictureThumbnail());
 
         materialToUpdate.setName(materialDtoUpdated.getName());
         materialToUpdate.setSlug(newSlug);
         materialToUpdate.setPrice(materialDtoUpdated.getPrice());
         materialToUpdate.setDescription(materialDtoUpdated.getDescription());
         materialToUpdate.setPicture(newUrlPicture);
+        materialToUpdate.setPictureThumbnail(newUrlPictureThumbnail);
         materialToUpdate.setMaterialType(materialTypeUpdated);
 
         for(Notebook notebook : notebooks){

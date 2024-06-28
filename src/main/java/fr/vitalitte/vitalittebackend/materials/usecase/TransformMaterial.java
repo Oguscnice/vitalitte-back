@@ -24,6 +24,7 @@ public class TransformMaterial {
 
         String materialType = ConvertEumMaterialType.EMaterialToString(material.getMaterialType());
         String picture = this.transformUrl.urlToString(material.getPicture());
+        String pictureThumbnail = this.transformUrl.urlToString(material.getPictureThumbnail());
 
         return MaterialDto.builder()
                 .name(material.getName())
@@ -32,6 +33,7 @@ public class TransformMaterial {
                 .materialType(materialType)
                 .price(material.getPrice())
                 .picture(picture)
+                .pictureThumbnail(pictureThumbnail)
                 .isAvailable(material.isAvailable())
                 .isAvailableForCustomization(material.isAvailableForCustomization())
                 .build();

@@ -28,10 +28,10 @@ public class InscriptionController {
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageResponse> createInscription(@RequestBody CreateInscriptionBody createInscriptionBody) {
-        String slug = this.inscriptionService.createInscription(createInscriptionBody);
+    public ResponseEntity<InscriptionDto> createInscription(@RequestBody CreateInscriptionBody createInscriptionBody) {
+        InscriptionDto inscriptionDto = this.inscriptionService.createInscription(createInscriptionBody);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new MessageResponse(slug));
+                .body(inscriptionDto);
     }
 
     @GetMapping("/count-by-workshop/{workshopSlug}")

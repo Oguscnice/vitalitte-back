@@ -36,7 +36,7 @@ public class InscriptionServiceImpl implements InscriptionService{
     }
 
     @Override
-    public String createInscription(CreateInscriptionBody createInscriptionBody){
+    public InscriptionDto createInscription(CreateInscriptionBody createInscriptionBody){
 
         String newSlug = SlugifyUtil.stringToSlug(SlugifyUtil.dateToFormatDDmmYY(new Date()) + '-' + createInscriptionBody.getLastname() + '-' + createInscriptionBody.getFirstname() + '-' + createInscriptionBody.getEmail() + '-' + createInscriptionBody.getWorkshopDto().getSlug());
 
@@ -60,9 +60,9 @@ public class InscriptionServiceImpl implements InscriptionService{
                 .quantity(createInscriptionBody.getQuantity())
                 .build();
 
-        this.inscriptionRepository.save(newInscription);
+        InscriptionDto inscriptionDto = this.transformInscription.inscriptionToDto(this.inscriptionRepository.save(newInscription));
 
-        return newInscription.getSlug();
+        return inscriptionDto;
     };
 
     @Override

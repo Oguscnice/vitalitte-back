@@ -1,6 +1,7 @@
 package fr.vitalitte.vitalittebackend.materials.persistence;
 
 import fr.vitalitte.vitalittebackend.materials.models.Material;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +13,6 @@ public interface MaterialRepository extends JpaRepository<Material, String> {
     boolean existsBySlug(String slug);
     Optional<Material> findBySlug(String slug);
     List<Material> findAllMaterialsByIsAvailableForCustomization(boolean value);
+    List<Material> findAllByNameContainsIgnoreCaseOrderByName(String name, Pageable pageable);
+    long countByNameContainsIgnoreCase(String name);
 }

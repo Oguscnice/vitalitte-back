@@ -20,8 +20,11 @@ public class TransformWorkshop {
         this.workshopRepository = workshopRepository;
     }
 
-    public WorkshopDto workshopToDto(Workshop workshop){
+    public WorkshopDto workshopToDto(Workshop workshop) {
+
         String picture = this.transformUrl.urlToString(workshop.getPicture());
+        String pictureThumbnail = this.transformUrl.urlToString(workshop.getPictureThumbnail());
+
         return WorkshopDto.builder()
                 .title(workshop.getTitle())
                 .slug(workshop.getSlug())
@@ -30,6 +33,7 @@ public class TransformWorkshop {
                 .address(workshop.getAddress())
                 .price(workshop.getPrice())
                 .picture(picture)
+                .pictureThumbnail(pictureThumbnail)
                 .registrations(workshop.getRegistrations())
                 .isAvailable(workshop.isAvailable())
                 .build();
