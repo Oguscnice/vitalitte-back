@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface SecondaryPictureRepository extends JpaRepository<SecondaryPicture, String> {
-    Optional<SecondaryPicture> findByUrlAndNotebook(URL url, Notebook notebook);
+    Optional<SecondaryPicture> findByPictureAndNotebook(URL picture, Notebook notebook);
+    Optional<SecondaryPicture> findByPicture(URL pictureUrl);
     List<SecondaryPicture> findAllByNotebook(Notebook notebook);
 }

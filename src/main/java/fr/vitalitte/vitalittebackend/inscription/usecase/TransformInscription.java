@@ -16,6 +16,7 @@ import java.util.List;
 
 @Service
 public class TransformInscription {
+
     TransformWorkshop transformWorkshop;
     WorkshopRepository workshopRepository;
     InscriptionRepository inscriptionRepository;
@@ -37,6 +38,9 @@ public class TransformInscription {
                 .phone(inscription.getPhone())
                 .email(inscription.getEmail())
                 .workshopDto(this.transformWorkshop.workshopToDto(workshopFound))
+                .isConfirmed(inscription.isConfirmed())
+                .quantity(inscription.getQuantity())
+                .createdAt(inscription.getCreatedAt())
                 .build();
     }
     public List<InscriptionDto> inscriptionsToDto(List<Inscription> inscriptions){

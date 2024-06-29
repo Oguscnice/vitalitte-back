@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.publication.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.publication.exception.PublicationNotFoundException;
@@ -15,9 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 @Service
 public class PublicationServiceImpl implements PublicationService {
 
@@ -31,6 +32,7 @@ public class PublicationServiceImpl implements PublicationService {
         this.transformUrl = transformUrl;
     }
 
+    @Override
     public void createPublication(CreatePublicationBody createPublicationBody){
         String newSlug = SlugifyUtil.stringToSlug(createPublicationBody.getTitle() + '-' + SlugifyUtil.dateToFormatDDmmYY(new Date()));
 
@@ -51,49 +53,63 @@ public class PublicationServiceImpl implements PublicationService {
 
     }
 
+    @Override
     public List<PublicationDto> getPublicationsSpotlighted(boolean boolbool){
         List<Publication> publications = this.publicationRepository.findAllPublicationsByIsSpotlighted(boolbool);
         return this.transformPublication.publicationsToDtos(publications);
     }
 
+    @Override
     public PublicationDto getPublicationBySlug(String slug){
-        return this.transformPublication.publicationToDto(this.publicationRepository.findBySlug(slug)
-                                                                    .orElseThrow(PublicationNotFoundException::new));
+        return this.transformPublication.publicationToDto(this.findOnePublicationBySlugOrThrow(slug));
     }
+
+    @Override
     public List<PublicationDto> findAllPublications(){
         return this.transformPublication.publicationsToDtos(this.publicationRepository.findAll());
     }
 
-    public Long countAllPublications(){
-        return this.publicationRepository.count();
+    @Override
+    public Long countPublications(PaginationItemBySearchValue paginationItemBySearchValue) {
+
+        String value = paginationItemBySearchValue.getSearchValue();
+
+        if (value.isBlank()) {
+            return this.publicationRepository.count();
+        } else {
+            return this.publicationRepository.countPublicationsByTitleContainsIgnoreCaseOrDescriptionContainsIgnoreCase(value, value);
+        }
     }
 
-    public Long countPublicationsByTitleOrDescriptionContainingValue(String value){
-        return this.publicationRepository.countPublicationsByTitleContainsIgnoreCaseOrDescriptionContainsIgnoreCase(value, value);
-    }
+    @Override
+    public List<PublicationDto> getPublicationsPaginated(PaginationItemBySearchValue paginationItemBySearchValue) {
 
-    public List<PublicationDto> getPublicationsByPage(int pageNumber){
-        Pageable pageable = PageRequest.of(pageNumber, 6);
-        Page<Publication> publicationPage = this.publicationRepository.findAllByOrderByCreatedAtDesc(pageable);
+        Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPagination().getPage(), paginationItemBySearchValue.getPagination().getSize());
+        Page<Publication> publicationPage;
+
+        String value = paginationItemBySearchValue.getSearchValue();
+
+        if (value.isBlank()) {
+            publicationPage = this.publicationRepository.findAllByOrderByCreatedAtDesc(pageable);
+        } else {
+            publicationPage = this.publicationRepository.findAllByTitleContainsIgnoreCaseOrDescriptionContainsIgnoreCaseOrderByCreatedAtDesc(value, value, pageable);
+        }
+
         return this.transformPublication.publicationsToDtos(publicationPage.getContent());
     }
 
-    public List<PublicationDto> getPublicationsByTitleOrDescriptionContainingValue(int pageNumber, String value){
-        Pageable pageable = PageRequest.of(pageNumber, 6);
-        Page<Publication> publicationPage = this.publicationRepository.findAllByTitleContainsIgnoreCaseOrDescriptionContainsIgnoreCaseOrderByCreatedAtDesc(value, value, pageable);
-        return this.transformPublication.publicationsToDtos(publicationPage.getContent());
-    }
+    @Override
     public PublicationDto changePublicationSpotlight(PublicationDto publicationDtoUpdated){
-        Publication publicationToUpdate = this.publicationRepository.findBySlug(publicationDtoUpdated.getSlug())
-                                                    .orElseThrow(PublicationNotFoundException::new);
+        Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
 
         publicationToUpdate.setSpotlighted(!publicationToUpdate.isSpotlighted());
         this.publicationRepository.save(publicationToUpdate);
         return this.transformPublication.publicationToDto(publicationToUpdate);
     }
+
+    @Override
     public void updatePublicationBySlug(PublicationDto publicationDtoUpdated){
-        Publication publicationToUpdate = this.publicationRepository.findBySlug(publicationDtoUpdated.getSlug())
-                .orElseThrow(PublicationNotFoundException::new);
+        Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
 
         String newSlug = SlugifyUtil.stringToSlug(publicationDtoUpdated.getTitle() + '-' + SlugifyUtil.dateToFormatDDmmYY(publicationDtoUpdated.getCreatedAt()));
         if (this.publicationRepository.existsBySlug(newSlug) && !(publicationToUpdate.getSlug().equals(newSlug))){
@@ -109,10 +125,15 @@ public class PublicationServiceImpl implements PublicationService {
 
         this.publicationRepository.save(publicationToUpdate);
     }
+
+    @Override
     public void deletePublicationBySlug(String slug){
-        Publication publicationToDelete = this.publicationRepository.findBySlug(slug)
-                .orElseThrow(PublicationNotFoundException::new);
+        Publication publicationToDelete = this.findOnePublicationBySlugOrThrow(slug);
 
         this.publicationRepository.delete(publicationToDelete);
+    }
+
+    private Publication findOnePublicationBySlugOrThrow(String slug) {
+        return this.publicationRepository.findBySlug(slug).orElseThrow(PublicationNotFoundException::new);
     }
 }

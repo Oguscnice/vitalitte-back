@@ -4,15 +4,17 @@ import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.notebook.exception.NotebookNotFoundException;
 import fr.vitalitte.vitalittebackend.notebook.models.Notebook;
 import fr.vitalitte.vitalittebackend.notebook.persistence.NotebookRepository;
-import fr.vitalitte.vitalittebackend.secondaryPicture.exception.SecondaryPictureNotFoundException;
 import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
 import fr.vitalitte.vitalittebackend.secondaryPicture.persistence.SecondaryPictureRepository;
 import fr.vitalitte.vitalittebackend.secondaryPicture.rest.SecondaryPictureDto;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
 import java.util.List;
+
 @Service
 public class SecondaryPictureServiceImpl implements SecondaryPictureService {
+
     SecondaryPictureRepository secondaryPictureRepository;
     NotebookRepository notebookRepository;
     TransformUrl transformUrl;
@@ -25,16 +27,23 @@ public class SecondaryPictureServiceImpl implements SecondaryPictureService {
         this.transformSecondaryPicture = transformSecondaryPicture;
     }
 
-    public SecondaryPicture createSecondaryPicture(String notebookSlug, String url){
+    public void createSecondaryPicture(String notebookSlug, SecondaryPictureDto secondaryPictureDto) {
+
         Notebook notebookFound = this.notebookRepository.findBySlug(notebookSlug).orElseThrow(NotebookNotFoundException::new);
+
+        URL picture = this.transformUrl.stringToUrl(secondaryPictureDto.getPicture());
+        URL pictureThumbnail = this.transformUrl.stringToUrl(secondaryPictureDto.getPictureThumbnail());
+
         SecondaryPicture newPicture = SecondaryPicture.builder()
-                                                      .url(this.transformUrl.stringToUrl(url))
+                                                      .picture(picture)
+                                                      .pictureThumbnail(pictureThumbnail)
                                                       .notebook(notebookFound)
                                                       .build();
-        return this.secondaryPictureRepository.save(newPicture);
+
+        this.secondaryPictureRepository.save(newPicture);
     }
 
-    public List<SecondaryPictureDto> findAllSecondaryPictureByNotebook(Notebook notebook){
+    public List<SecondaryPictureDto> findAllSecondaryPicturesByNotebook(Notebook notebook){
         List<SecondaryPicture> pictures = this.secondaryPictureRepository.findAllByNotebook(notebook);
         return this.transformSecondaryPicture.picturesToDtos(pictures);
     }

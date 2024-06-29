@@ -1,6 +1,8 @@
 package fr.vitalitte.vitalittebackend.workshop.rest;
 
 import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
+import fr.vitalitte.vitalittebackend.common.models.Pagination;
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.workshop.usecase.WorkshopService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,25 @@ public class WorkshopController {
         this.workshopService.createWorkshop(createWorkshopBody);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("Atelier créé avec succès."));
+    }
+
+    @GetMapping("/date-to-come")
+    public List<WorkshopDto> getWorkshopsByDateToCome() {
+        return this.workshopService.findWorkshopsByDateToCome();
+    }
+
+    @PostMapping("/past-date/paginated")
+    public List<WorkshopDto> getWorkshopsPaginatedByPastDate(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return this.workshopService.findWorkshopsPaginatedByPastDate(paginationItemBySearchValue);
+    }
+
+    @GetMapping("/past-date/counter")
+    public Long getCounterWorkshopsByPastDate() {
+        return this.workshopService.getCounterWorkshopsByPastDate();
+    }
+    @GetMapping("/isAvailable/{value}")
+    public List<WorkshopDto> getWorkshopByisAvailable(@PathVariable boolean value) {
+        return this.workshopService.findWorkshopsIsAvailable(value);
     }
 
     @GetMapping("/{slug}")

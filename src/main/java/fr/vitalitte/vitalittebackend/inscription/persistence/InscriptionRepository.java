@@ -13,5 +13,4 @@ public interface InscriptionRepository extends JpaRepository<Inscription, String
     boolean existsBySlug(String slug);
     Optional<Inscription> findBySlug(String slug);
     List<Inscription> findAllByWorkshop(Workshop workshop);
-    Long countInscriptionsByWorkshop(Workshop workshop);
 }

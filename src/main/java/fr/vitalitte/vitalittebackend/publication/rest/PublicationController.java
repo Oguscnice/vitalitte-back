@@ -1,6 +1,7 @@
 package fr.vitalitte.vitalittebackend.publication.rest;
 
 import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
+import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.publication.usecase.PublicationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,24 +40,16 @@ public class PublicationController {
         return this.publicationService.getPublicationsSpotlighted(boolbool);
     }
 
-    @GetMapping("/count/{value}")
-    public Long getCounterPublicationsByTitleOrDescriptionContainingValue(@PathVariable String value) {
-        return this.publicationService.countPublicationsByTitleOrDescriptionContainingValue(value);
+    @PostMapping("/counter")
+    public ResponseEntity<Long> getCounterPublications(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.publicationService.countPublications(paginationItemBySearchValue));
     }
 
-    @GetMapping("/count")
-    public Long getCounterAllPublications() {
-        return this.publicationService.countAllPublications();
-    }
-
-    @GetMapping("/page-{pageNumber}/{value}")
-    public List<PublicationDto> getPublicationsByPageByTitleOrDescriptionContainingValue(@PathVariable Long pageNumber, @PathVariable String value) {
-        return this.publicationService.getPublicationsByTitleOrDescriptionContainingValue(pageNumber.intValue(), value);
-    }
-
-    @GetMapping("/page-{pageNumber}")
-    public List<PublicationDto> getAllPublicationsByPage(@PathVariable Long pageNumber) {
-        return this.publicationService.getPublicationsByPage(pageNumber.intValue());
+    @PostMapping("/paginated")
+    public List<PublicationDto> getPublicationsByPageAndSize(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return this.publicationService.getPublicationsPaginated(paginationItemBySearchValue);
     }
 
     @GetMapping("/{slug}")

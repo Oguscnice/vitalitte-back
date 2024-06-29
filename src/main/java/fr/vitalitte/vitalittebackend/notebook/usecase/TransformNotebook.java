@@ -18,6 +18,8 @@ import fr.vitalitte.vitalittebackend.notebook.persistence.NotebookRepository;
 import fr.vitalitte.vitalittebackend.notebook.rest.NotebookDto;
 import fr.vitalitte.vitalittebackend.secondaryPicture.models.SecondaryPicture;
 import fr.vitalitte.vitalittebackend.secondaryPicture.persistence.SecondaryPictureRepository;
+import fr.vitalitte.vitalittebackend.secondaryPicture.rest.SecondaryPictureDto;
+import fr.vitalitte.vitalittebackend.secondaryPicture.usecase.TransformSecondaryPicture;
 import org.springframework.stereotype.Service;
 import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
 
@@ -26,20 +28,23 @@ import java.util.List;
 
 @Service
 public class TransformNotebook {
+
     TransformUrl transformUrl;
     TransformCategory transformCategory;
     TransformCollection transformCollection;
     TransformMaterial transformMaterial;
+    TransformSecondaryPicture transformSecondaryPicture;
     NotebookRepository notebookRepository;
     CategoryRepository categoryRepository;
     CollectionRepository collectionRepository;
     SecondaryPictureRepository secondaryPictureRepository;
 
-    public TransformNotebook(TransformUrl transformUrl, TransformCategory transformCategory, TransformCollection transformCollection, TransformMaterial transformMaterial, NotebookRepository notebookRepository, CategoryRepository categoryRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository) {
+    public TransformNotebook(TransformUrl transformUrl, TransformCategory transformCategory, TransformCollection transformCollection, TransformMaterial transformMaterial, TransformSecondaryPicture transformSecondaryPicture, NotebookRepository notebookRepository, CategoryRepository categoryRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository) {
         this.transformUrl = transformUrl;
         this.transformCategory = transformCategory;
         this.transformCollection = transformCollection;
         this.transformMaterial = transformMaterial;
+        this.transformSecondaryPicture = transformSecondaryPicture;
         this.notebookRepository = notebookRepository;
         this.categoryRepository = categoryRepository;
         this.collectionRepository = collectionRepository;
@@ -48,7 +53,8 @@ public class TransformNotebook {
 
     public NotebookDto notebookToDto(Notebook notebook){
 
-        String mainPicture = this.transformUrl.urlToString(notebook.getMainPicture());
+        String picture = this.transformUrl.urlToString(notebook.getPicture());
+        String pictureThumbnail = this.transformUrl.urlToString(notebook.getPictureThumbnail());
 
         CategoryDto categoryDto = null;
         if(notebook.getCategory() != null){
@@ -57,24 +63,22 @@ public class TransformNotebook {
         }
 
         CollectionDto collectionDto = null;
-        if(notebook.getCollection() != null){
+        if(notebook.getCollection() != null) {
             Collection collectionFound = this.collectionRepository.findBySlug(notebook.getCollection().getSlug()).orElseThrow(CollectionNotFoundException::new);
             collectionDto = this.transformCollection.collectionToDto(collectionFound);
         }
 
         List<SecondaryPicture> secondaryPictures = this.secondaryPictureRepository.findAllByNotebook(notebook);
-        List<String> secondaryPicturesUrl = new ArrayList<>();
-        for(SecondaryPicture secondaryPicture : secondaryPictures){
-            secondaryPicturesUrl.add(this.transformUrl.urlToString(secondaryPicture.getUrl()));
-        }
+        List<SecondaryPictureDto> secondaryPicturesDto = this.transformSecondaryPicture.picturesToDtos(secondaryPictures);
 
         return NotebookDto.builder()
                 .name(notebook.getName())
                 .slug(notebook.getSlug())
-                .mainPicture(mainPicture)
+                .picture(picture)
+                .pictureThumbnail(pictureThumbnail)
                 .introduction(notebook.getIntroduction())
                 .price(notebook.getPrice())
-                .secondaryPictures(secondaryPicturesUrl)
+                .secondaryPicturesDto(secondaryPicturesDto)
                 .description(notebook.getDescription())
                 .materialsDto(this.transformMaterial.materialsToDto(notebook.getMaterials()))
                 .categoryDto(categoryDto)

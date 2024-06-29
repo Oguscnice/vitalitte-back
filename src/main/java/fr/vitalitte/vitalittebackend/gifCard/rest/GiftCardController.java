@@ -34,7 +34,7 @@ public class GiftCardController {
     }
 
     @GetMapping("/is-expired/{code}")
-    public boolean isGiftCardExpired(@PathVariable String code) {
+    public boolean isGiftCardExpiredByCode(@PathVariable String code) {
         return this.giftCardService.isExpired(code);
     }
 

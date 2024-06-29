@@ -6,10 +6,13 @@ import fr.vitalitte.vitalittebackend.inscription.rest.InscriptionDto;
 import java.util.List;
 
 public interface InscriptionService {
-    void createInscription(CreateInscriptionBody createInscriptionBody);
-    InscriptionDto findInscriptionBySlug(String slug);
+
+    InscriptionDto createInscription(CreateInscriptionBody createInscriptionBody);
+    InscriptionDto findInscription(String slug);
     List<InscriptionDto> findAllInscriptions();
     List<InscriptionDto> findAllInscriptionsByWorkshop(String workshopSlug);
+    String confirmInscriptionBySlug(String inscriptionSlug);
     void deleteInscriptionBySlug(String slug);
     Long countInscriptionsByWorkshopSlug(String workshopSlug);
+
 }

@@ -11,6 +11,7 @@ import java.util.List;
 
 @Service
 public class TransformMaterial {
+
     MaterialRepository materialRepository;
     TransformUrl transformUrl;
 
@@ -19,9 +20,11 @@ public class TransformMaterial {
         this.transformUrl = transformUrl;
     }
 
-    public MaterialDto materialToDto(Material material){
+    public MaterialDto materialToDto(Material material) {
+
         String materialType = ConvertEumMaterialType.EMaterialToString(material.getMaterialType());
         String picture = this.transformUrl.urlToString(material.getPicture());
+        String pictureThumbnail = this.transformUrl.urlToString(material.getPictureThumbnail());
 
         return MaterialDto.builder()
                 .name(material.getName())
@@ -30,9 +33,12 @@ public class TransformMaterial {
                 .materialType(materialType)
                 .price(material.getPrice())
                 .picture(picture)
+                .pictureThumbnail(pictureThumbnail)
                 .isAvailable(material.isAvailable())
+                .isAvailableForCustomization(material.isAvailableForCustomization())
                 .build();
     }
+
     public List<MaterialDto> materialsToDto(List<Material> materials) {
         return mapList(this::materialToDto, materials);
     }
@@ -41,6 +47,7 @@ public class TransformMaterial {
         return this.materialRepository.findBySlug(materialDto.getSlug())
                         .orElseThrow(MaterialNotFoundException::new);
     }
+
     public List<Material> DtosToMaterials(List<MaterialDto> materialsDto) {
         return mapList(this::DtoToMaterial, materialsDto);
     }

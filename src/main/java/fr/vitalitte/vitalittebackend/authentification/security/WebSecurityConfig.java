@@ -10,7 +10,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,16 +20,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableGlobalMethodSecurity(
-        // securedEnabled = true,
-        // jsr250Enabled = true,
-        prePostEnabled = true)
+@EnableMethodSecurity
 public class WebSecurityConfig {
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    private final AuthEntryPointJwt unauthorizedHandler;
+
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+        this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -56,14 +59,33 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().requestMatchers("/api/**").permitAll();
-//                .anyRequest().authenticated(
-//                .requestMatchers("/api/users/**").permitAll()
-//                .requestMatchers("/api/test/**").permitAll()
-//                .requestMatchers("/api/send-email**").permitAll()
+        http
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(eh -> eh.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(ahr -> ahr
+//                                .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
+//                    .requestMatchers(HttpMethod.POST).permitAll()
+//                .requestMatchers(HttpMethod.POST).hasRole("ADMIN")
+//                .requestMatchers(HttpMethod.PUT).hasRole("ADMIN")
+                                // pas sur ça ??? on a pas d'authentification à l'instant T
+                                // .anyRequest().authenticated()
+//                .requestMatchers(HttpMethod.GET,"/api/articles/**",
+//                                                "/api/categories/**",
+//                                                "/api/tags/**",
+//                                                "/api/sponsors/**",
+//                                                "/api/staffs/**",
+//                                                "/api/players/**").permitAll()
+//                //le User ne fait jamais ces GET en front
+//                .requestMatchers(HttpMethod.GET,"/api/jobs/**",
+//                                                "/api/positions/**",
+//                                                "/api/teams/**").hasRole("ADMIN")
+//                //ces méthodes ne sont que pour l'admin
+                                .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "USER")
+                                .requestMatchers("/api/test/**").permitAll()
+                                .requestMatchers("/api/**").permitAll()
+                );
 
 
         http.authenticationProvider(authenticationProvider());

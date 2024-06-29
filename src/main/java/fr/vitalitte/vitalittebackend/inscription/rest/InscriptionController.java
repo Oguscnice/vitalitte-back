@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,28 +26,38 @@ public class InscriptionController {
     public InscriptionController(InscriptionService inscriptionService) {
         this.inscriptionService = inscriptionService;
     }
+
     @PostMapping("")
-    public ResponseEntity<MessageResponse> createInscription(@RequestBody CreateInscriptionBody createInscriptionBody) {
-        this.inscriptionService.createInscription(createInscriptionBody);
+    public ResponseEntity<InscriptionDto> createInscription(@RequestBody CreateInscriptionBody createInscriptionBody) {
+        InscriptionDto inscriptionDto = this.inscriptionService.createInscription(createInscriptionBody);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new MessageResponse("Inscription réalisée avec succès."));
+                .body(inscriptionDto);
     }
 
     @GetMapping("/count-by-workshop/{workshopSlug}")
     public Long getInscriptionsCounterByWorkshop(@PathVariable String workshopSlug) {
         return this.inscriptionService.countInscriptionsByWorkshopSlug(workshopSlug);
     }
+
     @GetMapping("/workshop/{workshopSlug}")
     public List<InscriptionDto> getInscriptionsByWorkshop(@PathVariable String workshopSlug) {
         return this.inscriptionService.findAllInscriptionsByWorkshop(workshopSlug);
     }
+
     @GetMapping("/{slug}")
     public InscriptionDto getInscriptionBySlug(@PathVariable String slug) {
-        return this.inscriptionService.findInscriptionBySlug(slug);
+        return this.inscriptionService.findInscription(slug);
     }
+
     @GetMapping("")
     public List<InscriptionDto> getAllInscriptions() {
         return this.inscriptionService.findAllInscriptions();
+    }
+
+    @PutMapping("/confirm")
+    public ResponseEntity<MessageResponse> confirmInscriptionBySlug(@RequestBody String inscriptionSlug) {
+        String message = this.inscriptionService.confirmInscriptionBySlug(inscriptionSlug);
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(message));
     }
 
     @DeleteMapping("/{slug}")
