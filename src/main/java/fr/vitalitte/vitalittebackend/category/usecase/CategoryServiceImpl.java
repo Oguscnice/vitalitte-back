@@ -1,6 +1,5 @@
 package fr.vitalitte.vitalittebackend.category.usecase;
 
-
 import fr.vitalitte.vitalittebackend.category.exception.CategoryNotFoundException;
 import fr.vitalitte.vitalittebackend.category.exception.SlugCategoryAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.category.models.Category;
@@ -16,6 +15,7 @@ import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
+
     CategoryRepository categoryRepository;
     TransformCategory transformCategory;
     NotebookRepository notebookRepository;
@@ -29,15 +29,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void createCategory(String categoryName) {
 
-        String newSlug = SlugifyUtil.stringToSlug(categoryName);
-
-        if (this.categoryRepository.existsBySlug(newSlug)) {
-            throw new SlugCategoryAlreadyExistsException();
-        }
+        String categorySlug = SlugifyUtil.stringToSlug(categoryName);
+        verifyIfCategoryExistsBySlug(categorySlug);
 
         final Category newCategory = Category.builder()
                 .name(CapitalizeStringUtil.capitalizeFirstLetter(categoryName))
-                .slug(newSlug)
+                .slug(categorySlug)
                 .build();
 
         this.categoryRepository.save(newCategory);
@@ -46,16 +43,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void updateCategory(String slug, CategoryDto category) {
 
-        Category categoryToUpdate = this.categoryRepository.findBySlug(slug)
-                                                .orElseThrow(CategoryNotFoundException::new);
+        Category categoryToUpdate = findOneCategoryBySlugOrThrow(slug);
 
-        String newSlug = SlugifyUtil.stringToSlug(category.getName());
+        String newCategorySlug = SlugifyUtil.stringToSlug(category.getName());
+        verifyIfCategoryExistsBySlug(newCategorySlug);
 
-        if (this.categoryRepository.existsBySlug(newSlug)) {
-            throw new SlugCategoryAlreadyExistsException();
-        }
-
-        categoryToUpdate.setSlug(newSlug);
+        categoryToUpdate.setSlug(newCategorySlug);
         categoryToUpdate.setName(CapitalizeStringUtil.capitalizeFirstLetter(category.getName()));
 
         this.categoryRepository.save(categoryToUpdate);
@@ -68,10 +61,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategoryBySlug(String slug) {
+    public void deleteCategoryBySlug(String categorySlug) {
 
-        Category categoryFound = this.categoryRepository.findBySlug(slug)
-                                            .orElseThrow(CategoryNotFoundException::new);
+            Category categoryFound = findOneCategoryBySlugOrThrow(categorySlug);
 
         List<Notebook> notebooks = this.notebookRepository.findAllByCategory(categoryFound);
 
@@ -81,5 +73,15 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         this.categoryRepository.delete(categoryFound);
+    }
+
+    private Category findOneCategoryBySlugOrThrow(String categorySlug) {
+        return this.categoryRepository.findBySlug(categorySlug).orElseThrow(CategoryNotFoundException::new);
+    }
+
+    private void verifyIfCategoryExistsBySlug(String slug) {
+        if (this.categoryRepository.existsBySlug(slug)) {
+            throw new SlugCategoryAlreadyExistsException();
+        }
     }
 }

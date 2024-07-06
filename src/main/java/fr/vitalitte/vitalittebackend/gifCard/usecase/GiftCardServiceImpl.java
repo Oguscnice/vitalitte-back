@@ -44,9 +44,13 @@ public class GiftCardServiceImpl implements GiftCardService {
         return this.transformGiftCard.giftCardsToDtos(this.giftCardRepository.findAll());
     };
 
-    public boolean isExpired(String code) {
+    public GiftCardDto findGiftCardByCodeForUser(String code) {
         GiftCard giftCard = findOneGiftCardOrThrow(code);
-        return giftCard.getExpiryDate().isAfter(LocalDateTime.now());
+
+        if (giftCard.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new GifCardNotFoundException();
+        }
+        return this.transformGiftCard.giftCardToDto(giftCard);
     };
 
     public GiftCardDto findGiftCardByCode(String code) {
@@ -66,5 +70,6 @@ public class GiftCardServiceImpl implements GiftCardService {
     private boolean existsByCode(String code) {
         return this.giftCardRepository.existsByCode(code);
     }
+
 }
 

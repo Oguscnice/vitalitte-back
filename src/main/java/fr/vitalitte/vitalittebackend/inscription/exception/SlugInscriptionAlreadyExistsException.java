@@ -4,6 +4,6 @@ import fr.vitalitte.vitalittebackend.common.exception.ResourceAlreadyExistExcept
 
 public class SlugInscriptionAlreadyExistsException extends ResourceAlreadyExistException {
     public SlugInscriptionAlreadyExistsException(){
-        super("Personne déjà inscrite.");
+        super("Participant déjà inscrit.");
     }
 }

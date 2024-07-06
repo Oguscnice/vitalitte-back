@@ -11,6 +11,7 @@ public interface InscriptionService {
     InscriptionDto findInscription(String slug);
     List<InscriptionDto> findAllInscriptions();
     List<InscriptionDto> findAllInscriptionsByWorkshop(String workshopSlug);
+    void changeQuantityInscription(String addOrRemoveParticipant, InscriptionDto inscriptionDto);
     String confirmInscriptionBySlug(String inscriptionSlug);
     void deleteInscriptionBySlug(String slug);
     Long countInscriptionsByWorkshopSlug(String workshopSlug);
