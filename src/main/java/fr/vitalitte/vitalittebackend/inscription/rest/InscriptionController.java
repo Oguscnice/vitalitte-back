@@ -54,15 +54,24 @@ public class InscriptionController {
         return this.inscriptionService.findAllInscriptions();
     }
 
+    @PutMapping("/{addOrRemoveParticipant}")
+    public ResponseEntity<MessageResponse> changeQuantityInscriptionBySlug(@PathVariable String addOrRemoveParticipant, @RequestBody InscriptionDto inscriptionDto) {
+        this.inscriptionService.changeQuantityInscription(addOrRemoveParticipant, inscriptionDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse("Quantité d'inscription(s) modifiée(s) avec succés."));
+    }
+
     @PutMapping("/confirm")
     public ResponseEntity<MessageResponse> confirmInscriptionBySlug(@RequestBody String inscriptionSlug) {
         String message = this.inscriptionService.confirmInscriptionBySlug(inscriptionSlug);
-        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(message));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse(message));
     }
 
     @DeleteMapping("/{slug}")
     public ResponseEntity<MessageResponse> deleteInscriptionBySlug(@PathVariable String slug) {
         this.inscriptionService.deleteInscriptionBySlug(slug);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Inscription supprimés avec succès."));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MessageResponse("Inscription(s) supprimé(s) avec succès."));
     }
 }

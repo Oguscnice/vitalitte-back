@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public interface PublicationRepository extends JpaRepository<Publication, String> {
     boolean existsBySlug(String slug);

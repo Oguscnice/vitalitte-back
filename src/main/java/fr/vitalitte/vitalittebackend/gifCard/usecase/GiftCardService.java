@@ -9,6 +9,6 @@ public interface GiftCardService {
     void createGiftCard(CreateGiftCardBody createGiftCardBody);
     List<GiftCardDto> findAllGiftCards();
     GiftCardDto findGiftCardByCode(String code);
-    boolean isExpired(String code);
+    GiftCardDto findGiftCardByCodeForUser(String code);
     void deleteGiftCardByCode(String code);
 }

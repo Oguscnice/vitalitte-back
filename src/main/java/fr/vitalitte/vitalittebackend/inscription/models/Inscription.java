@@ -49,7 +49,6 @@ public class Inscription {
     private boolean isConfirmed;
 
     @Min(1)
-    @Max(5)
     private int quantity;
 
     @CreationTimestamp

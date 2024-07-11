@@ -20,7 +20,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
+
     CategoryService categoryService;
+
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
@@ -40,12 +42,14 @@ public class CategoryController {
     @PutMapping("/{slug}")
     public ResponseEntity<MessageResponse> updateCategoryBySlug(@PathVariable String slug, @RequestBody CategoryDto categoryDto) {
         this.categoryService.updateCategory(slug, categoryDto);
-        return ResponseEntity.ok(new MessageResponse("Catégorie mise à jour avec succès."));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse("Catégorie mise à jour avec succès."));
     }
 
     @DeleteMapping("/{slug}")
     public ResponseEntity<MessageResponse> deleteCategory(@PathVariable String slug) {
         this.categoryService.deleteCategoryBySlug(slug);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Categorie supprimée avec succès."));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse("Catégorie supprimée avec succès."));
     }
 }

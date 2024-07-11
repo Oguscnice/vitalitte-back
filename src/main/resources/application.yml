@@ -25,8 +25,14 @@ spring:
             enable: true
 #_________________________________________________________________
 
-project:
+vitalitte-project:
   app:
+    scheduled:
+      fixed-delay:
+#        provoque l'effacement des inscriptions non finalisées toutes les 4h
+        delete-unpaid-registrations: 14400000
+#        içi toutes les 5 secondes pour tester
+#        delete-unpaid-registrations: "*/5 * * * * ?"
     jwtSecret: 25e34212-3809-4c08-a867-d6633feb1e29
     #                    8h de connexion
     jwtExpirationMs: 36000000
