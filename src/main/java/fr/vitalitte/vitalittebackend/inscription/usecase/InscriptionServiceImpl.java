@@ -3,7 +3,6 @@ package fr.vitalitte.vitalittebackend.inscription.usecase;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotAvailableException;
 import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotFoundException;
-import fr.vitalitte.vitalittebackend.inscription.exception.SlugInscriptionAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.inscription.models.Inscription;
 import fr.vitalitte.vitalittebackend.inscription.persistence.InscriptionRepository;
 import fr.vitalitte.vitalittebackend.inscription.rest.CreateInscriptionBody;
@@ -12,11 +11,15 @@ import fr.vitalitte.vitalittebackend.workshop.exception.WorkshopNotFoundExceptio
 import fr.vitalitte.vitalittebackend.workshop.models.Workshop;
 import fr.vitalitte.vitalittebackend.workshop.persistence.WorkshopRepository;
 import fr.vitalitte.vitalittebackend.workshop.usecase.TransformWorkshop;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
+@EnableScheduling
 @Service
 public class InscriptionServiceImpl implements InscriptionService {
 
@@ -158,4 +161,18 @@ public class InscriptionServiceImpl implements InscriptionService {
         return inscriptionCounter;
     }
 
+    @Scheduled(fixedDelayString= "${vitalitte-project.app.scheduled.fixed-delay.delete-unpaid-registrations}")
+    public void deleteUnpaidRegistrations() {
+
+        List<Inscription> inscriptionsUnconfirmed = this.inscriptionRepository.findAllByIsConfirmedFalse();
+        // Obtenir la date et l'heure actuelle moins un jour
+        LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
+
+        for (Inscription inscription : inscriptionsUnconfirmed) {
+            if (inscription.getCreatedAt().toLocalDateTime().isBefore(oneDayAgo)) {
+                this.inscriptionRepository.delete(inscription);
+                //TODO : envoyer un mail pour annoncer que la réservation est perdue
+            }
+        }
+    }
 }

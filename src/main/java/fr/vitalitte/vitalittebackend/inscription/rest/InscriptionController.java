@@ -72,6 +72,6 @@ public class InscriptionController {
     public ResponseEntity<MessageResponse> deleteInscriptionBySlug(@PathVariable String slug) {
         this.inscriptionService.deleteInscriptionBySlug(slug);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new MessageResponse("Inscription supprimés avec succès."));
+                .body(new MessageResponse("Inscription(s) supprimé(s) avec succès."));
     }
 }
