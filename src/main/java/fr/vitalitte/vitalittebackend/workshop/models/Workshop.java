@@ -3,17 +3,17 @@ package fr.vitalitte.vitalittebackend.workshop.models;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Entity
 public class Workshop {
 
@@ -43,9 +43,9 @@ public class Workshop {
     @NotNull
     private URL picture;
 
-    @NotNull
     private URL pictureThumbnail;
 
+    @Min(1)
     private Long registrations;
 
     private boolean isAvailable;

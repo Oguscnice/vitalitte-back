@@ -2,6 +2,8 @@ package fr.vitalitte.vitalittebackend.gifCard.usecase;
 
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.gifCard.exception.GifCardNotFoundException;
+import fr.vitalitte.vitalittebackend.gifCard.exception.GiftCardAlreadyUsedException;
+import fr.vitalitte.vitalittebackend.gifCard.exception.GiftCardExpiredException;
 import fr.vitalitte.vitalittebackend.gifCard.exception.SlugOrCodeGiftCardAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.gifCard.models.GiftCard;
 import fr.vitalitte.vitalittebackend.gifCard.persistence.GiftCardRepository;
@@ -48,8 +50,14 @@ public class GiftCardServiceImpl implements GiftCardService {
         GiftCard giftCard = findOneGiftCardOrThrow(code);
 
         if (giftCard.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new GifCardNotFoundException();
+            throw new GiftCardExpiredException();
         }
+
+        //TODO : vérifier que la carte cadeau n'ai pas été utilisé
+//        if (repo de commande.findAllByEmailAndGiftCard) {
+//            throw new GiftCardAlreadyUsedException();
+//        }
+
         return this.transformGiftCard.giftCardToDto(giftCard);
     };
 

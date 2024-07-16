@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/vitalittedb_staging?allowPublicKeyRetrieval=true&useSSL=false
+
+project:
+  app:
+    jwtSecret: staging-jwt-secret

@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/vitalittedb_prod?allowPublicKeyRetrieval=true&useSSL=false
+
+vitalitte-project:
+  app:
+    jwtSecret: 25e34212-3809-4c08-a867-d6633feb1e29

@@ -4,8 +4,10 @@ import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
 import fr.vitalitte.vitalittebackend.common.models.Pagination;
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.workshop.usecase.WorkshopService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/workshops")
+@Validated
 public class WorkshopController {
     WorkshopService workshopService;
 
@@ -29,7 +32,7 @@ public class WorkshopController {
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageResponse> createWorkshop(@RequestBody CreateWorkshopBody createWorkshopBody) {
+    public ResponseEntity<MessageResponse> createWorkshop(@Valid @RequestBody CreateWorkshopBody createWorkshopBody) {
         this.workshopService.createWorkshop(createWorkshopBody);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("Atelier créé avec succès."));
