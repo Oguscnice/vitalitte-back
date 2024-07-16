@@ -12,6 +12,7 @@ import java.util.List;
 
 @Service
 public class TransformPublication {
+
     TransformUrl transformUrl;
     PublicationRepository publicationRepository;
 
@@ -21,13 +22,17 @@ public class TransformPublication {
     }
 
     public PublicationDto publicationToDto(Publication publication) {
+
         String picture = this.transformUrl.urlToString(publication.getPicture());
+        String pictureThumbnail = this.transformUrl.urlToString(publication.getPictureThumbnail());
+
         return PublicationDto.builder()
                 .slug(publication.getSlug())
                 .title(publication.getTitle())
                 .description(publication.getDescription())
                 .isSpotlighted(publication.isSpotlighted())
                 .picture(picture)
+                .pictureThumbnail(pictureThumbnail)
                 .createdAt(publication.getCreatedAt())
                 .build();
     }

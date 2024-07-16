@@ -94,9 +94,11 @@ public class User {
         this.roles = roles;
     }
 
-    public static UserBuilder builder(){return new UserBuilder();}
+    public static UserBuilder builder() {
+        return new UserBuilder();
+    }
 
-    public static class UserBuilder{
+    public static class UserBuilder {
 
         private final UUID id = UUID.randomUUID();
         private String firstname;

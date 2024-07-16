@@ -33,20 +33,21 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public void createPublication(CreatePublicationBody createPublicationBody){
-        String newSlug = SlugifyUtil.stringToSlug(createPublicationBody.getTitle() + '-' + SlugifyUtil.dateToFormatDDmmYY(new Date()));
+    public void createPublication(CreatePublicationBody createPublicationBody) {
 
-        if (this.publicationRepository.existsBySlug(newSlug)){
-            throw new SlugWorkshopAlreadyExistsException();
-        }
+        String publicationSlug = slugifyPublication(createPublicationBody);
 
-        URL newPicture = this.transformUrl.stringToUrl(createPublicationBody.getPicture());
+        existsBySlug(publicationSlug);
+
+        URL picture = this.transformUrl.stringToUrl(createPublicationBody.getPicture());
+        URL pictureThumbnail = this.transformUrl.stringToUrl(createPublicationBody.getPictureThumbnail());
 
         final Publication newPublication = Publication.builder()
-                .slug(newSlug)
+                .slug(publicationSlug)
                 .title(createPublicationBody.getTitle())
                 .description(createPublicationBody.getDescription())
-                .picture(newPicture)
+                .picture(picture)
+                .pictureThumbnail(pictureThumbnail)
                 .build();
 
         this.publicationRepository.save(newPublication);
@@ -54,18 +55,18 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public List<PublicationDto> getPublicationsSpotlighted(boolean boolbool){
-        List<Publication> publications = this.publicationRepository.findAllPublicationsByIsSpotlighted(boolbool);
+    public List<PublicationDto> getPublicationsSpotlighted(boolean value) {
+        List<Publication> publications = this.publicationRepository.findAllPublicationsByIsSpotlighted(value);
         return this.transformPublication.publicationsToDtos(publications);
     }
 
     @Override
-    public PublicationDto getPublicationBySlug(String slug){
+    public PublicationDto getPublicationBySlug(String slug) {
         return this.transformPublication.publicationToDto(this.findOnePublicationBySlugOrThrow(slug));
     }
 
     @Override
-    public List<PublicationDto> findAllPublications(){
+    public List<PublicationDto> findAllPublications() {
         return this.transformPublication.publicationsToDtos(this.publicationRepository.findAll());
     }
 
@@ -99,38 +100,60 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public PublicationDto changePublicationSpotlight(PublicationDto publicationDtoUpdated){
-        Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
+    public PublicationDto changePublicationSpotlight(PublicationDto publicationDtoUpdated) {
 
+        Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
         publicationToUpdate.setSpotlighted(!publicationToUpdate.isSpotlighted());
         this.publicationRepository.save(publicationToUpdate);
+
         return this.transformPublication.publicationToDto(publicationToUpdate);
     }
 
     @Override
-    public void updatePublicationBySlug(PublicationDto publicationDtoUpdated){
+    public void updatePublicationBySlug(PublicationDto publicationDtoUpdated) {
+
         Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
 
-        String newSlug = SlugifyUtil.stringToSlug(publicationDtoUpdated.getTitle() + '-' + SlugifyUtil.dateToFormatDDmmYY(publicationDtoUpdated.getCreatedAt()));
-        if (this.publicationRepository.existsBySlug(newSlug) && !(publicationToUpdate.getSlug().equals(newSlug))){
+        String newPublicationSlug = slugifyPublication(publicationDtoUpdated);
+        existsBySlug(newPublicationSlug);
+        if (!(publicationToUpdate.getSlug().equals(newPublicationSlug))){
             throw new SlugPublicationAlreadyExistsException();
         }
 
         URL newPicture = this.transformUrl.stringToUrl(publicationDtoUpdated.getPicture());
+        URL newPictureThumbnail = this.transformUrl.stringToUrl(publicationDtoUpdated.getPictureThumbnail());
 
         publicationToUpdate.setTitle(publicationDtoUpdated.getTitle());
-        publicationToUpdate.setSlug(newSlug);
+        publicationToUpdate.setSlug(newPublicationSlug);
         publicationToUpdate.setDescription(publicationDtoUpdated.getDescription());
         publicationToUpdate.setPicture(newPicture);
+        publicationToUpdate.setPictureThumbnail(newPictureThumbnail);
 
         this.publicationRepository.save(publicationToUpdate);
     }
 
     @Override
-    public void deletePublicationBySlug(String slug){
+    public void deletePublicationBySlug(String slug) {
         Publication publicationToDelete = this.findOnePublicationBySlugOrThrow(slug);
-
         this.publicationRepository.delete(publicationToDelete);
+    }
+
+    private String slugifyPublication(CreatePublicationBody createPublicationBody) {
+        return slugUtil(createPublicationBody.getTitle());
+    }
+
+    private String slugifyPublication(PublicationDto publicationDto) {
+        return slugUtil(publicationDto.getTitle());
+    }
+
+    private String slugUtil(String title) {
+        return SlugifyUtil.stringToSlug(title + '-' + SlugifyUtil.dateToFormatDDmmYY(new Date()));
+    }
+
+    private void existsBySlug(String slug){
+        if (this.publicationRepository.existsBySlug(slug)){
+            throw new SlugWorkshopAlreadyExistsException();
+        }
     }
 
     private Publication findOnePublicationBySlugOrThrow(String slug) {

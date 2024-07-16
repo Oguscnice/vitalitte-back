@@ -9,21 +9,30 @@ import java.util.List;
 
 @Service
 public class TransformUrl {
-    public String urlToString(URL url){
+
+    public String urlToString(URL url) {
         return url.toString();
     }
+
     public List<String> urlsToString(List<URL> urls){
         return mapList(this::urlToString, urls);
     }
-    public URL stringToUrl(String value){
-        URL newUrl;
+
+    public URL stringToUrl(String value) {
+
+        URL newUrl = null;
+        System.out.println("URL = " + value);
+
         try {
-            newUrl = new URL(value);
+            if (value != null) {
+                newUrl = new URL(value);
+            }
         } catch (Exception e) {
             throw new UrlImageInvalidException();
         }
         return newUrl;
     }
+
     public List<URL> stringsToUrl(List<String> values){
         return mapList(this::stringToUrl, values);
     }
