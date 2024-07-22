@@ -10,6 +10,8 @@ public interface NotebookService {
     void createNotebook(CreateNotebookBody createNotebookBody);
     NotebookDto getNotebookBySlug(String slug);
     List<NotebookDto> findAllNotebooks();
+    List<NotebookDto> findAllNotebooksByCategorySlug(String categorySlug);
+    List<NotebookDto> findAllNotebooksByCollectionSlug(String collectionSlug);
     List<NotebookDto> findAllNotebooksFilteredByCategoryAndCollection(CategoryAndCollection categoryAndCollection);
     NotebookDto changeNotebookAvailability(NotebookDto notebookDto);
     void updateNotebookBySlug(String slug, NotebookDto notebookDtoUpdated);

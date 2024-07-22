@@ -1,0 +1,12 @@
+
+${AnsiColor.YELLOW}**************************************************************************************************
+*                                                                                                *
+*${AnsiColor.BRIGHT_MAGENTA}  ___      ___ ${AnsiColor.YELLOW} ___  _________  ________${AnsiColor.BRIGHT_MAGENTA}   ___       ${AnsiColor.YELLOW} ___  _________  _________   _______       ${AnsiColor.YELLOW}*
+*${AnsiColor.BRIGHT_MAGENTA} |\  \    /  /|${AnsiColor.YELLOW}|\  \|\___   ___\\   __  \${AnsiColor.BRIGHT_MAGENTA} |\  \      ${AnsiColor.YELLOW}|\  \|\___   ___\\___   ___\|\  ___ \      ${AnsiColor.YELLOW}*
+*${AnsiColor.BRIGHT_MAGENTA} \ \  \  /  / |${AnsiColor.YELLOW}| \  \|___ \  \_\ \  \|\  \${AnsiColor.BRIGHT_MAGENTA} \ \  \     ${AnsiColor.YELLOW}\ \  \|___ \  \_\|___ \  \_\ \   __/|     ${AnsiColor.YELLOW}*
+*${AnsiColor.BRIGHT_MAGENTA}  \ \  \/  / / ${AnsiColor.YELLOW} \ \  \   \ \  \ \ \   __  \${AnsiColor.BRIGHT_MAGENTA} \ \  \     ${AnsiColor.YELLOW}\ \  \   \ \  \     \ \  \ \ \  \_|/__   ${AnsiColor.YELLOW}*
+*${AnsiColor.BRIGHT_MAGENTA}   \ \    / /   ${AnsiColor.YELLOW} \ \  \   \ \  \ \ \  \ \  \${AnsiColor.BRIGHT_MAGENTA} \ \  \_____${AnsiColor.YELLOW}\ \  \   \ \  \     \ \  \ \ \  \_|\ \  ${AnsiColor.YELLOW}*
+*${AnsiColor.BRIGHT_MAGENTA}    \ \__/ /     ${AnsiColor.YELLOW} \ \__\   \ \__\ \ \__\ \__\${AnsiColor.BRIGHT_MAGENTA} \ \_______\${AnsiColor.YELLOW}\ \__\   \ \__\     \ \__\ \ \_______\ ${AnsiColor.YELLOW}*
+*${AnsiColor.BRIGHT_MAGENTA}     \|__|/       ${AnsiColor.YELLOW} \|__|    \|__|  \|__|\|__|\${AnsiColor.BRIGHT_MAGENTA} \|_______| ${AnsiColor.YELLOW}\|__|    \|__|      \|__|  \|_______| ${AnsiColor.YELLOW}*
+*                                                                                                *
+**************************************************************************************************
