@@ -2,6 +2,7 @@ package fr.vitalitte.vitalittebackend.publication.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,13 +16,13 @@ public class Publication {
     @Id
     private UUID id;
 
-    @NotNull
+    @NotBlank
     private String slug;
 
-    @NotNull
+    @NotBlank
     private String title;
 
-    @NotNull
+    @NotBlank
     @Size(max = 2000)
     private String description;
 

@@ -31,6 +31,10 @@ public class ReviewDto {
     @Size(max = 255)
     private String email;
 
+    @NotBlank
+    @Size(max = 255)
+    private String title;
+
     @DecimalMin(value = "0.0", inclusive = true)
     @DecimalMax(value = "5.0", inclusive = true)
     @Digits(integer = 1, fraction = 1)
@@ -43,12 +47,13 @@ public class ReviewDto {
 
     public ReviewDto() {}
 
-    public ReviewDto(String content, Timestamp createdAt, String lastname, String firstname, String email, BigDecimal rating, ProductCommonValuesDto productCommonValuesDto, String status) {
+    public ReviewDto(String content, Timestamp createdAt, String lastname, String firstname, String email, String title, BigDecimal rating, ProductCommonValuesDto productCommonValuesDto, String status) {
         this.content = content;
         this.createdAt = createdAt;
         this.lastname = lastname;
         this.firstname = firstname;
         this.email = email;
+        this.title = title;
         this.rating = rating;
         this.productCommonValuesDto = productCommonValuesDto;
         this.status = status;
@@ -94,6 +99,14 @@ public class ReviewDto {
         this.email = email;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public BigDecimal getRating() {
         return rating;
     }
@@ -124,14 +137,15 @@ public class ReviewDto {
 
     public static class ReviewDtoBuilder {
 
-        protected String content;
-        protected Timestamp createdAt;
-        protected String lastname;
-        protected String firstname;
-        protected String email;
-        protected BigDecimal rating;
-        protected ProductCommonValuesDto productCommonValuesDto;
-        protected String status;
+        private String content;
+        private Timestamp createdAt;
+        private String lastname;
+        private String firstname;
+        private String email;
+        private String title;
+        private BigDecimal rating;
+        private ProductCommonValuesDto productCommonValuesDto;
+        private String status;
 
         public ReviewDtoBuilder content(String content) {
             this.content = content;
@@ -158,6 +172,11 @@ public class ReviewDto {
             return this;
         }
 
+        public ReviewDtoBuilder title(String title) {
+            this.title = title;
+            return this;
+        }
+
         public ReviewDtoBuilder rating(BigDecimal rating) {
             this.rating = rating;
             return this;
@@ -173,7 +192,7 @@ public class ReviewDto {
             return this;
         }
         public ReviewDto build() {
-            return new ReviewDto(this.content, this.createdAt, this.lastname, this.firstname, this.email, this.rating, this.productCommonValuesDto, this.status);
+            return new ReviewDto(this.content, this.createdAt, this.lastname, this.firstname, this.email, this.title, this.rating, this.productCommonValuesDto, this.status);
         }
     }
 }

@@ -25,7 +25,7 @@ public class Review {
     private UUID id;
 
     @NotBlank
-    @Size(max = 5000)
+    @Size(min = 1, max = 5000)
     private String content;
 
     @CreationTimestamp
@@ -43,6 +43,10 @@ public class Review {
     @Size(max = 255)
     private String email;
 
+    @NotBlank
+    @Size(max = 255)
+    private String title;
+
     @DecimalMin(value = "0.0", inclusive = true)
     @DecimalMax(value = "5.0", inclusive = true)
     @Digits(integer = 1, fraction = 1)
@@ -56,12 +60,13 @@ public class Review {
 
     public Review() {}
 
-    public Review(UUID id, String content, String lastname, String firstname, String email, BigDecimal rating, ProductCommonValues productCommonValues, EReviewStatus status) {
+    public Review(UUID id, String content, String lastname, String firstname, String email, String title, BigDecimal rating, ProductCommonValues productCommonValues, EReviewStatus status) {
         this.id = id;
         this.content = content;
         this.lastname = lastname;
         this.firstname = firstname;
         this.email = email;
+        this.title = title;
         this.rating = rating;
         this.productCommonValues = productCommonValues;
         this.status = status;
@@ -111,6 +116,14 @@ public class Review {
         this.email = email;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public BigDecimal getRating() {
         return rating;
     }
@@ -146,6 +159,7 @@ public class Review {
         private String lastname;
         private String firstname;
         private String email;
+        private String title;
         private BigDecimal rating;
         private ProductCommonValues productCommonValues;
         private EReviewStatus status;
@@ -170,6 +184,11 @@ public class Review {
             return this;
         }
 
+        public ReviewBuilder title(String title) {
+            this.title = title;
+            return this;
+        }
+
         public ReviewBuilder rating(BigDecimal rating) {
             this.rating = rating;
             return this;
@@ -186,7 +205,7 @@ public class Review {
         }
 
         public Review build() {
-            return new Review(this.id, this.content, this.lastname, this.firstname, this.email, this.rating, this.productCommonValues, this.status);
+            return new Review(this.id, this.content, this.lastname, this.firstname, this.email, this.title, this.rating, this.productCommonValues, this.status);
         }
     }
 }

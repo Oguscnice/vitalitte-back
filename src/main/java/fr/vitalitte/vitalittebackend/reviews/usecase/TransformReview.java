@@ -41,6 +41,7 @@ public class TransformReview {
                 .lastname(review.getLastname())
                 .firstname(review.getFirstname())
                 .email(review.getEmail())
+                .title(review.getTitle())
                 .rating(review.getRating())
                 .status(status)
                 .productCommonValuesDto(productDto)

@@ -48,6 +48,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .lastname(createReviewBody.getLastname())
                 .firstname(createReviewBody.getFirstname())
                 .email(createReviewBody.getEmail())
+                .title(createReviewBody.getTitle())
                 .rating(createReviewBody.getRating())
                 .status(EReviewStatus.EN_ATTENTE_DE_VALIDATION)
                 .product(product)
@@ -79,7 +80,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         BigDecimal rating = paginationReviewsFiltered.getRating();
-        BigDecimal ratingMax = rating.add(BigDecimal.ONE);
+        BigDecimal ratingMax = rating.add(BigDecimal.valueOf(0.5));
         if (rating.equals(BigDecimal.ZERO)) {
             ratingMax = BigDecimal.valueOf(5);
         }

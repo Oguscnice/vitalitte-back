@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.inscription.usecase;
 
+import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotAvailableException;
 import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotFoundException;
@@ -132,7 +133,12 @@ public class InscriptionServiceImpl implements InscriptionService {
         inscriptionToUpdated.setConfirmed(true);
         this.inscriptionRepository.save(inscriptionToUpdated);
 
-        return String.format("L'inscription pour %d personne(s) au nom de %s %s pour l'atelier : %s du %s, est réalisé avec succès.", inscriptionToUpdated.getQuantity(), inscriptionToUpdated.getFirstname(), inscriptionToUpdated.getLastname(), workshop.getTitle(), workshop.getDate());
+        return String.format("L'inscription pour %d personne(s) au nom de %s %s pour l'atelier : %s du %s, est réalisée avec succès.",
+                inscriptionToUpdated.getQuantity(),
+                CapitalizeStringUtil.firstLetter(inscriptionToUpdated.getFirstname()),
+                inscriptionToUpdated.getLastname().toUpperCase(),
+                workshop.getTitle(),
+                workshop.getDate());
     }
 
     @Override

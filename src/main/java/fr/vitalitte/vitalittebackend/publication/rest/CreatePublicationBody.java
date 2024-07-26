@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.publication.rest;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -7,14 +8,14 @@ import java.net.URL;
 
 public class CreatePublicationBody {
 
-    @NotNull
+    @NotBlank
     private final String title;
 
-    @NotNull
+    @NotBlank
     @Size(max = 2000)
     private final String description;
 
-    @NotNull
+    @NotBlank
     private final String picture;
 
     private final String pictureThumbnail;

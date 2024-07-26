@@ -34,7 +34,7 @@ public class CollectionServiceImpl implements CollectionService {
         }
 
         final Collection newCollection = Collection.builder()
-                .name(CapitalizeStringUtil.capitalizeFirstLetter(collectionName))
+                .name(CapitalizeStringUtil.firstLetter(collectionName))
                 .slug(newSlug)
                 .build();
 
