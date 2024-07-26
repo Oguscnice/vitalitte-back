@@ -1,11 +1,13 @@
 package fr.vitalitte.vitalittebackend.workshop.rest;
 
 import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
-import fr.vitalitte.vitalittebackend.common.models.Pagination;
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.workshop.usecase.WorkshopService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/workshops")
+@Validated
 public class WorkshopController {
     WorkshopService workshopService;
 
@@ -29,57 +32,55 @@ public class WorkshopController {
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageResponse> createWorkshop(@RequestBody CreateWorkshopBody createWorkshopBody) {
+    public ResponseEntity<MessageResponse> createWorkshop(@Valid @RequestBody CreateWorkshopBody createWorkshopBody) {
         this.workshopService.createWorkshop(createWorkshopBody);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("Atelier créé avec succès."));
     }
 
     @GetMapping("/date-to-come")
-    public List<WorkshopDto> getWorkshopsByDateToCome() {
-        return this.workshopService.findWorkshopsByDateToCome();
+    public ResponseEntity<List<WorkshopDto>> getWorkshopsByDateToCome() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.workshopService.findWorkshopsByDateToCome());
     }
 
     @PostMapping("/past-date/paginated")
-    public List<WorkshopDto> getWorkshopsPaginatedByPastDate(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
-        return this.workshopService.findWorkshopsPaginatedByPastDate(paginationItemBySearchValue);
+    public ResponseEntity<Page<WorkshopDto>> getWorkshopsPaginatedByPastDate(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.workshopService.findWorkshopsPaginatedByPastDate(paginationItemBySearchValue));
     }
 
-    @GetMapping("/past-date/counter")
-    public Long getCounterWorkshopsByPastDate() {
-        return this.workshopService.getCounterWorkshopsByPastDate();
-    }
-    @GetMapping("/isAvailable/{value}")
-    public List<WorkshopDto> getWorkshopByisAvailable(@PathVariable boolean value) {
-        return this.workshopService.findWorkshopsIsAvailable(value);
+    @GetMapping("/is-available/{value}")
+    public ResponseEntity<List<WorkshopDto>> getWorkshopByisAvailable(@PathVariable boolean value) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.workshopService.findWorkshopsIsAvailable(value));
     }
 
     @GetMapping("/{slug}")
-    public WorkshopDto getWorkshopBySlug(@PathVariable String slug) {
-        return this.workshopService.getWorkbookBySlug(slug);
-    }
-
-    @GetMapping("")
-    public List<WorkshopDto> getAllWorkshops() {
-        return this.workshopService.findAllWorkshops();
+    public ResponseEntity<WorkshopDto> getWorkshopBySlug(@PathVariable String slug) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.workshopService.getWorkbookBySlug(slug));
     }
 
     @PutMapping("/availability")
     public ResponseEntity<MessageResponse> updateAvailabilityWorkshop(@RequestBody WorkshopDto workshopDto) {
         WorkshopDto workshopDtoUpdated =  this.workshopService.changeWorkshopAvailability(workshopDto);
         String message = String.format("Atelier %s est %s.", workshopDtoUpdated.getTitle(), workshopDtoUpdated.isAvailable() ? "Disponible" : "Indisponible");
-        return ResponseEntity.ok(new MessageResponse(message));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse(message));
     }
 
     @PutMapping("/{slug}")
     public ResponseEntity<MessageResponse> updateWorkshopBySlug(@PathVariable String slug, @RequestBody WorkshopDto workshopDto) {
         this.workshopService.updateWorkshopBySlug(workshopDto);
-        return ResponseEntity.ok(new MessageResponse("Atelier mis à jour avec succès."));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse("Atelier mis à jour avec succès."));
     }
 
     @DeleteMapping("/{slug}")
     public ResponseEntity<MessageResponse> deleteWorkshop(@PathVariable String slug) {
         this.workshopService.deleteWorkshopBySlug(slug);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Atelier supprimé avec succès."));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MessageResponse("Atelier supprimé avec succès."));
     }
 }

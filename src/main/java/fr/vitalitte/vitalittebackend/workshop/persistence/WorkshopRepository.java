@@ -17,5 +17,4 @@ public interface WorkshopRepository extends JpaRepository<Workshop, String> {
     List<Workshop> findAllWorkshopByIsAvailable(boolean value);
     List<Workshop> findAllWorkshopByDateAfterOrderByDateDesc(LocalDateTime date);
     Page<Workshop> findWorkshopsByTitleContainsIgnoreCaseAndDateBeforeOrderByDateDesc(String value, LocalDateTime date, Pageable pageable);
-    Long countWorkshopsByDateBefore(LocalDateTime date);
 }

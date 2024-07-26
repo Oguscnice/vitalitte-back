@@ -13,16 +13,21 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 @Entity
 public class GiftCard {
+
     @Id
     private UUID id;
+
     @NotBlank
     @Size(min = 1, max = 50)
     private String code;
+
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer=3, fraction=2)
     private BigDecimal rising;
+
     @NotNull
     private LocalDateTime expiryDate;
+
     private boolean isPercentage;
 
     public GiftCard() {}

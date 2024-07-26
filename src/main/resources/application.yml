@@ -1,16 +1,12 @@
 spring:
-  config:
-    activate:
-      #                 Penser � mettre configuration -> Edit -> Active Profil -> local
-      on-profile: local
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:mysql://localhost:3306/vitalittedb?allowPublicKeyRetrieval=true&useSSL=false
     password: password
-    username: gus
+    username: root
+
 #__________pour les mails _______________________________________
   mail:
     host: smtp.mailjet.com
@@ -25,8 +21,9 @@ spring:
             enable: true
 #_________________________________________________________________
 
-project:
+vitalitte-project:
   app:
-    jwtSecret: 25e34212-3809-4c08-a867-d6633feb1e29
-    #                    8h de connexion
-    jwtExpirationMs: 36000000
+    scheduled:
+      fixed-delay:
+        delete-unpaid-registrations: 14400000 # provoque l'effacement des inscriptions non finalisées toutes les 4h
+    jwtExpirationMs: 36000000 # 8h de connexion

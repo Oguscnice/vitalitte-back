@@ -2,14 +2,14 @@ package fr.vitalitte.vitalittebackend.common.models;
 
 public class PaginationItemBySearchValue {
 
-    String searchValue;
-    Pagination pagination;
+    private String searchValue;
+    private PageableValues pageableValues;
 
     public String getSearchValue() {
         return searchValue;
     }
 
-    public Pagination getPagination() {
-        return pagination;
+    public PageableValues getPageableValues() {
+        return pageableValues;
     }
 }

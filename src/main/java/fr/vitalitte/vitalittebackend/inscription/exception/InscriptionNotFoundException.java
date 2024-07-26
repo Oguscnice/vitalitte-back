@@ -4,6 +4,6 @@ import fr.vitalitte.vitalittebackend.common.exception.ResourceNotFoundException;
 
 public class InscriptionNotFoundException extends ResourceNotFoundException {
     public InscriptionNotFoundException(){
-        super("Personne inscrite non trouvée.");
+        super("Participant(e)(s) non trouvé(e)(s).");
     }
 }

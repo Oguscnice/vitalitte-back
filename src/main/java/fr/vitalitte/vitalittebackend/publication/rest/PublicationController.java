@@ -3,6 +3,7 @@ package fr.vitalitte.vitalittebackend.publication.rest;
 import fr.vitalitte.vitalittebackend.common.models.MessageResponse;
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.publication.usecase.PublicationService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -40,25 +42,14 @@ public class PublicationController {
         return this.publicationService.getPublicationsSpotlighted(boolbool);
     }
 
-    @PostMapping("/counter")
-    public ResponseEntity<Long> getCounterPublications(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(this.publicationService.countPublications(paginationItemBySearchValue));
-    }
-
     @PostMapping("/paginated")
-    public List<PublicationDto> getPublicationsByPageAndSize(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
-        return this.publicationService.getPublicationsPaginated(paginationItemBySearchValue);
+    public Page<PublicationDto> getPublicationsPaginatedBySearchValue(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
+        return this.publicationService.getPublicationsPaginatedBySearchValue(paginationItemBySearchValue);
     }
 
     @GetMapping("/{slug}")
     public PublicationDto getPublicationBySlug(@PathVariable String slug) {
         return this.publicationService.getPublicationBySlug(slug);
-    }
-    @GetMapping("")
-    public List<PublicationDto> getAllPublications() {
-        return this.publicationService.findAllPublications();
     }
 
     @PutMapping("/spotlighted")

@@ -2,6 +2,8 @@ package fr.vitalitte.vitalittebackend.gifCard.usecase;
 
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.gifCard.exception.GifCardNotFoundException;
+import fr.vitalitte.vitalittebackend.gifCard.exception.GiftCardAlreadyUsedException;
+import fr.vitalitte.vitalittebackend.gifCard.exception.GiftCardExpiredException;
 import fr.vitalitte.vitalittebackend.gifCard.exception.SlugOrCodeGiftCardAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.gifCard.models.GiftCard;
 import fr.vitalitte.vitalittebackend.gifCard.persistence.GiftCardRepository;
@@ -44,9 +46,19 @@ public class GiftCardServiceImpl implements GiftCardService {
         return this.transformGiftCard.giftCardsToDtos(this.giftCardRepository.findAll());
     };
 
-    public boolean isExpired(String code) {
+    public GiftCardDto findGiftCardByCodeForUser(String code) {
         GiftCard giftCard = findOneGiftCardOrThrow(code);
-        return giftCard.getExpiryDate().isAfter(LocalDateTime.now());
+
+        if (giftCard.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new GiftCardExpiredException();
+        }
+
+        //TODO : vérifier que la carte cadeau n'ai pas été utilisé
+//        if (repo de commande.findAllByEmailAndGiftCard) {
+//            throw new GiftCardAlreadyUsedException();
+//        }
+
+        return this.transformGiftCard.giftCardToDto(giftCard);
     };
 
     public GiftCardDto findGiftCardByCode(String code) {
@@ -66,5 +78,6 @@ public class GiftCardServiceImpl implements GiftCardService {
     private boolean existsByCode(String code) {
         return this.giftCardRepository.existsByCode(code);
     }
+
 }
 

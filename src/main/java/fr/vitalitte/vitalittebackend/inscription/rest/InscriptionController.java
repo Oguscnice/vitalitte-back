@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,15 +53,24 @@ public class InscriptionController {
         return this.inscriptionService.findAllInscriptions();
     }
 
+    @PutMapping("/{addOrRemoveParticipant}")
+    public ResponseEntity<MessageResponse> changeQuantityInscriptionBySlug(@PathVariable String addOrRemoveParticipant, @RequestBody InscriptionDto inscriptionDto) {
+        this.inscriptionService.changeQuantityInscription(addOrRemoveParticipant, inscriptionDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse("Quantité d'inscription(s) modifiée(s) avec succés."));
+    }
+
     @PutMapping("/confirm")
     public ResponseEntity<MessageResponse> confirmInscriptionBySlug(@RequestBody String inscriptionSlug) {
         String message = this.inscriptionService.confirmInscriptionBySlug(inscriptionSlug);
-        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(message));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse(message));
     }
 
     @DeleteMapping("/{slug}")
     public ResponseEntity<MessageResponse> deleteInscriptionBySlug(@PathVariable String slug) {
         this.inscriptionService.deleteInscriptionBySlug(slug);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Inscription supprimés avec succès."));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MessageResponse("Inscription(s) supprimé(s) avec succès."));
     }
 }
