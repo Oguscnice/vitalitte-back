@@ -44,9 +44,6 @@ public class InscriptionServiceImpl implements InscriptionService {
         while (this.inscriptionRepository.existsBySlug(newSlug)) {
             newSlug = newSlug + "bis";
         }
-//        if (this.inscriptionRepository.existsBySlug(newSlug)) {
-//            throw new SlugInscriptionAlreadyExistsException();
-//        }
 
         Workshop workshop = this.findWorkshopBySlug(createInscriptionBody.getWorkshopDto().getSlug());
 
