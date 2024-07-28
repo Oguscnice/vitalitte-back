@@ -39,7 +39,6 @@ public class PublicationServiceImpl implements PublicationService {
         String publicationSlug = slugifyPublication(createPublicationBody);
 
         existsBySlug(publicationSlug);
-
         URL picture = this.transformUrl.stringToUrl(createPublicationBody.getPicture());
         URL pictureThumbnail = this.transformUrl.stringToUrl(createPublicationBody.getPictureThumbnail());
 
