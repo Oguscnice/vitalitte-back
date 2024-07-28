@@ -58,6 +58,7 @@ public class NotebookServiceImpl implements NotebookService {
         this.transformUrl = transformUrl;
     }
 
+    @Override
     public void createNotebook(CreateNotebookBody createNotebookBody) {
 
         String newNotebookSlug = slugifyNotebookByName(createNotebookBody.getName());
@@ -78,9 +79,9 @@ public class NotebookServiceImpl implements NotebookService {
                 .slug(newNotebookSlug)
                 .picture(picture)
                 .pictureThumbnail(pictureThumbnail)
-                .introduction(createNotebookBody.getIntroduction())
                 .price(createNotebookBody.getPrice())
                 .description(createNotebookBody.getDescription())
+                .introduction(createNotebookBody.getIntroduction())
                 .category(categoryFound)
                 .collection(collectionFound)
                 .materials(materials)
@@ -91,14 +92,35 @@ public class NotebookServiceImpl implements NotebookService {
         createSecondaryPictures(newNotebookSlug, createNotebookBody.getSecondaryPicturesDto());
     }
 
-    public NotebookDto getNotebookBySlug(String slug){
+    @Override
+    public NotebookDto getNotebookBySlug(String slug) {
         return this.transformNotebook.notebookToDto(findOneNotebookBySlugOrThrow(slug));
     }
 
-    public List<NotebookDto> findAllNotebooks(){
+    @Override
+    public List<NotebookDto> findAllNotebooks() {
         return this.transformNotebook.notebooksToDto(this.notebookRepository.findAll());
     }
 
+    @Override
+    public List<NotebookDto> findAllNotebooksByCategorySlug(String categorySlug) {
+
+        Category category = findOneCategoryBySlugOrThrow(categorySlug);
+
+        List<Notebook> notebooks = this.notebookRepository.findAllByCategory(category);
+        return this.transformNotebook.notebooksToDto(notebooks);
+    }
+
+    @Override
+    public List<NotebookDto> findAllNotebooksByCollectionSlug(String collectionSlug) {
+
+        Collection collection = findOneCollectionBySlugOrThrow(collectionSlug);
+
+        List<Notebook> notebooks = this.notebookRepository.findAllByCollection(collection);
+        return this.transformNotebook.notebooksToDto(notebooks);
+    }
+
+    @Override
     public List<NotebookDto> findAllNotebooksFilteredByCategoryAndCollection(CategoryAndCollection categoryAndCollection) {
 
         Category categoryFound = null;

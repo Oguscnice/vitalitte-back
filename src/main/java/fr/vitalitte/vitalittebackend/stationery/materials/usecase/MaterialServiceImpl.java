@@ -1,6 +1,5 @@
 package fr.vitalitte.vitalittebackend.stationery.materials.usecase;
 
-import fr.vitalitte.vitalittebackend.common.models.Pagination;
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
@@ -14,6 +13,10 @@ import fr.vitalitte.vitalittebackend.stationery.materials.rest.CreateMaterialBod
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.MaterialDto;
 import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
 import fr.vitalitte.vitalittebackend.stationery.notebook.persistence.NotebookRepository;
+import fr.vitalitte.vitalittebackend.workshop.models.Workshop;
+import fr.vitalitte.vitalittebackend.workshop.rest.WorkshopDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -76,18 +79,14 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialDto> getMaterialsPaginatedBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue) {
-        String searchValue = paginationItemBySearchValue.getSearchValue();
-        Pagination pagination = paginationItemBySearchValue.getPagination();
-        Pageable pageable = PageRequest.of(pagination.getPage(), pagination.getSize());
-        List<Material> materials = this.materialRepository.findAllByNameContainsIgnoreCaseOrderByName(searchValue, pageable);
-        return this.transformMaterial.materialsToDto(materials);
-    }
+    public Page<MaterialDto> getMaterialsPaginatedBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue) {
 
-    @Override
-    public long getCounterMaterialsBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue) {
-        String searchValue = paginationItemBySearchValue.getSearchValue();
-        return this.materialRepository.countByNameContainsIgnoreCase(searchValue);
+        String value = paginationItemBySearchValue.getSearchValue();
+        Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPageableValues().getPageNumber(), paginationItemBySearchValue.getPageableValues().getPageSize());
+        Page<Material> materialPage = this.materialRepository.findAllByNameContainsIgnoreCaseOrderByName(value, pageable);
+        List<MaterialDto> materialDtoList = this.transformMaterial.materialsToDto(materialPage.getContent());
+
+        return new PageImpl<>(materialDtoList, pageable, materialPage.getTotalElements());
     }
 
     @Override

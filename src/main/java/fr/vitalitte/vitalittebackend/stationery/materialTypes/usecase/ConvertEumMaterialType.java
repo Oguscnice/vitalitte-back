@@ -7,28 +7,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConvertEumMaterialType {
     public static String EMaterialToString(EMaterialType eMaterialType){
-        switch (eMaterialType){
-            case COUVERTURE:
-                return "COUVERTURE";
-            case RELIURE:
-                return "RELIURE";
-            case PAPIER:
-                return "PAPIER";
-            default:
-                throw new MaterialTypeNotFoundException();
-        }
+        return switch (eMaterialType) {
+            case COUVERTURE -> "COUVERTURE";
+            case RELIURE -> "RELIURE";
+            case PAPIER -> "PAPIER";
+            default -> throw new MaterialTypeNotFoundException();
+        };
     }
 
     public static EMaterialType stringToEMaterial(String genderString){
-        switch (genderString){
-            case "COUVERTURE":
-                return EMaterialType.COUVERTURE;
-            case "RELIURE":
-                return EMaterialType.RELIURE;
-            case "PAPIER":
-                return EMaterialType.PAPIER;
-            default:
-                throw new MaterialTypeNotFoundException();
-        }
+        return switch (genderString) {
+            case "COUVERTURE" -> EMaterialType.COUVERTURE;
+            case "RELIURE" -> EMaterialType.RELIURE;
+            case "PAPIER" -> EMaterialType.PAPIER;
+            default -> throw new MaterialTypeNotFoundException();
+        };
     }
 }

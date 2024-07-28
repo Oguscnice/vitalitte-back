@@ -31,11 +31,11 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
         final DeliveryOption deliveryOption = DeliveryOption.builder()
                 .slug(deliveryOptionSlug)
-                .name(CapitalizeStringUtil.capitalizeFirstLetter(createDeliveryOptionBody.getName()))
+                .name(CapitalizeStringUtil.firstLetter(createDeliveryOptionBody.getName()))
                 .price(createDeliveryOptionBody.getPrice())
                 .estimatedDeliveryTime(createDeliveryOptionBody.getEstimatedDeliveryTime())
                 .isExpress(createDeliveryOptionBody.getIsExpress())
-                .carrier(CapitalizeStringUtil.capitalizeFirstLetter(createDeliveryOptionBody.getCarrier()))
+                .carrier(CapitalizeStringUtil.firstLetter(createDeliveryOptionBody.getCarrier()))
                 .description(createDeliveryOptionBody.getDescription())
                 .build();
 
@@ -53,10 +53,10 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
         }
 
         deliveryOptionToUpdate.setSlug(newDeliveryOptionSlug);
-        deliveryOptionToUpdate.setName(CapitalizeStringUtil.capitalizeFirstLetter(deliveryOptionDtoUpdated.getName()));
+        deliveryOptionToUpdate.setName(CapitalizeStringUtil.firstLetter(deliveryOptionDtoUpdated.getName()));
         deliveryOptionToUpdate.setPrice(deliveryOptionDtoUpdated.getPrice());
         deliveryOptionToUpdate.setEstimatedDeliveryTime(deliveryOptionDtoUpdated.getEstimatedDeliveryTime());
-        deliveryOptionToUpdate.setCarrier(CapitalizeStringUtil.capitalizeFirstLetter(deliveryOptionDtoUpdated.getCarrier()));
+        deliveryOptionToUpdate.setCarrier(CapitalizeStringUtil.firstLetter(deliveryOptionDtoUpdated.getCarrier()));
         deliveryOptionToUpdate.setDescription(deliveryOptionDtoUpdated.getDescription());
 
         this.deliveryOptionRepository.save(deliveryOptionToUpdate);

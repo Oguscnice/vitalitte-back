@@ -1,9 +1,11 @@
 package fr.vitalitte.vitalittebackend.stationery.notebook.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.vitalitte.vitalittebackend.stationery.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.MaterialDto;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
+import jakarta.persistence.Column;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,6 +23,8 @@ public class NotebookDto {
     private List<MaterialDto> materialsDto;
     private CategoryDto categoryDto;
     private CollectionDto collectionDto;
+
+    @Column(name = "isAvailable")
     private boolean isAvailable;
 
     public NotebookDto(String name, String slug, String picture, String pictureThumbnail, String introduction, BigDecimal price, List<SecondaryPictureDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, boolean isAvailable) {
@@ -126,10 +130,12 @@ public class NotebookDto {
         this.collectionDto = collectionDto;
     }
 
+    @JsonProperty("isAvailable")
     public boolean isAvailable() {
         return isAvailable;
     }
 
+    @JsonProperty("isAvailable")
     public void setAvailable(boolean available) {
         isAvailable = available;
     }

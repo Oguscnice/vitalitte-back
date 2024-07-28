@@ -38,36 +38,54 @@ public class NotebookController {
     }
 
     @PostMapping("/filtered-by-category-collection")
-    public List<NotebookDto> getNotebooksFilteredByCategoryAndCollection(@RequestBody CategoryAndCollection categoryAndCollection) {
-        return this.notebookService.findAllNotebooksFilteredByCategoryAndCollection(categoryAndCollection);
+    public ResponseEntity<List<NotebookDto>> getNotebooksFilteredByCategoryAndCollection(@RequestBody CategoryAndCollection categoryAndCollection) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.notebookService.findAllNotebooksFilteredByCategoryAndCollection(categoryAndCollection));
+    }
+
+    @GetMapping("/category/{categorySlug}")
+    public ResponseEntity<List<NotebookDto>> getNotebookByCategorySlug(@PathVariable String categorySlug) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.notebookService.findAllNotebooksByCategorySlug(categorySlug));
+    }
+
+    @GetMapping("/collection/{collectionSlug}")
+    public ResponseEntity<List<NotebookDto>> getNotebookByCollectionSlug(@PathVariable String collectionSlug) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.notebookService.findAllNotebooksByCollectionSlug(collectionSlug));
     }
 
     @GetMapping("/{slug}")
-    public NotebookDto getNotebookBySlug(@PathVariable String slug) {
-        return this.notebookService.getNotebookBySlug(slug);
+    public ResponseEntity<NotebookDto> getNotebookBySlug(@PathVariable String slug) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.notebookService.getNotebookBySlug(slug));
     }
 
     @GetMapping("")
-    public List<NotebookDto> getAllNotebooks() {
-        return this.notebookService.findAllNotebooks();
+    public ResponseEntity<List<NotebookDto>> getAllNotebooks() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.notebookService.findAllNotebooks());
     }
 
     @PutMapping("/availability")
     public ResponseEntity<MessageResponse> updateAvailabilityNotebook(@RequestBody NotebookDto notebookDto) {
         NotebookDto notebookDtoUpdated =  this.notebookService.changeNotebookAvailability(notebookDto);
         String message = String.format("Carnet %s est %s.", notebookDtoUpdated.getName(), notebookDtoUpdated.isAvailable() ? "Disponible" : "Indisponible");
-        return ResponseEntity.ok(new MessageResponse(message));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse(message));
     }
 
     @PutMapping("/{slug}")
     public ResponseEntity<MessageResponse> updateCategoryBySlug(@PathVariable String slug, @RequestBody NotebookDto notebookDto) {
         this.notebookService.updateNotebookBySlug(slug, notebookDto);
-        return ResponseEntity.ok(new MessageResponse("Carnet mis à jour avec succès."));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse("Carnet mis à jour avec succès."));
     }
 
     @DeleteMapping("/{slug}")
     public ResponseEntity<MessageResponse> deleteNotebook(@PathVariable String slug) {
         this.notebookService.deleteNotebookBySlug(slug);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Carnet supprimé avec succès."));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MessageResponse("Carnet supprimé avec succès."));
     }
 }

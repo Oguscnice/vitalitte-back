@@ -33,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
         verifyIfCategoryExistsBySlug(categorySlug);
 
         final Category newCategory = Category.builder()
-                .name(CapitalizeStringUtil.capitalizeFirstLetter(categoryName))
+                .name(CapitalizeStringUtil.firstLetter(categoryName))
                 .slug(categorySlug)
                 .build();
 
@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
         verifyIfCategoryExistsBySlug(newCategorySlug);
 
         categoryToUpdate.setSlug(newCategorySlug);
-        categoryToUpdate.setName(CapitalizeStringUtil.capitalizeFirstLetter(category.getName()));
+        categoryToUpdate.setName(CapitalizeStringUtil.firstLetter(category.getName()));
 
         this.categoryRepository.save(categoryToUpdate);
     }

@@ -1,9 +1,10 @@
 package fr.vitalitte.vitalittebackend.workshop.usecase;
 
-import fr.vitalitte.vitalittebackend.common.models.Pagination;
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.publication.models.Publication;
+import fr.vitalitte.vitalittebackend.publication.rest.PublicationDto;
 import fr.vitalitte.vitalittebackend.workshop.exception.SlugWorkshopAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.workshop.exception.WorkshopNotFoundException;
 import fr.vitalitte.vitalittebackend.workshop.models.Workshop;
@@ -11,6 +12,7 @@ import fr.vitalitte.vitalittebackend.workshop.persistence.WorkshopRepository;
 import fr.vitalitte.vitalittebackend.workshop.rest.CreateWorkshopBody;
 import fr.vitalitte.vitalittebackend.workshop.rest.WorkshopDto;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -63,34 +65,28 @@ public class WorkshopServiceImpl implements WorkshopService {
         return this.transformWorkshop.workshopToDto(findOneWorkshopBySlugOrThrow(slug));
     };
 
-    @Override
-    public List<WorkshopDto> findAllWorkshops(){
-        return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAll());
-    };
-
     public List<WorkshopDto> findWorkshopsByDateToCome(){
         LocalDateTime date = LocalDateTime.now();
         return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByDateAfterOrderByDateDesc(date));
-    };
+    }
 
     @Override
-    public List<WorkshopDto> findWorkshopsPaginatedByPastDate(PaginationItemBySearchValue paginationItemBySearchValue){
-        LocalDateTime date = LocalDateTime.now();
-        Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPagination().getPage(), paginationItemBySearchValue.getPagination().getSize());
-        Page<Workshop> workshopPage = this.workshopRepository.findWorkshopsByTitleContainsIgnoreCaseAndDateBeforeOrderByDateDesc(paginationItemBySearchValue.getSearchValue(), date, pageable);
-        return this.transformWorkshop.workshopsToDto(workshopPage.getContent());
-    };
+    public Page<WorkshopDto> findWorkshopsPaginatedByPastDate(PaginationItemBySearchValue paginationItemBySearchValue){
 
-    @Override
-    public Long getCounterWorkshopsByPastDate(){
         LocalDateTime date = LocalDateTime.now();
-        return this.workshopRepository.countWorkshopsByDateBefore(date);
-    };
+        String value = paginationItemBySearchValue.getSearchValue();
+        Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPageableValues().getPageNumber(), paginationItemBySearchValue.getPageableValues().getPageSize());
+
+        Page<Workshop> workshopPage = this.workshopRepository.findWorkshopsByTitleContainsIgnoreCaseAndDateBeforeOrderByDateDesc(value, date, pageable);
+        List<WorkshopDto> workshopDtoList = this.transformWorkshop.workshopsToDto(workshopPage.getContent());
+
+        return new PageImpl<>(workshopDtoList, pageable, workshopPage.getTotalElements());
+    }
 
     @Override
     public List<WorkshopDto> findWorkshopsIsAvailable(boolean value){
         return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByIsAvailable(value));
-    };
+    }
 
     @Override
     public WorkshopDto changeWorkshopAvailability(WorkshopDto workshopDtoUpdated){

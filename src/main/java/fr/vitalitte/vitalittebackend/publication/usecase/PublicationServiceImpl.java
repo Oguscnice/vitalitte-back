@@ -11,6 +11,7 @@ import fr.vitalitte.vitalittebackend.publication.rest.CreatePublicationBody;
 import fr.vitalitte.vitalittebackend.publication.rest.PublicationDto;
 import fr.vitalitte.vitalittebackend.workshop.exception.SlugWorkshopAlreadyExistsException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,6 @@ public class PublicationServiceImpl implements PublicationService {
         String publicationSlug = slugifyPublication(createPublicationBody);
 
         existsBySlug(publicationSlug);
-
         URL picture = this.transformUrl.stringToUrl(createPublicationBody.getPicture());
         URL pictureThumbnail = this.transformUrl.stringToUrl(createPublicationBody.getPictureThumbnail());
 
@@ -66,37 +66,17 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public List<PublicationDto> findAllPublications() {
-        return this.transformPublication.publicationsToDtos(this.publicationRepository.findAll());
-    }
-
-    @Override
-    public Long countPublications(PaginationItemBySearchValue paginationItemBySearchValue) {
+    public Page<PublicationDto> getPublicationsPaginatedBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue) {
 
         String value = paginationItemBySearchValue.getSearchValue();
+        String title = value.isBlank() ? null : value;
+        String description = value.isBlank() ? null : value;
+        Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPageableValues().getPageNumber(), paginationItemBySearchValue.getPageableValues().getPageSize());
 
-        if (value.isBlank()) {
-            return this.publicationRepository.count();
-        } else {
-            return this.publicationRepository.countPublicationsByTitleContainsIgnoreCaseOrDescriptionContainsIgnoreCase(value, value);
-        }
-    }
+        Page<Publication> publicationPage = this.publicationRepository.findAllByTitleOrDescriptionOrderByCreatedAtDesc(title, description, pageable);
+        List<PublicationDto> publicationDtoList = this.transformPublication.publicationsToDtos(publicationPage.getContent());
 
-    @Override
-    public List<PublicationDto> getPublicationsPaginated(PaginationItemBySearchValue paginationItemBySearchValue) {
-
-        Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPagination().getPage(), paginationItemBySearchValue.getPagination().getSize());
-        Page<Publication> publicationPage;
-
-        String value = paginationItemBySearchValue.getSearchValue();
-
-        if (value.isBlank()) {
-            publicationPage = this.publicationRepository.findAllByOrderByCreatedAtDesc(pageable);
-        } else {
-            publicationPage = this.publicationRepository.findAllByTitleContainsIgnoreCaseOrDescriptionContainsIgnoreCaseOrderByCreatedAtDesc(value, value, pageable);
-        }
-
-        return this.transformPublication.publicationsToDtos(publicationPage.getContent());
+        return new PageImpl<>(publicationDtoList, pageable, publicationPage.getTotalElements());
     }
 
     @Override
