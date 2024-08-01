@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface MaterialRepository extends JpaRepository<Material, String> {
     boolean existsBySlug(String slug);
     Optional<Material> findBySlug(String slug);
-    List<Material> findAllMaterialsByIsAvailableForCustomization(boolean value);
+    List<Material> findAllMaterialsByIsAvailableForCustomizationOrderByName(boolean value);
     Page<Material> findAllByNameContainsIgnoreCaseOrderByName(String name, Pageable pageable);
 }

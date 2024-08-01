@@ -7,8 +7,8 @@ import fr.vitalitte.vitalittebackend.stationery.collection.persistence.Collectio
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
-import fr.vitalitte.vitalittebackend.stationery.notebook.persistence.NotebookRepository;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
+import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,12 +17,12 @@ import java.util.List;
 public class CollectionServiceImpl implements CollectionService {
     CollectionRepository collectionRepository;
     TransformCollection transformCollection;
-    NotebookRepository notebookRepository;
+    ProductRepository productRepository;
 
-    public CollectionServiceImpl(CollectionRepository collectionRepository, TransformCollection transformCollection, NotebookRepository notebookRepository) {
+    public CollectionServiceImpl(CollectionRepository collectionRepository, TransformCollection transformCollection, ProductRepository productRepository) {
         this.collectionRepository = collectionRepository;
         this.transformCollection = transformCollection;
-        this.notebookRepository = notebookRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -68,11 +68,11 @@ public class CollectionServiceImpl implements CollectionService {
         Collection collectionFound = this.collectionRepository.findBySlug(slug)
                 .orElseThrow(CollectionNotFoundException::new);
 
-        List<Notebook> notebooks = this.notebookRepository.findAllByCollection(collectionFound);
+        List<Product> products = this.productRepository.findAllByCollection(collectionFound);
 
-        for (Notebook notebook : notebooks) {
-            notebook.setCollection(null);
-            this.notebookRepository.save(notebook);
+        for (Product product : products) {
+            product.setCollection(null);
+            this.productRepository.save(product);
         }
 
         this.collectionRepository.delete(collectionFound);

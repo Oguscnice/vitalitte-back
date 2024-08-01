@@ -1,4 +1,4 @@
-package fr.vitalitte.vitalittebackend.stationery.notebook.rest;
+package fr.vitalitte.vitalittebackend.stationery.product.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.vitalitte.vitalittebackend.stationery.category.rest.CategoryDto;
@@ -10,7 +10,7 @@ import jakarta.persistence.Column;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class NotebookDto {
+public class ProductDto {
 
     private String name;
     private String slug;
@@ -23,11 +23,12 @@ public class NotebookDto {
     private List<MaterialDto> materialsDto;
     private CategoryDto categoryDto;
     private CollectionDto collectionDto;
+    private String productType;
 
     @Column(name = "isAvailable")
     private boolean isAvailable;
 
-    public NotebookDto(String name, String slug, String picture, String pictureThumbnail, String introduction, BigDecimal price, List<SecondaryPictureDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, boolean isAvailable) {
+    public ProductDto(String name, String slug, String picture, String pictureThumbnail, String introduction, BigDecimal price, List<SecondaryPictureDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, boolean isAvailable, String productType) {
         this.name = name;
         this.slug = slug;
         this.picture = picture;
@@ -40,6 +41,7 @@ public class NotebookDto {
         this.categoryDto = categoryDto;
         this.collectionDto = collectionDto;
         this.isAvailable = isAvailable;
+        this.productType = productType;
     }
 
     public String getName() {
@@ -110,7 +112,7 @@ public class NotebookDto {
         return materialsDto;
     }
 
-    public void setMaterials(List<MaterialDto> materialsDto) {
+    public void setMaterialsDto(List<MaterialDto> materialsDto) {
         this.materialsDto = materialsDto;
     }
 
@@ -140,11 +142,19 @@ public class NotebookDto {
         isAvailable = available;
     }
 
-    public static NotebookDtoBuilder builder() {
-        return new NotebookDtoBuilder();
+    public String getProductType() {
+        return productType;
     }
 
-    public static class NotebookDtoBuilder {
+    public void setProductType(String productType) {
+        this.productType = productType;
+    }
+
+    public static ProductDtoBuilder builder() {
+        return new ProductDtoBuilder();
+    }
+
+    public static class ProductDtoBuilder {
 
         private String name;
         private String slug;
@@ -158,69 +168,89 @@ public class NotebookDto {
         private CategoryDto categoryDto;
         private CollectionDto collectionDto;
         private boolean isAvailable;
+        private String productType;
 
-        public NotebookDtoBuilder name(String name){
+        public ProductDtoBuilder name(String name) {
             this.name = name;
             return this;
         }
 
-        public NotebookDtoBuilder slug(String slug){
+        public ProductDtoBuilder slug(String slug) {
             this.slug = slug;
             return this;
         }
 
-        public NotebookDtoBuilder picture(String picture){
+        public ProductDtoBuilder picture(String picture) {
             this.picture = picture;
             return this;
         }
 
-        public NotebookDtoBuilder pictureThumbnail(String pictureThumbnail){
+        public ProductDtoBuilder pictureThumbnail(String pictureThumbnail) {
             this.pictureThumbnail = pictureThumbnail;
             return this;
         }
 
-        public NotebookDtoBuilder introduction(String introduction){
+        public ProductDtoBuilder introduction(String introduction) {
             this.introduction = introduction;
             return this;
         }
 
-        public NotebookDtoBuilder price(BigDecimal price){
+        public ProductDtoBuilder price(BigDecimal price) {
             this.price = price;
             return this;
         }
 
-        public NotebookDtoBuilder secondaryPicturesDto(List<SecondaryPictureDto> secondaryPicturesDto){
+        public ProductDtoBuilder secondaryPicturesDto(List<SecondaryPictureDto> secondaryPicturesDto) {
             this.secondaryPicturesDto = secondaryPicturesDto;
             return this;
         }
 
-        public NotebookDtoBuilder description(String description){
+        public ProductDtoBuilder description(String description) {
             this.description = description;
             return this;
         }
 
-        public NotebookDtoBuilder materialsDto(List<MaterialDto> materialsDto){
+        public ProductDtoBuilder materialsDto(List<MaterialDto> materialsDto) {
             this.materialsDto = materialsDto;
             return this;
         }
 
-        public NotebookDtoBuilder categoryDto(CategoryDto categoryDto){
+        public ProductDtoBuilder categoryDto(CategoryDto categoryDto) {
             this.categoryDto = categoryDto;
             return this;
         }
 
-        public NotebookDtoBuilder collectionDto(CollectionDto collectionDto){
+        public ProductDtoBuilder collectionDto(CollectionDto collectionDto) {
             this.collectionDto = collectionDto;
             return this;
         }
 
-        public NotebookDtoBuilder isAvailable(boolean isAvailable){
+        public ProductDtoBuilder isAvailable(boolean isAvailable) {
             this.isAvailable = isAvailable;
             return this;
         }
 
-        public NotebookDto build(){
-            return new NotebookDto(this.name, this.slug, this.picture, this.pictureThumbnail, this.introduction, this.price, this.secondaryPicturesDto, this.description, this.materialsDto, this.categoryDto, this.collectionDto, this.isAvailable);
+        public ProductDtoBuilder productType(String productType) {
+            this.productType = productType;
+            return this;
+        }
+
+        public ProductDto build() {
+            return new ProductDto(
+                    this.name,
+                    this.slug,
+                    this.picture,
+                    this.pictureThumbnail,
+                    this.introduction,
+                    this.price,
+                    this.secondaryPicturesDto,
+                    this.description,
+                    this.materialsDto,
+                    this.categoryDto,
+                    this.collectionDto,
+                    this.isAvailable,
+                    this.productType
+            );
         }
     }
 }

@@ -1,6 +1,6 @@
 package fr.vitalitte.vitalittebackend.reviews.rest;
 
-import fr.vitalitte.vitalittebackend.stationery.common.rest.ProductCommonValuesDto;
+import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -38,16 +38,16 @@ public class CreateReviewBody {
     private final BigDecimal rating;
 
     @NotNull
-    private ProductCommonValuesDto productCommonValuesDto;
+    private ProductDto productDto;
 
-    public CreateReviewBody(String content, String lastname, String firstname, String email, String title, BigDecimal rating, ProductCommonValuesDto productCommonValuesDto) {
+    public CreateReviewBody(String content, String lastname, String firstname, String email, String title, BigDecimal rating, ProductDto productDto) {
         this.content = content;
         this.lastname = lastname;
         this.firstname = firstname;
         this.email = email;
         this.title = title;
         this.rating = rating;
-        this.productCommonValuesDto = productCommonValuesDto;
+        this.productDto = productDto;
     }
 
     public String getContent() {
@@ -74,7 +74,7 @@ public class CreateReviewBody {
         return rating;
     }
 
-    public ProductCommonValuesDto getProductCommonValuesDto() {
-        return productCommonValuesDto;
+    public ProductDto getProductDto() {
+        return productDto;
     }
 }

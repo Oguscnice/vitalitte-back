@@ -189,7 +189,17 @@ public class Material {
         }
 
         public Material build() {
-            return new Material(this.uuid, this.name, this.slug, this.price, this.description, this.picture, this.pictureThumbnail, this.materialType, true, true);
+            return new Material(
+                    this.uuid,
+                    this.name,
+                    this.slug,
+                    this.price,
+                    this.description,
+                    this.picture,
+                    this.pictureThumbnail,
+                    this.materialType,
+                    true,
+                    true);
         }
     }
 }

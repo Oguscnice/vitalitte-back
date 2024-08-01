@@ -8,10 +8,10 @@ import fr.vitalitte.vitalittebackend.reviews.models.Review;
 import fr.vitalitte.vitalittebackend.reviews.persistence.ReviewRepository;
 import fr.vitalitte.vitalittebackend.reviews.rest.CreateReviewBody;
 import fr.vitalitte.vitalittebackend.reviews.rest.ReviewDto;
-import fr.vitalitte.vitalittebackend.stationery.common.exception.ProductNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.common.models.ProductCommonValues;
-import fr.vitalitte.vitalittebackend.stationery.common.persistence.ProductCommonValuesRepository;
-import fr.vitalitte.vitalittebackend.stationery.common.usecase.TransformProductCommonValues;
+import fr.vitalitte.vitalittebackend.stationery.product.exception.ProductNotFoundException;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
+import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
+import fr.vitalitte.vitalittebackend.stationery.product.usecase.TransformProduct;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,11 +25,11 @@ import java.util.List;
 public class ReviewServiceImpl implements ReviewService {
 
     ReviewRepository reviewRepository;
-    ProductCommonValuesRepository productRepository;
+    ProductRepository productRepository;
     TransformReview transformReview;
-    TransformProductCommonValues transformProduct;
+    TransformProduct transformProduct;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, ProductCommonValuesRepository productRepository, TransformReview transformReview, TransformProductCommonValues transformProduct) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, ProductRepository productRepository, TransformReview transformReview, TransformProduct transformProduct) {
         this.reviewRepository = reviewRepository;
         this.productRepository = productRepository;
         this.transformReview = transformReview;
@@ -41,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         verifyIfReviewAlreadyExistsForThisProduct(createReviewBody);
 
-        ProductCommonValues product = this.transformProduct.dtoToProductCV(createReviewBody.getProductCommonValuesDto());
+        Product product = this.transformProduct.dtoToProduct(createReviewBody.getProductDto());
 
         final Review review = Review.builder()
                 .content(createReviewBody.getContent())
@@ -85,19 +85,19 @@ public class ReviewServiceImpl implements ReviewService {
             ratingMax = BigDecimal.valueOf(5);
         }
 
-        ProductCommonValues product = null;
-        if (paginationReviewsFiltered.getProductCommonValuesDto() != null) {
-            product = this.transformProduct.dtoToProductCV(paginationReviewsFiltered.getProductCommonValuesDto());
+        Product product = null;
+        if (paginationReviewsFiltered.getProductDto() != null) {
+            product = this.transformProduct.dtoToProduct(paginationReviewsFiltered.getProductDto());
         }
 
-        Page<Review> reviewsProduct = this.reviewRepository.findAllReviewsByProductCommonValuesAndStatusAndRatingIsBetweenOrderByCreatedAtDesc(pageable, product, eStatus, rating, ratingMax);
+        Page<Review> reviewsProduct = this.reviewRepository.findAllReviewsByProductAndStatusAndRatingIsBetweenOrderByCreatedAtDesc(pageable, product, eStatus, rating, ratingMax);
 
         List<ReviewDto> reviewDtoList = this.transformReview.reviewsToDtos(reviewsProduct.getContent());
         return new PageImpl<>(reviewDtoList, pageable, reviewsProduct.getTotalElements());
     }
 
-    private ProductCommonValues findProductByProductSlug(String productSlug) {
-        return this.productRepository.findBySlug(productSlug).orElseThrow(ProductNotFoundException::new);
+    private Product findProductByProductSlug(String productSlug) {
+        return this.productRepository.findBySlug(productSlug).orElseThrow(() -> new ProductNotFoundException("Produit"));
     }
 
     private EReviewStatus extractEStatusFromPaginationPaginationReviewsFiltered(PaginationReviewsFiltered paginationReviewsFiltered) {
@@ -105,8 +105,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private void verifyIfReviewAlreadyExistsForThisProduct(CreateReviewBody createReviewBody) {
-        ProductCommonValues product = findProductByProductSlug(createReviewBody.getProductCommonValuesDto().getSlug());
-        if (this.reviewRepository.existsByProductCommonValuesAndEmail(product, createReviewBody.getEmail())) {
+        Product product = findProductByProductSlug(createReviewBody.getProductDto().getSlug());
+        if (this.reviewRepository.existsByProductAndEmail(product, createReviewBody.getEmail())) {
             throw new ReviewAlreadyPostedException();
         }
     }

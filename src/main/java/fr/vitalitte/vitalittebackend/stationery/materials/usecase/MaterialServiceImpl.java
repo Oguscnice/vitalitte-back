@@ -11,10 +11,8 @@ import fr.vitalitte.vitalittebackend.stationery.materials.models.Material;
 import fr.vitalitte.vitalittebackend.stationery.materials.persistence.MaterialRepository;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.CreateMaterialBody;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.MaterialDto;
-import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
-import fr.vitalitte.vitalittebackend.stationery.notebook.persistence.NotebookRepository;
-import fr.vitalitte.vitalittebackend.workshop.models.Workshop;
-import fr.vitalitte.vitalittebackend.workshop.rest.WorkshopDto;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
+import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,13 +30,13 @@ public class MaterialServiceImpl implements MaterialService {
     MaterialRepository materialRepository;
     TransformMaterial transformMaterial;
     TransformUrl transformUrl;
-    NotebookRepository notebookRepository;
+    ProductRepository productRepository;
 
-    public MaterialServiceImpl(MaterialRepository materialRepository, TransformMaterial transformMaterial, TransformUrl transformUrl, NotebookRepository notebookRepository) {
+    public MaterialServiceImpl(MaterialRepository materialRepository, TransformMaterial transformMaterial, TransformUrl transformUrl, ProductRepository productRepository) {
         this.materialRepository = materialRepository;
         this.transformMaterial = transformMaterial;
         this.transformUrl = transformUrl;
-        this.notebookRepository = notebookRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -54,7 +52,7 @@ public class MaterialServiceImpl implements MaterialService {
         URL urlPicture = this.transformUrl.stringToUrl(createMaterialBody.getPicture());
         URL urlPictureThumbnail = this.transformUrl.stringToUrl(createMaterialBody.getPictureThumbnail());
 
-        EMaterialType materialType = ConvertEumMaterialType.stringToEMaterial(createMaterialBody.getMaterialType());
+        EMaterialType materialType = ConvertEumMaterialType.StringToEnum(createMaterialBody.getMaterialType());
         final Material newMaterial = Material.builder()
                                              .name(createMaterialBody.getName())
                                              .slug(newSlug)
@@ -75,7 +73,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public List<MaterialDto> findMaterialsAvailableForCustomization(){
-        return this.transformMaterial.materialsToDto(this.materialRepository.findAllMaterialsByIsAvailableForCustomization(true));
+        return this.transformMaterial.materialsToDto(this.materialRepository.findAllMaterialsByIsAvailableForCustomizationOrderByName(true));
     }
 
     @Override
@@ -104,8 +102,8 @@ public class MaterialServiceImpl implements MaterialService {
             throw new SlugMaterialAlreadyExistsException();
         }
 
-        List<Notebook> notebooks = this.notebookRepository.findAllByMaterialsContaining(materialToUpdate);
-        EMaterialType materialTypeUpdated = ConvertEumMaterialType.stringToEMaterial(materialDtoUpdated.getMaterialType());
+        List<Product> products = this.productRepository.findAllByMaterialsContaining(materialToUpdate);
+        EMaterialType materialTypeUpdated = ConvertEumMaterialType.StringToEnum(materialDtoUpdated.getMaterialType());
 
         // transform et vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
         URL newUrlPicture = this.transformUrl.stringToUrl(materialDtoUpdated.getPicture());
@@ -119,16 +117,16 @@ public class MaterialServiceImpl implements MaterialService {
         materialToUpdate.setPictureThumbnail(newUrlPictureThumbnail);
         materialToUpdate.setMaterialType(materialTypeUpdated);
 
-        for(Notebook notebook : notebooks){
+        for(Product product : products){
             List<Material> materialsToUpdate = new ArrayList<>();
-            List<Material> actualMaterials =  notebook.getMaterials();
+            List<Material> actualMaterials =  product.getMaterials();
             for(Material material : actualMaterials) {
                 if(!material.getSlug().equals(slug)) {
                     materialsToUpdate.add(materialToUpdate);
                 }
             }
-            notebook.setMaterials(materialsToUpdate);
-            this.notebookRepository.save(notebook);
+            product.setMaterials(materialsToUpdate);
+            this.productRepository.save(product);
         }
         this.materialRepository.save(materialToUpdate);
     }
@@ -155,15 +153,15 @@ public class MaterialServiceImpl implements MaterialService {
     public void deleteMaterialBySlug(String slug){
         Material materialToDelete = this.findOneMaterialBySlugOrThrow(slug);
 
-        List<Notebook> notebooks = this.notebookRepository.findAllByMaterialsContaining(materialToDelete);
+        List<Product> products = this.productRepository.findAllByMaterialsContaining(materialToDelete);
 
-        for(Notebook notebook : notebooks){
-            List<Material> actualMaterials =  notebook.getMaterials();
+        for(Product product : products){
+            List<Material> actualMaterials =  product.getMaterials();
             List<Material> materialsToUpdate = actualMaterials.stream()
                                                .filter(material -> !material.getSlug().equals(slug))
                                                .collect(Collectors.toList());
-            notebook.setMaterials(materialsToUpdate);
-            this.notebookRepository.save(notebook);
+            product.setMaterials(materialsToUpdate);
+            this.productRepository.save(product);
         }
 
         this.materialRepository.delete(materialToDelete);

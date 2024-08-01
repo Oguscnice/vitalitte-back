@@ -1,21 +1,21 @@
 package fr.vitalitte.vitalittebackend.common.models;
 
-import fr.vitalitte.vitalittebackend.stationery.common.rest.ProductCommonValuesDto;
+import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 
 import java.math.BigDecimal;
 
 public class PaginationReviewsFiltered extends PaginationItemBySearchValue {
 
     String status;
-    ProductCommonValuesDto productCommonValuesDto;
+    ProductDto productDto;
     BigDecimal rating;
 
     public String getStatus() {
         return status;
     }
 
-    public ProductCommonValuesDto getProductCommonValuesDto() {
-        return productCommonValuesDto;
+    public ProductDto getProductDto() {
+        return productDto;
     }
 
     public BigDecimal getRating() {

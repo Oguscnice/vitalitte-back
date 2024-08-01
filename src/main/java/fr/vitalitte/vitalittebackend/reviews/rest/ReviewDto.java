@@ -1,6 +1,6 @@
 package fr.vitalitte.vitalittebackend.reviews.rest;
 
-import fr.vitalitte.vitalittebackend.stationery.common.rest.ProductCommonValuesDto;
+import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -41,13 +41,13 @@ public class ReviewDto {
     private BigDecimal rating;
 
     @NotNull
-    private ProductCommonValuesDto productCommonValuesDto;
+    private ProductDto productDto;
 
     private String status;
 
     public ReviewDto() {}
 
-    public ReviewDto(String content, Timestamp createdAt, String lastname, String firstname, String email, String title, BigDecimal rating, ProductCommonValuesDto productCommonValuesDto, String status) {
+    public ReviewDto(String content, Timestamp createdAt, String lastname, String firstname, String email, String title, BigDecimal rating, ProductDto productDto, String status) {
         this.content = content;
         this.createdAt = createdAt;
         this.lastname = lastname;
@@ -55,7 +55,7 @@ public class ReviewDto {
         this.email = email;
         this.title = title;
         this.rating = rating;
-        this.productCommonValuesDto = productCommonValuesDto;
+        this.productDto = productDto;
         this.status = status;
     }
 
@@ -115,12 +115,12 @@ public class ReviewDto {
         this.rating = rating;
     }
 
-    public ProductCommonValuesDto getProductCommonValuesDto() {
-        return productCommonValuesDto;
+    public ProductDto getProductDto() {
+        return productDto;
     }
 
-    public void setProductCommonValuesDto(ProductCommonValuesDto productCommonValuesDto) {
-        this.productCommonValuesDto = productCommonValuesDto;
+    public void setProductDto(ProductDto productDto) {
+        this.productDto = productDto;
     }
 
     public String getStatus() {
@@ -144,7 +144,7 @@ public class ReviewDto {
         private String email;
         private String title;
         private BigDecimal rating;
-        private ProductCommonValuesDto productCommonValuesDto;
+        private ProductDto productDto;
         private String status;
 
         public ReviewDtoBuilder content(String content) {
@@ -182,8 +182,8 @@ public class ReviewDto {
             return this;
         }
 
-        public ReviewDtoBuilder productCommonValuesDto(ProductCommonValuesDto productCommonValuesDto) {
-            this.productCommonValuesDto = productCommonValuesDto;
+        public ReviewDtoBuilder productDto(ProductDto productDto) {
+            this.productDto = productDto;
             return this;
         }
 
@@ -192,7 +192,7 @@ public class ReviewDto {
             return this;
         }
         public ReviewDto build() {
-            return new ReviewDto(this.content, this.createdAt, this.lastname, this.firstname, this.email, this.title, this.rating, this.productCommonValuesDto, this.status);
+            return new ReviewDto(this.content, this.createdAt, this.lastname, this.firstname, this.email, this.title, this.rating, this.productDto, this.status);
         }
     }
 }

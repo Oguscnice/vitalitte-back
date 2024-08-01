@@ -7,8 +7,8 @@ import fr.vitalitte.vitalittebackend.stationery.category.persistence.CategoryRep
 import fr.vitalitte.vitalittebackend.stationery.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
 import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
-import fr.vitalitte.vitalittebackend.stationery.notebook.persistence.NotebookRepository;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
+import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,12 +18,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     CategoryRepository categoryRepository;
     TransformCategory transformCategory;
-    NotebookRepository notebookRepository;
+    ProductRepository productRepository;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, TransformCategory transformCategory, NotebookRepository notebookRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, TransformCategory transformCategory, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
         this.transformCategory = transformCategory;
-        this.notebookRepository = notebookRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -65,11 +65,11 @@ public class CategoryServiceImpl implements CategoryService {
 
             Category categoryFound = findOneCategoryBySlugOrThrow(categorySlug);
 
-        List<Notebook> notebooks = this.notebookRepository.findAllByCategory(categoryFound);
+        List<Product> products = this.productRepository.findAllByCategory(categoryFound);
 
-        for (Notebook notebook : notebooks) {
-            notebook.setCategory(null);
-            this.notebookRepository.save(notebook);
+        for (Product product : products) {
+            product.setCategory(null);
+            this.productRepository.save(product);
         }
 
         this.categoryRepository.delete(categoryFound);

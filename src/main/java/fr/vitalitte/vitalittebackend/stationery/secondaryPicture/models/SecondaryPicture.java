@@ -1,6 +1,6 @@
 package fr.vitalitte.vitalittebackend.stationery.secondaryPicture.models;
 
-import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -23,16 +23,16 @@ public class SecondaryPicture {
     private URL pictureThumbnail;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notebook")
-    private Notebook notebook;
+    @JoinColumn(name = "product")
+    private Product product;
 
     public SecondaryPicture(){}
 
-    public SecondaryPicture(UUID id, URL picture, URL pictureThumbnail, Notebook notebook) {
+    public SecondaryPicture(UUID id, URL picture, URL pictureThumbnail, Product product) {
         this.id = id;
         this.picture = picture;
         this.pictureThumbnail = pictureThumbnail;
-        this.notebook = notebook;
+        this.product = product;
     }
 
     public UUID getId() {
@@ -55,12 +55,12 @@ public class SecondaryPicture {
         this.pictureThumbnail = pictureThumbnail;
     }
 
-    public Notebook getNotebook() {
-        return notebook;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setNotebook(Notebook notebook) {
-        this.notebook = notebook;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public static SecondaryPictureBuilder builder() {
@@ -72,7 +72,7 @@ public class SecondaryPicture {
         private final UUID id = UUID.randomUUID();
         private URL picture;
         private URL pictureThumbnail;
-        private Notebook notebook;
+        private Product product;
 
         public SecondaryPictureBuilder picture(URL picture){
             this.picture = picture;
@@ -84,13 +84,13 @@ public class SecondaryPicture {
             return this;
         }
 
-        public SecondaryPictureBuilder notebook(Notebook notebook){
-            this.notebook = notebook;
+        public SecondaryPictureBuilder product(Product product){
+            this.product = product;
             return this;
         }
 
         public SecondaryPicture build(){
-            return new SecondaryPicture(this.id, this.picture, this.pictureThumbnail, this.notebook);
+            return new SecondaryPicture(this.id, this.picture, this.pictureThumbnail, this.product);
         }
     }
 }
