@@ -23,7 +23,7 @@ public class TransformMaterial {
 
     public MaterialDto materialToDto(Material material) {
 
-        String materialType = ConvertEumMaterialType.EMaterialToString(material.getMaterialType());
+        String materialType = ConvertEumMaterialType.EnumToString(material.getMaterialType());
         String picture = this.transformUrl.urlToString(material.getPicture());
         String pictureThumbnail = this.transformUrl.urlToString(material.getPictureThumbnail());
 
@@ -44,7 +44,7 @@ public class TransformMaterial {
         return mapList(this::materialToDto, materials);
     }
 
-    public Material DtoToMaterial(MaterialDto materialDto){
+    public Material DtoToMaterial(MaterialDto materialDto) {
         return this.materialRepository.findBySlug(materialDto.getSlug())
                         .orElseThrow(MaterialNotFoundException::new);
     }

@@ -1,7 +1,7 @@
 package fr.vitalitte.vitalittebackend.reviews.models;
 
 import fr.vitalitte.vitalittebackend.reviewStatus.models.EReviewStatus;
-import fr.vitalitte.vitalittebackend.stationery.common.models.ProductCommonValues;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -54,13 +54,13 @@ public class Review {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product")
-    private ProductCommonValues productCommonValues;
+    private Product product;
 
     private EReviewStatus status;
 
     public Review() {}
 
-    public Review(UUID id, String content, String lastname, String firstname, String email, String title, BigDecimal rating, ProductCommonValues productCommonValues, EReviewStatus status) {
+    public Review(UUID id, String content, String lastname, String firstname, String email, String title, BigDecimal rating, Product product, EReviewStatus status) {
         this.id = id;
         this.content = content;
         this.lastname = lastname;
@@ -68,7 +68,7 @@ public class Review {
         this.email = email;
         this.title = title;
         this.rating = rating;
-        this.productCommonValues = productCommonValues;
+        this.product = product;
         this.status = status;
     }
 
@@ -132,12 +132,12 @@ public class Review {
         this.rating = rating;
     }
 
-    public ProductCommonValues getProduct() {
-        return productCommonValues;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProduct(ProductCommonValues productCommonValues) {
-        this.productCommonValues = productCommonValues;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public EReviewStatus getStatus() {
@@ -154,14 +154,13 @@ public class Review {
 
     public static class ReviewBuilder {
 
-        private final UUID id = UUID.randomUUID();
         private String content;
         private String lastname;
         private String firstname;
         private String email;
         private String title;
         private BigDecimal rating;
-        private ProductCommonValues productCommonValues;
+        private Product product;
         private EReviewStatus status;
 
         public ReviewBuilder content(String content) {
@@ -194,8 +193,8 @@ public class Review {
             return this;
         }
 
-        public ReviewBuilder product(ProductCommonValues productCommonValues) {
-            this.productCommonValues = productCommonValues;
+        public ReviewBuilder product(Product product) {
+            this.product = product;
             return this;
         }
 
@@ -205,7 +204,20 @@ public class Review {
         }
 
         public Review build() {
-            return new Review(this.id, this.content, this.lastname, this.firstname, this.email, this.title, this.rating, this.productCommonValues, this.status);
+
+            final UUID id = UUID.randomUUID();
+
+            return new Review(
+                    id,
+                    this.content,
+                    this.lastname,
+                    this.firstname,
+                    this.email,
+                    this.title,
+                    this.rating,
+                    this.product,
+                    this.status
+            );
         }
     }
 }

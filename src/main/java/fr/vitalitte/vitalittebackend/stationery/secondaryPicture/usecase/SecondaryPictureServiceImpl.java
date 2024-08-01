@@ -1,9 +1,8 @@
 package fr.vitalitte.vitalittebackend.stationery.secondaryPicture.usecase;
 
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
-import fr.vitalitte.vitalittebackend.stationery.notebook.exception.NotebookNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
-import fr.vitalitte.vitalittebackend.stationery.notebook.persistence.NotebookRepository;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
+import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.models.SecondaryPicture;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.persistence.SecondaryPictureRepository;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
@@ -16,20 +15,19 @@ import java.util.List;
 public class SecondaryPictureServiceImpl implements SecondaryPictureService {
 
     SecondaryPictureRepository secondaryPictureRepository;
-    NotebookRepository notebookRepository;
+    ProductRepository productRepository;
     TransformUrl transformUrl;
     TransformSecondaryPicture transformSecondaryPicture;
 
-    public SecondaryPictureServiceImpl(SecondaryPictureRepository secondaryPictureRepository, NotebookRepository notebookRepository, TransformUrl transformUrl, TransformSecondaryPicture transformSecondaryPicture) {
+    public SecondaryPictureServiceImpl(SecondaryPictureRepository secondaryPictureRepository, ProductRepository productRepository, TransformUrl transformUrl, TransformSecondaryPicture transformSecondaryPicture) {
         this.secondaryPictureRepository = secondaryPictureRepository;
-        this.notebookRepository = notebookRepository;
+        this.productRepository = productRepository;
         this.transformUrl = transformUrl;
         this.transformSecondaryPicture = transformSecondaryPicture;
     }
 
-    public void createSecondaryPicture(String notebookSlug, SecondaryPictureDto secondaryPictureDto) {
-
-        Notebook notebookFound = this.notebookRepository.findBySlug(notebookSlug).orElseThrow(NotebookNotFoundException::new);
+    @Override
+    public void createSecondaryPicture(Product product, SecondaryPictureDto secondaryPictureDto) {
 
         URL picture = this.transformUrl.stringToUrl(secondaryPictureDto.getPicture());
         URL pictureThumbnail = this.transformUrl.stringToUrl(secondaryPictureDto.getPictureThumbnail());
@@ -37,14 +35,14 @@ public class SecondaryPictureServiceImpl implements SecondaryPictureService {
         SecondaryPicture newPicture = SecondaryPicture.builder()
                                                       .picture(picture)
                                                       .pictureThumbnail(pictureThumbnail)
-                                                      .notebook(notebookFound)
+                                                      .product(product)
                                                       .build();
 
         this.secondaryPictureRepository.save(newPicture);
     }
 
-    public List<SecondaryPictureDto> findAllSecondaryPicturesByNotebook(Notebook notebook){
-        List<SecondaryPicture> pictures = this.secondaryPictureRepository.findAllByNotebook(notebook);
+    public List<SecondaryPictureDto> findAllSecondaryPicturesByProduct(Product product) {
+        List<SecondaryPicture> pictures = this.secondaryPictureRepository.findAllByProduct(product);
         return this.transformSecondaryPicture.picturesToDtos(pictures);
     }
 }

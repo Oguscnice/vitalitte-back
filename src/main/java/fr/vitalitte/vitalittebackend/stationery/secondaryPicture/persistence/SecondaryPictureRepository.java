@@ -1,6 +1,6 @@
 package fr.vitalitte.vitalittebackend.stationery.secondaryPicture.persistence;
 
-import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.models.SecondaryPicture;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface SecondaryPictureRepository extends JpaRepository<SecondaryPicture, String> {
-    Optional<SecondaryPicture> findByPictureAndNotebook(URL picture, Notebook notebook);
+    Optional<SecondaryPicture> findByPictureAndProduct(URL picture, Product product);
     Optional<SecondaryPicture> findByPicture(URL pictureUrl);
-    List<SecondaryPicture> findAllByNotebook(Notebook notebook);
+    List<SecondaryPicture> findAllByProduct(Product product);
 }

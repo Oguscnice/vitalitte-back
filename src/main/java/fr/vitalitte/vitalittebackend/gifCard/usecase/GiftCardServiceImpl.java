@@ -26,11 +26,11 @@ public class GiftCardServiceImpl implements GiftCardService {
 
     public void createGiftCard(CreateGiftCardBody createGiftCardBody){
 
-        if (existsByCode(createGiftCardBody.getCode())) {
+        String slugifiedCode = SlugifyUtil.stringToSlug(createGiftCardBody.getCode());
+
+        if (existsByCode(slugifiedCode)) {
             throw new SlugOrCodeGiftCardAlreadyExistsException();
         }
-
-        String slugifiedCode = SlugifyUtil.stringToSlug(createGiftCardBody.getCode());
 
         final GiftCard newGiftCard = GiftCard.builder()
                 .code(slugifiedCode)

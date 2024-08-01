@@ -1,4 +1,4 @@
-package fr.vitalitte.vitalittebackend.stationery.notebook.usecase;
+package fr.vitalitte.vitalittebackend.stationery.product.usecase;
 
 import fr.vitalitte.vitalittebackend.stationery.category.exception.CategoryNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.category.models.Category;
@@ -12,10 +12,11 @@ import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.collection.usecase.TransformCollection;
 import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.materials.usecase.TransformMaterial;
-import fr.vitalitte.vitalittebackend.stationery.notebook.exception.NotebookNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.notebook.models.Notebook;
-import fr.vitalitte.vitalittebackend.stationery.notebook.persistence.NotebookRepository;
-import fr.vitalitte.vitalittebackend.stationery.notebook.rest.NotebookDto;
+import fr.vitalitte.vitalittebackend.stationery.product.exception.ProductNotFoundException;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
+import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
+import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
+import fr.vitalitte.vitalittebackend.stationery.productType.usecase.ConvertEnumProductType;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.models.SecondaryPicture;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.persistence.SecondaryPictureRepository;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
@@ -26,75 +27,77 @@ import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
 import java.util.List;
 
 @Service
-public class TransformNotebook {
+public class TransformProduct {
 
     TransformUrl transformUrl;
     TransformCategory transformCategory;
     TransformCollection transformCollection;
     TransformMaterial transformMaterial;
     TransformSecondaryPicture transformSecondaryPicture;
-    NotebookRepository notebookRepository;
+    ProductRepository productRepository;
     CategoryRepository categoryRepository;
     CollectionRepository collectionRepository;
     SecondaryPictureRepository secondaryPictureRepository;
 
-    public TransformNotebook(TransformUrl transformUrl, TransformCategory transformCategory, TransformCollection transformCollection, TransformMaterial transformMaterial, TransformSecondaryPicture transformSecondaryPicture, NotebookRepository notebookRepository, CategoryRepository categoryRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository) {
+    public TransformProduct(TransformUrl transformUrl, TransformCategory transformCategory, TransformCollection transformCollection, TransformMaterial transformMaterial, TransformSecondaryPicture transformSecondaryPicture, ProductRepository productRepository, CategoryRepository categoryRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository) {
         this.transformUrl = transformUrl;
         this.transformCategory = transformCategory;
         this.transformCollection = transformCollection;
         this.transformMaterial = transformMaterial;
         this.transformSecondaryPicture = transformSecondaryPicture;
-        this.notebookRepository = notebookRepository;
+        this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.collectionRepository = collectionRepository;
         this.secondaryPictureRepository = secondaryPictureRepository;
     }
 
-    public NotebookDto notebookToDto(Notebook notebook){
+    public ProductDto productToDto(Product product) {
 
-        String picture = this.transformUrl.urlToString(notebook.getPicture());
-        String pictureThumbnail = this.transformUrl.urlToString(notebook.getPictureThumbnail());
+        String picture = this.transformUrl.urlToString(product.getPicture());
+        String pictureThumbnail = this.transformUrl.urlToString(product.getPictureThumbnail());
+        String productType = ConvertEnumProductType.EnumToString(product.getEProductType());
 
         CategoryDto categoryDto = null;
-        if(notebook.getCategory() != null){
-            Category categoryFound = this.categoryRepository.findBySlug(notebook.getCategory().getSlug()).orElseThrow(CategoryNotFoundException::new);
+        if(product.getCategory() != null){
+            Category categoryFound = this.categoryRepository.findBySlug(product.getCategory().getSlug()).orElseThrow(CategoryNotFoundException::new);
             categoryDto = this.transformCategory.categoryToDto(categoryFound);
         }
 
         CollectionDto collectionDto = null;
-        if(notebook.getCollection() != null) {
-            Collection collectionFound = this.collectionRepository.findBySlug(notebook.getCollection().getSlug()).orElseThrow(CollectionNotFoundException::new);
+        if(product.getCollection() != null) {
+            Collection collectionFound = this.collectionRepository.findBySlug(product.getCollection().getSlug()).orElseThrow(CollectionNotFoundException::new);
             collectionDto = this.transformCollection.collectionToDto(collectionFound);
         }
 
-        List<SecondaryPicture> secondaryPictures = this.secondaryPictureRepository.findAllByNotebook(notebook);
+        List<SecondaryPicture> secondaryPictures = this.secondaryPictureRepository.findAllByProduct(product);
         List<SecondaryPictureDto> secondaryPicturesDto = this.transformSecondaryPicture.picturesToDtos(secondaryPictures);
 
-        return NotebookDto.builder()
-                .name(notebook.getName())
-                .slug(notebook.getSlug())
+        return ProductDto.builder()
+                .name(product.getName())
+                .slug(product.getSlug())
                 .picture(picture)
                 .pictureThumbnail(pictureThumbnail)
-                .introduction(notebook.getIntroduction())
-                .price(notebook.getPrice())
+                .introduction(product.getIntroduction())
+                .price(product.getPrice())
                 .secondaryPicturesDto(secondaryPicturesDto)
-                .description(notebook.getDescription())
-                .materialsDto(this.transformMaterial.materialsToDto(notebook.getMaterials()))
+                .description(product.getDescription())
+                .materialsDto(this.transformMaterial.materialsToDto(product.getMaterials()))
                 .categoryDto(categoryDto)
                 .collectionDto(collectionDto)
-                .isAvailable(notebook.isAvailable())
+                .isAvailable(product.isAvailable())
+                .productType(productType)
                 .build();
     }
-    public List<NotebookDto> notebooksToDto(List<Notebook> notebooks) {
-        return mapList(this::notebookToDto, notebooks);
+    public List<ProductDto> productsToDto(List<Product> products) {
+        return mapList(this::productToDto, products);
     }
 
-    public Notebook dtoToNotebook(NotebookDto notebook){
-        return this.notebookRepository.findBySlug(notebook.getSlug())
-                .orElseThrow(NotebookNotFoundException::new);
+    public Product dtoToProduct(ProductDto productDto) {
+        return this.productRepository.findBySlug(productDto.getSlug())
+                .orElseThrow(() -> new ProductNotFoundException(productDto.getProductType()));
     }
 
-    public List<Notebook> dtosToNotebooks(List<NotebookDto> notebooksDto) {
-        return mapList(this::dtoToNotebook, notebooksDto);
+    public List<Product> dtosToProducts(List<ProductDto> productDtos) {
+        return mapList(this::dtoToProduct, productDtos);
     }
 }

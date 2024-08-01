@@ -5,11 +5,11 @@ import fr.vitalitte.vitalittebackend.reviews.exception.ReviewNotFoundException;
 import fr.vitalitte.vitalittebackend.reviews.models.Review;
 import fr.vitalitte.vitalittebackend.reviews.persistence.ReviewRepository;
 import fr.vitalitte.vitalittebackend.reviews.rest.ReviewDto;
-import fr.vitalitte.vitalittebackend.stationery.common.exception.ProductNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.common.models.ProductCommonValues;
-import fr.vitalitte.vitalittebackend.stationery.common.persistence.ProductCommonValuesRepository;
-import fr.vitalitte.vitalittebackend.stationery.common.rest.ProductCommonValuesDto;
-import fr.vitalitte.vitalittebackend.stationery.common.usecase.TransformProductCommonValues;
+import fr.vitalitte.vitalittebackend.stationery.product.exception.ProductNotFoundException;
+import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
+import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
+import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
+import fr.vitalitte.vitalittebackend.stationery.product.usecase.TransformProduct;
 import org.springframework.stereotype.Service;
 
 import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
@@ -20,20 +20,20 @@ import java.util.List;
 public class TransformReview {
 
     ReviewRepository reviewRepository;
-    ProductCommonValuesRepository productCommonValuesRepository;
-    TransformProductCommonValues transformProduct;
+    ProductRepository productRepository;
+    TransformProduct transformProduct;
 
-    public TransformReview(ReviewRepository reviewRepository, ProductCommonValuesRepository productCommonValuesRepository, TransformProductCommonValues transformProductCV) {
+    public TransformReview(ProductRepository productRepository, ReviewRepository reviewRepository, TransformProduct transformProduct) {
+        this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
-        this.productCommonValuesRepository = productCommonValuesRepository;
-        this.transformProduct = transformProductCV;
+        this.transformProduct = transformProduct;
     }
 
     public ReviewDto reviewToDto(Review review) {
 
         String status = ConvertEnumReviewStatus.EReviewStatusToString(review.getStatus());
-        ProductCommonValues product = this.productCommonValuesRepository.findBySlug(review.getProduct().getSlug()).orElseThrow(ProductNotFoundException::new);
-        ProductCommonValuesDto productDto = this.transformProduct.productCVToProductCVDto(product);
+        Product product = this.productRepository.findBySlug(review.getProduct().getSlug()).orElseThrow(() -> new ProductNotFoundException("Produit"));
+        ProductDto productDto = this.transformProduct.productToDto(product);
 
         return ReviewDto.builder()
                 .content(review.getContent())
@@ -44,7 +44,7 @@ public class TransformReview {
                 .title(review.getTitle())
                 .rating(review.getRating())
                 .status(status)
-                .productCommonValuesDto(productDto)
+                .productDto(productDto)
                 .build();
     }
 
@@ -53,8 +53,8 @@ public class TransformReview {
     }
 
     public Review dtoToReview(ReviewDto reviewDto) {
-        ProductCommonValues product = this.transformProduct.dtoToProductCV(reviewDto.getProductCommonValuesDto());
-        return this.reviewRepository.findByProductCommonValuesAndEmailAndLastnameAndFirstname(product, reviewDto.getEmail(), reviewDto.getLastname(), reviewDto.getFirstname())
+        Product product = this.transformProduct.dtoToProduct(reviewDto.getProductDto());
+        return this.reviewRepository.findByProductAndEmail(product, reviewDto.getEmail())
                 .orElseThrow(ReviewNotFoundException::new);
     }
 

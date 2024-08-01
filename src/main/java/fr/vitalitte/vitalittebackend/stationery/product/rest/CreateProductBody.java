@@ -1,8 +1,9 @@
-package fr.vitalitte.vitalittebackend.stationery.notebook.rest;
+package fr.vitalitte.vitalittebackend.stationery.product.rest;
 
 import fr.vitalitte.vitalittebackend.stationery.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.MaterialDto;
+import fr.vitalitte.vitalittebackend.stationery.productType.models.EProductType;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
@@ -14,7 +15,7 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class CreateNotebookBody {
+public class CreateProductBody {
 
     @NotBlank
     @Size(min = 1, max = 255)
@@ -41,6 +42,9 @@ public class CreateNotebookBody {
     @Column(columnDefinition = "TEXT")
     private final String description;
 
+    @NotBlank
+    private String productType;
+
     @NotNull
     private final List<MaterialDto> materialsDto;
 
@@ -48,7 +52,7 @@ public class CreateNotebookBody {
 
     private final CollectionDto collectionDto;
 
-    public CreateNotebookBody(String name, String picture, String pictureThumbnail, String introduction, BigDecimal price, List<SecondaryPictureDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto) {
+    public CreateProductBody(String name, String picture, String pictureThumbnail, String introduction, BigDecimal price, List<SecondaryPictureDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, String productType) {
         this.name = name;
         this.picture = picture;
         this.pictureThumbnail = pictureThumbnail;
@@ -59,6 +63,7 @@ public class CreateNotebookBody {
         this.materialsDto = materialsDto;
         this.categoryDto = categoryDto;
         this.collectionDto = collectionDto;
+        this.productType = productType;
     }
 
     public String getName() {
@@ -99,5 +104,9 @@ public class CreateNotebookBody {
 
     public CollectionDto getCollectionDto() {
         return collectionDto;
+    }
+
+    public String getProductType() {
+        return productType;
     }
 }
