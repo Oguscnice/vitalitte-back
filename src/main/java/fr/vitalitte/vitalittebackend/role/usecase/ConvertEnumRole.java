@@ -5,24 +5,18 @@ import fr.vitalitte.vitalittebackend.role.models.ERole;
 
 public class ConvertEnumRole {
     public static String convertEnumRoleToString(ERole role){
-        switch (role){
-            case ROLE_ADMIN:
-                return "ROLE_ADMIN";
-            case ROLE_USER:
-                return "ROLE_USER";
-            default:
-                throw new RoleNotFoundException();
-        }
+        return switch (role) {
+            case ROLE_ADMIN -> "ROLE_ADMIN";
+            case ROLE_USER -> "ROLE_USER";
+            default -> throw new RoleNotFoundException();
+        };
     }
 
     public static ERole convertStringToEnumRole(String genderString){
-        switch (genderString){
-            case "ROLE_ADMIN":
-                return ERole.ROLE_ADMIN;
-            case "ROLE_USER":
-                return ERole.ROLE_USER;
-            default:
-                throw new RoleNotFoundException();
-        }
+        return switch (genderString) {
+            case "ROLE_ADMIN" -> ERole.ROLE_ADMIN;
+            case "ROLE_USER" -> ERole.ROLE_USER;
+            default -> throw new RoleNotFoundException();
+        };
     }
 }

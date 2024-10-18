@@ -96,6 +96,12 @@ public class ReviewServiceImpl implements ReviewService {
         return new PageImpl<>(reviewDtoList, pageable, reviewsProduct.getTotalElements());
     }
 
+    @Override
+    public List<ReviewDto> getRandomReviews() {
+        List<Review> randomReviews = this.reviewRepository.find10RandomReviews(EReviewStatus.ACCEPTE);
+        return this.transformReview.reviewsToDtos(randomReviews);
+    }
+
     private Product findProductByProductSlug(String productSlug) {
         return this.productRepository.findBySlug(productSlug).orElseThrow(() -> new ProductNotFoundException("Produit"));
     }

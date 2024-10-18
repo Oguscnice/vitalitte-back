@@ -1,9 +1,10 @@
 package fr.vitalitte.vitalittebackend.authentification.usecase;
 
 import fr.vitalitte.vitalittebackend.authentification.exception.EmailAlreadyUsedException;
-import fr.vitalitte.vitalittebackend.role.exception.RoleNotFoundException;
+import fr.vitalitte.vitalittebackend.authentification.exception.UserAlreadyExistsByLastnameAndFirstnameException;
 import fr.vitalitte.vitalittebackend.authentification.jwt.JwtResponse;
 import fr.vitalitte.vitalittebackend.authentification.jwt.JwtUtils;
+import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
 import fr.vitalitte.vitalittebackend.payload.request.LoginRequest;
 import fr.vitalitte.vitalittebackend.payload.request.SignupRequest;
 import fr.vitalitte.vitalittebackend.role.models.ERole;
@@ -19,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,23 +41,40 @@ public class AuthentificationServiceImpl implements AuthentificationService {
     }
 
     @Override
+    public boolean canRegister() {
+        return this.userRepository.count() < 1L;
+    }
+
+    @Override
     public void registerUser(SignupRequest signUpRequest) {
 
         if (this.userRepository.existsByEmail(signUpRequest.getEmail())) {
             throw new EmailAlreadyUsedException();
         }
 
+        String firstname = CapitalizeStringUtil.firstLetter(signUpRequest.getFirstname());
+        String lastname = CapitalizeStringUtil.allLetters(signUpRequest.getLastname());
+
+        if (this.userRepository.findByLastnameAndFirstname(lastname, firstname).isPresent()) {
+            throw new UserAlreadyExistsByLastnameAndFirstnameException(lastname, firstname);
+        }
+
         Set<ERole> roles = new HashSet<ERole>();
         roles.add(ERole.ROLE_USER);
 
+        if (this.userRepository.count() < 1L) {
+            roles.add(ERole.ROLE_ADMIN);
+        }
+
         // Create new user's account
         User newUser = User.builder()
-                .firstname(signUpRequest.getFirstname())
-                .lastname(signUpRequest.getLastname())
+                .firstname(firstname)
+                .lastname(lastname)
                 .email(signUpRequest.getEmail())
                 .password(encoder.encode(signUpRequest.getPassword()))
                 .roles(roles)
                 .build();
+
         this.userRepository.save(newUser);
     }
 

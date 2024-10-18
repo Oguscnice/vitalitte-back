@@ -21,7 +21,6 @@ public class TransformUrl {
     public URL stringToUrl(String value) {
 
         URL newUrl = null;
-        System.out.println("URL = " + value);
 
         try {
             if (value != null) {

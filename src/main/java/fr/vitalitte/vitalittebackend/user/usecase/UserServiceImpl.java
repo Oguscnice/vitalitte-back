@@ -1,6 +1,5 @@
 package fr.vitalitte.vitalittebackend.user.usecase;
 
-
 import fr.vitalitte.vitalittebackend.user.exception.UserNotFoundException;
 import fr.vitalitte.vitalittebackend.user.models.User;
 import fr.vitalitte.vitalittebackend.user.persistence.UserRepository;
@@ -29,6 +28,7 @@ public class UserServiceImpl implements UserService {
                 .password(user.getPassword())
                 .roles(user.getRoles())
                 .build();
+
         return this.userRepository.save(newUser);
     }
 
@@ -40,25 +40,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findByEmail(String email) {
-        User user = this.userRepository.findByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
+        User user = findUserByEmailOrThrow(email);
         return this.transformUser.userToUserDTO(user);
     }
 
     @Override
     public void updateRoles(UserDto userDto) {
-        User userToUpdate = this.userRepository.findByEmail(userDto.getEmail())
-                .orElseThrow(UserNotFoundException::new);
-
+        User userToUpdate = findUserByEmailOrThrow(userDto.getEmail());
         userToUpdate.setRoles(userDto.getRoles());
-
         this.userRepository.save(userToUpdate);
     }
 
     @Override
     public void update(UserDto userDto) {
-        User userToUpdate = this.userRepository.findByEmail(userDto.getEmail())
-                .orElseThrow(UserNotFoundException::new);
+        User userToUpdate = findUserByEmailOrThrow(userDto.getEmail());
 
         userToUpdate.setEmail(userDto.getEmail());
         userToUpdate.setLastname(userDto.getLastname());
@@ -70,5 +65,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteByEmail(String email) {
         this.userRepository.deleteByEmail(email);
+    }
+
+    private User findUserByEmailOrThrow(String email) {
+        return this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 }

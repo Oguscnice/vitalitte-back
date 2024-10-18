@@ -7,16 +7,20 @@ import jakarta.validation.constraints.Size;
 import java.util.Set;
 
 public class SignupRequest {
+
     @NotNull
     @Size(min = 1, max = 255)
     private final String firstname;
+
     @NotNull
     @Size(min = 1, max = 255)
     private final String lastname;
+
     @NotNull
     @Size(max = 255)
     @Email
     private final String email;
+
     @NotNull
     @Size(min = 8, max = 255)
     private final String password;

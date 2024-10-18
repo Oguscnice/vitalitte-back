@@ -4,4 +4,5 @@ public enum EProductType {
     CARNETS,
     CARTES_POSTALES,
     MARQUE_PAGES,
+    PRINT
 }

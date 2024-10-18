@@ -5,16 +5,27 @@ import fr.vitalitte.vitalittebackend.payload.request.LoginRequest;
 import fr.vitalitte.vitalittebackend.payload.request.SignupRequest;
 import fr.vitalitte.vitalittebackend.payload.response.MessageResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     AuthentificationService authentificationService;
+
     public AuthController(AuthentificationService authentificationService) {
         this.authentificationService = authentificationService;
+    }
+
+    @GetMapping("/can-register")
+    public boolean canRegister() {
+        return this.authentificationService.canRegister();
     }
 
     @PostMapping("/signin")
@@ -23,8 +34,9 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         this.authentificationService.registerUser(signUpRequest);
-        return ResponseEntity.ok(new MessageResponse("Utilisateur créé(e) avec succès !"));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MessageResponse("Utilisateur(trice) créé(e) avec succès !"));
     }
 }

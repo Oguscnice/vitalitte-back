@@ -16,6 +16,7 @@ public class ConvertEnumProductType {
             case CARNETS -> "CARNETS";
             case CARTES_POSTALES -> "CARTES_POSTALES";
             case MARQUE_PAGES -> "MARQUE_PAGES";
+            case PRINT -> "PRINT";
             default -> throw new ProductTypeNotFoundException();
         };
     }
@@ -31,6 +32,7 @@ public class ConvertEnumProductType {
             case "CARNETS" -> EProductType.CARNETS;
             case "CARTES_POSTALES", "CARTES-POSTALES", "CARTES POSTALES" -> EProductType.CARTES_POSTALES;
             case "MARQUE_PAGES", "MARQUE-PAGES", "MARQUE PAGES" -> EProductType.MARQUE_PAGES;
+            case "PRINT" -> EProductType.PRINT;
             case "ALL" -> null;
             default -> throw new ProductTypeNotFoundException();
         };
@@ -41,6 +43,7 @@ public class ConvertEnumProductType {
             case "CARNETS" -> "Carnet";
             case "CARTES_POSTALES", "CARTES POSTALES" -> "Carte Postale";
             case "MARQUE_PAGES", "MARQUE PAGES" -> "Marque Page";
+            case "PRINT" -> "Print";
             default -> throw new ProductTypeNotFoundException();
         };
     }

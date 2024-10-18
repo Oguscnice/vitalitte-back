@@ -7,6 +7,6 @@ import org.springframework.http.ResponseEntity;
 public interface AuthentificationService {
 
     void registerUser(SignupRequest signUpRequest);
-
     ResponseEntity<?> login(LoginRequest loginRequest);
+    boolean canRegister();
 }

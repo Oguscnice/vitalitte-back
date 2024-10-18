@@ -2,8 +2,6 @@ package fr.vitalitte.vitalittebackend.reviewStatus.rest;
 
 import fr.vitalitte.vitalittebackend.reviewStatus.models.EReviewStatus;
 import fr.vitalitte.vitalittebackend.reviewStatus.usecase.ConvertEnumReviewStatus;
-import fr.vitalitte.vitalittebackend.stationery.materialTypes.models.EMaterialType;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/review-status")
 public class ReviewStatusController {

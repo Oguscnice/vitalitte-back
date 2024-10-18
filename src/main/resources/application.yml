@@ -23,6 +23,8 @@ spring:
 
 vitalitte-project:
   app:
+    controller:
+      max-age: 3600
     scheduled:
       fixed-delay:
         delete-unpaid-registrations: 14400000 # provoque l'effacement des inscriptions non finalisées toutes les 4h

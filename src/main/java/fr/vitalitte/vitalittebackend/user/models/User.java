@@ -100,39 +100,48 @@ public class User {
 
     public static class UserBuilder {
 
-        private final UUID id = UUID.randomUUID();
         private String firstname;
         private String lastname;
         private String email;
         private String password;
         private Set<ERole> roles;
 
-        public UserBuilder firstname(String firstname){
+        public UserBuilder firstname(String firstname) {
             this.firstname = firstname;
             return this;
         }
 
-        public UserBuilder lastname(String lastname){
+        public UserBuilder lastname(String lastname) {
             this.lastname = lastname;
             return this;
         }
 
-        public UserBuilder email(String email){
+        public UserBuilder email(String email) {
             this.email = email;
             return this;
         }
 
-        public UserBuilder password(String password){
+        public UserBuilder password(String password) {
             this.password = password;
             return this;
         }
 
-        public UserBuilder roles(Set<ERole> roles){
+        public UserBuilder roles(Set<ERole> roles) {
             this.roles = roles;
             return this;
         }
         
-        public User build(){return new User(this.id, this.firstname, this.lastname, this.email, this.password, this.roles);}
+        public User build() {
+            final UUID id = UUID.randomUUID();
+            return new User(
+                    id,
+                    this.firstname,
+                    this.lastname,
+                    this.email,
+                    this.password,
+                    this.roles
+            );
+        }
     }
 }
 

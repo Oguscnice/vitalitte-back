@@ -4,4 +4,6 @@ spring:
 
 vitalitte-project:
   app:
+    controller:
+      cross-origin: "*"
     jwtSecret: dev-jwt-secret

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Service
 public class GiftCardServiceImpl implements GiftCardService {
 
@@ -24,6 +25,7 @@ public class GiftCardServiceImpl implements GiftCardService {
         this.transformGiftCard = transformGiftCard;
     }
 
+    @Override
     public void createGiftCard(CreateGiftCardBody createGiftCardBody){
 
         String slugifiedCode = SlugifyUtil.stringToSlug(createGiftCardBody.getCode());
@@ -37,39 +39,52 @@ public class GiftCardServiceImpl implements GiftCardService {
                 .rising(createGiftCardBody.getRising())
                 .expiryDate(createGiftCardBody.getExpiryDate())
                 .isPercentage(createGiftCardBody.isPercentage())
+                .isSingleUse(createGiftCardBody.isSingleUse())
                 .build();
 
         this.giftCardRepository.save(newGiftCard);
-    };
+    }
 
     public List<GiftCardDto> findAllGiftCards() {
         return this.transformGiftCard.giftCardsToDtos(this.giftCardRepository.findAll());
-    };
+    }
 
-    public GiftCardDto findGiftCardByCodeForUser(String code) {
+    @Override
+    public boolean isGiftCardAlreadyUsedByEmail(String code, String email) {
+        //TODO : vérifier que la carte cadeau n'ai pas été utilisé
+        // et l'usage unique
+//        if (repo de commande.findAllByEmailAndGiftCard) {
+//            return true;
+//        }
+        return false;
+    }
+
+    @Override
+    public GiftCardDto findGiftCardByCodeForUser(String code, String email) {
         GiftCard giftCard = findOneGiftCardOrThrow(code);
 
         if (giftCard.getExpiryDate().isBefore(LocalDateTime.now())) {
             throw new GiftCardExpiredException();
         }
 
-        //TODO : vérifier que la carte cadeau n'ai pas été utilisé
-//        if (repo de commande.findAllByEmailAndGiftCard) {
-//            throw new GiftCardAlreadyUsedException();
-//        }
+        if (isGiftCardAlreadyUsedByEmail(code, email)) {
+            throw new GiftCardAlreadyUsedException();
+        }
 
         return this.transformGiftCard.giftCardToDto(giftCard);
-    };
+    }
 
+    @Override
     public GiftCardDto findGiftCardByCode(String code) {
         GiftCard giftCardFound = findOneGiftCardOrThrow(code);
         return this.transformGiftCard.giftCardToDto(giftCardFound);
     }
 
+    @Override
     public void deleteGiftCardByCode(String code) {
         GiftCard giftCardToDelete = findOneGiftCardOrThrow(code);
         this.giftCardRepository.delete(giftCardToDelete);
-    };
+    }
 
     private GiftCard findOneGiftCardOrThrow(String code) {
         return this.giftCardRepository.findByCode(code).orElseThrow(GifCardNotFoundException::new);
@@ -78,6 +93,5 @@ public class GiftCardServiceImpl implements GiftCardService {
     private boolean existsByCode(String code) {
         return this.giftCardRepository.existsByCode(code);
     }
-
 }
 

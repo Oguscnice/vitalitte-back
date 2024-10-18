@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -30,4 +31,10 @@ public interface ReviewRepository  extends JpaRepository<Review, String> {
             @Param("status") EReviewStatus status,
             @Param("ratingMin") BigDecimal ratingMin,
             @Param("ratingMax") BigDecimal ratingMax);
+
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.status = :status " +
+            "ORDER BY RAND() LIMIT 10")
+    List<Review> find10RandomReviews(@Param("status") EReviewStatus status);
+
 }

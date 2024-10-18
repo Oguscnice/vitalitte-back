@@ -30,50 +30,110 @@ public class GiftCard {
 
     private boolean isPercentage;
 
+    private boolean isSingleUse;
+
     public GiftCard() {}
 
-    public GiftCard(UUID id, String code, BigDecimal rising, LocalDateTime expiryDate, boolean isPercentage) {
+    public GiftCard(UUID id, String code, BigDecimal rising, LocalDateTime expiryDate, boolean isPercentage, boolean isSingleUse) {
         this.id = id;
         this.code = code;
         this.rising = rising;
         this.expiryDate = expiryDate;
         this.isPercentage = isPercentage;
+        this.isSingleUse = isSingleUse;
     }
 
-    public UUID getId() {return id;}
-    public String getCode() {return code;}
-    public void setCode(String code) {this.code = code;}
-    public BigDecimal getRising() {return rising;}
-    public void setRising(BigDecimal rising) {this.rising = rising;}
-    public LocalDateTime getExpiryDate() {return expiryDate;}
-    public void setExpiryDate(LocalDateTime expiryDate) {this.expiryDate = expiryDate;}
-    public boolean isPercentage() {return isPercentage;}
-    public void setPercentage(boolean percentage) {isPercentage = percentage;}
-    public static GiftCardBuilder builder(){return new GiftCardBuilder();}
+    public UUID getId() {
+        return id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public BigDecimal getRising() {
+        return rising;
+    }
+
+    public void setRising(BigDecimal rising) {
+        this.rising = rising;
+    }
+
+    public LocalDateTime getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDateTime expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public boolean isPercentage() {
+        return isPercentage;
+    }
+
+    public void setPercentage(boolean percentage) {
+        isPercentage = percentage;
+    }
+
+    public boolean isSingleUse() {
+        return isSingleUse;
+    }
+
+    public void setSingleUse(boolean singleUse) {
+        isSingleUse = singleUse;
+    }
+
+    public static GiftCardBuilder builder() {
+        return new GiftCardBuilder();
+    }
+
     public static class GiftCardBuilder {
-        private final UUID id = UUID.randomUUID() ;
+
         private String code;
         private BigDecimal rising;
         private LocalDateTime expiryDate;
         private boolean isPercentage;
-        public GiftCardBuilder code(String code){
+        private boolean isSingleUse;
+
+        public GiftCardBuilder code(String code) {
             this.code = code;
             return this;
         }
-        public GiftCardBuilder rising(BigDecimal rising){
+
+        public GiftCardBuilder rising(BigDecimal rising) {
             this.rising = rising;
             return this;
         }
-        public GiftCardBuilder expiryDate(LocalDateTime expiryDate){
+
+        public GiftCardBuilder expiryDate(LocalDateTime expiryDate) {
             this.expiryDate = expiryDate;
             return this;
         }
-        public GiftCardBuilder isPercentage(boolean isPercentage){
+
+        public GiftCardBuilder isPercentage(boolean isPercentage) {
             this.isPercentage = isPercentage;
             return this;
         }
-        public GiftCard build(){
-            return new GiftCard(this.id, this.code, this.rising, this.expiryDate, this.isPercentage);
+
+        public GiftCardBuilder isSingleUse(boolean isSingleUse) {
+            this.isSingleUse = isSingleUse;
+            return this;
+        }
+
+        public GiftCard build() {
+            final UUID id = UUID.randomUUID() ;
+            return new GiftCard(
+                    id,
+                    this.code,
+                    this.rising,
+                    this.expiryDate,
+                    this.isPercentage,
+                    this.isSingleUse
+            );
         }
     }
 }

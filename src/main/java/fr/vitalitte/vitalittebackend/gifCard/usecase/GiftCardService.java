@@ -6,9 +6,12 @@ import fr.vitalitte.vitalittebackend.gifCard.rest.GiftCardDto;
 import java.util.List;
 
 public interface GiftCardService {
+
     void createGiftCard(CreateGiftCardBody createGiftCardBody);
     List<GiftCardDto> findAllGiftCards();
     GiftCardDto findGiftCardByCode(String code);
-    GiftCardDto findGiftCardByCodeForUser(String code);
+    boolean isGiftCardAlreadyUsedByEmail(String code, String email);
+    GiftCardDto findGiftCardByCodeForUser(String code, String email);
     void deleteGiftCardByCode(String code);
+
 }

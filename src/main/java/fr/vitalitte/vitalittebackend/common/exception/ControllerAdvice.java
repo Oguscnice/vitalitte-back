@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -59,6 +60,13 @@ public class ControllerAdvice {
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new MessageResponse(message.toString()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<MessageResponse> handleInvalidLoginException(AuthenticationException e) {
+        LOGGER.error("Erreur interceptee", e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new MessageResponse("L'email de connexion ou le mot de passe semble erroné."));
     }
 
     /**

@@ -15,7 +15,7 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${vitalitte-project.app.jwtExpirationMs}")
+    @Value("${vitalitte-project.app.jwtSecret}")
     private String jwtSecret;
 
     @Value("${vitalitte-project.app.jwtExpirationMs}")
