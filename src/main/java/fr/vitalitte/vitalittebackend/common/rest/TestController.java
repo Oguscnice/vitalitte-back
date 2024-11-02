@@ -1,4 +1,4 @@
-package fr.vitalitte.vitalittebackend.common.persistence;
+package fr.vitalitte.vitalittebackend.common.rest;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

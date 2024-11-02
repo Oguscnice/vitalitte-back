@@ -107,6 +107,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 //                                                "/api/positions/**",
 //                                                "/api/teams/**").hasRole("ADMIN")
 //                ces méthodes ne sont que pour l'admin
+                                .requestMatchers("/api/files/**").hasAnyRole("ADMIN")
                                 .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "USER")
                                 .requestMatchers("/api/test/**").permitAll()
                                 .requestMatchers("/api/**").permitAll()

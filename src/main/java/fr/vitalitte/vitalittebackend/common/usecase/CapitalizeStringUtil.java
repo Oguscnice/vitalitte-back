@@ -1,4 +1,4 @@
-package fr.vitalitte.vitalittebackend.common.utils;
+package fr.vitalitte.vitalittebackend.common.usecase;
 
 public class CapitalizeStringUtil {
 

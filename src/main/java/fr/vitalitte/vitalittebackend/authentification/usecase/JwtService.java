@@ -20,11 +20,15 @@ public class JwtService {
     @Value("${vitalitte-project.app.jwtSecret}")
     private String secretKey;
 
-    public boolean isRoleCheckAndTokenNotExpired() {
-        return isRoleCheckAndTokenNotExpired("ROLE_USER");
+    public boolean isRoleAdminAndTokenNotExpired() {
+        return isRoleVerifyAndTokenNotExpired("ROLE_ADMIN");
     }
 
-    public boolean isRoleCheckAndTokenNotExpired(String role) {
+    public boolean isRoleUserAndTokenNotExpired() {
+        return isRoleVerifyAndTokenNotExpired("ROLE_USER");
+    }
+
+    private boolean isRoleVerifyAndTokenNotExpired(String role) {
         return hasRole(role) && isTokenNotExpired();
     }
 

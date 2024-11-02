@@ -7,14 +7,16 @@ import fr.vitalitte.vitalittebackend.gifCard.rest.GiftCardDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 @Service
 public class TransformGiftCard {
 
-        GiftCardRepository giftCardRepository;
+    GiftCardRepository giftCardRepository;
 
-    public TransformGiftCard(GiftCardRepository giftCardRepository) {this.giftCardRepository = giftCardRepository;}
+    public TransformGiftCard(GiftCardRepository giftCardRepository) {
+        this.giftCardRepository = giftCardRepository;
+    }
 
     public GiftCardDto giftCardToDto(GiftCard giftCard) {
         return GiftCardDto.builder()

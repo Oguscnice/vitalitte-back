@@ -1,12 +1,12 @@
 package fr.vitalitte.vitalittebackend.publication.usecase;
 
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.publication.exception.PublicationNotFoundException;
 import fr.vitalitte.vitalittebackend.publication.models.Publication;
 import fr.vitalitte.vitalittebackend.publication.persistence.PublicationRepository;
 import fr.vitalitte.vitalittebackend.publication.rest.PublicationDto;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
 

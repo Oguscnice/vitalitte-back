@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 @Service
 public class TransformCollection {

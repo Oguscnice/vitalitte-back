@@ -6,8 +6,11 @@ spring:
   datasource:
     password: password
     username: root
+  servlet:
+    multipart:
+      enabled: true
 
-#__________pour les mails _______________________________________
+  #__________pour les mails _______________________________________
   mail:
     host: smtp.mailjet.com
     port: 587

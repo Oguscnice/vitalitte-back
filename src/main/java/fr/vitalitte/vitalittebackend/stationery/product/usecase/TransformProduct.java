@@ -10,7 +10,7 @@ import fr.vitalitte.vitalittebackend.stationery.collection.models.Collection;
 import fr.vitalitte.vitalittebackend.stationery.collection.persistence.CollectionRepository;
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.collection.usecase.TransformCollection;
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.materials.usecase.TransformMaterial;
 import fr.vitalitte.vitalittebackend.stationery.product.exception.ProductNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
@@ -22,7 +22,7 @@ import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.persistence.Sec
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.usecase.TransformSecondaryPicture;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
 

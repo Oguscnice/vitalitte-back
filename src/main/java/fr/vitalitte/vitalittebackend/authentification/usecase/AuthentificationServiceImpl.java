@@ -4,7 +4,7 @@ import fr.vitalitte.vitalittebackend.authentification.exception.EmailAlreadyUsed
 import fr.vitalitte.vitalittebackend.authentification.exception.UserAlreadyExistsByLastnameAndFirstnameException;
 import fr.vitalitte.vitalittebackend.authentification.jwt.JwtResponse;
 import fr.vitalitte.vitalittebackend.authentification.jwt.JwtUtils;
-import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.CapitalizeStringUtil;
 import fr.vitalitte.vitalittebackend.payload.request.LoginRequest;
 import fr.vitalitte.vitalittebackend.payload.request.SignupRequest;
 import fr.vitalitte.vitalittebackend.role.models.ERole;

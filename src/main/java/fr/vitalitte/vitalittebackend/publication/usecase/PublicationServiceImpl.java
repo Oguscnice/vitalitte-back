@@ -1,15 +1,14 @@
 package fr.vitalitte.vitalittebackend.publication.usecase;
 
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.publication.exception.PublicationNotFoundException;
 import fr.vitalitte.vitalittebackend.publication.exception.SlugPublicationAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.publication.models.Publication;
 import fr.vitalitte.vitalittebackend.publication.persistence.PublicationRepository;
 import fr.vitalitte.vitalittebackend.publication.rest.CreatePublicationBody;
 import fr.vitalitte.vitalittebackend.publication.rest.PublicationDto;
-import fr.vitalitte.vitalittebackend.workshop.exception.SlugWorkshopAlreadyExistsException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -26,19 +25,21 @@ public class PublicationServiceImpl implements PublicationService {
     PublicationRepository publicationRepository;
     TransformPublication transformPublication;
     TransformUrl transformUrl;
+    SlugifyUtil slugifyUtil;
 
-    public PublicationServiceImpl(PublicationRepository publicationRepository, TransformPublication transformPublication, TransformUrl transformUrl) {
+    public PublicationServiceImpl(PublicationRepository publicationRepository, TransformPublication transformPublication, TransformUrl transformUrl, SlugifyUtil slugifyUtil) {
         this.publicationRepository = publicationRepository;
         this.transformPublication = transformPublication;
         this.transformUrl = transformUrl;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
     public void createPublication(CreatePublicationBody createPublicationBody) {
 
         String publicationSlug = slugifyPublication(createPublicationBody);
+        slugifyUtil.verifyIfSlugAlreadyExists(publicationSlug);
 
-        existsBySlug(publicationSlug);
         URL picture = this.transformUrl.stringToUrl(createPublicationBody.getPicture());
         URL pictureThumbnail = this.transformUrl.stringToUrl(createPublicationBody.getPictureThumbnail());
 
@@ -95,7 +96,7 @@ public class PublicationServiceImpl implements PublicationService {
         Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
 
         String newPublicationSlug = slugifyPublication(publicationDtoUpdated);
-        existsBySlug(newPublicationSlug);
+        slugifyUtil.verifyIfSlugAlreadyExists(newPublicationSlug);
         if (!(publicationToUpdate.getSlug().equals(newPublicationSlug))){
             throw new SlugPublicationAlreadyExistsException();
         }
@@ -127,13 +128,7 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     private String slugUtil(String title) {
-        return SlugifyUtil.stringToSlug(title + '-' + SlugifyUtil.dateToFormatDDmmYY(new Date()));
-    }
-
-    private void existsBySlug(String slug){
-        if (this.publicationRepository.existsBySlug(slug)){
-            throw new SlugWorkshopAlreadyExistsException();
-        }
+        return slugifyUtil.stringToSlug(title + '-' + slugifyUtil.dateToFormatDDmmYY(new Date()));
     }
 
     private Publication findOnePublicationBySlugOrThrow(String slug) {

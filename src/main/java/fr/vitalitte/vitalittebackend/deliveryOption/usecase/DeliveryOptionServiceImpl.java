@@ -1,7 +1,7 @@
 package fr.vitalitte.vitalittebackend.deliveryOption.usecase;
 
-import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.CapitalizeStringUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.deliveryOption.exception.DeliveryOptionNotFoundException;
 import fr.vitalitte.vitalittebackend.deliveryOption.exception.SlugDeliveryOptionAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.deliveryOption.models.DeliveryOption;
@@ -17,10 +17,12 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
 
     DeliveryOptionRepository deliveryOptionRepository;
     TransformDeliveryOption transformDeliveryOption;
+    SlugifyUtil slugifyUtil;
 
-    public DeliveryOptionServiceImpl(DeliveryOptionRepository deliveryOptionRepository, TransformDeliveryOption transformDeliveryOption) {
+    public DeliveryOptionServiceImpl(DeliveryOptionRepository deliveryOptionRepository, TransformDeliveryOption transformDeliveryOption, SlugifyUtil slugifyUtil) {
         this.deliveryOptionRepository = deliveryOptionRepository;
         this.transformDeliveryOption = transformDeliveryOption;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
@@ -97,11 +99,11 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
     }
 
     private String slugifyDeliveryOption(CreateDeliveryOptionBody createDeliveryOptionBody) {
-        return SlugifyUtil.stringToSlug(createDeliveryOptionBody.getName()) + '-' + SlugifyUtil.stringToSlug(createDeliveryOptionBody.getCarrier());
+        return slugifyUtil.stringToSlug(createDeliveryOptionBody.getName()) + '-' + slugifyUtil.stringToSlug(createDeliveryOptionBody.getCarrier());
     }
 
     private String slugifyDeliveryOption(DeliveryOptionDto deliveryOptionDto) {
-        return SlugifyUtil.stringToSlug(deliveryOptionDto.getName()) + '-' + SlugifyUtil.stringToSlug(deliveryOptionDto.getCarrier());
+        return slugifyUtil.stringToSlug(deliveryOptionDto.getName()) + '-' + slugifyUtil.stringToSlug(deliveryOptionDto.getCarrier());
     }
 
     private void verifyIfDeliveryOptionExistsBySlug(String slug) {

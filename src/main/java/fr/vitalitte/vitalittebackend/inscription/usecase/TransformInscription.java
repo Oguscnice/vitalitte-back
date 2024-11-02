@@ -10,7 +10,7 @@ import fr.vitalitte.vitalittebackend.workshop.persistence.WorkshopRepository;
 import fr.vitalitte.vitalittebackend.workshop.usecase.TransformWorkshop;
 import org.springframework.stereotype.Service;
 
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
 

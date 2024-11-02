@@ -1,7 +1,7 @@
 package fr.vitalitte.vitalittebackend.inscription.usecase;
 
-import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.CapitalizeStringUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotAvailableException;
 import fr.vitalitte.vitalittebackend.inscription.exception.InscriptionNotFoundException;
 import fr.vitalitte.vitalittebackend.inscription.models.Inscription;
@@ -28,25 +28,24 @@ public class InscriptionServiceImpl implements InscriptionService {
     InscriptionRepository inscriptionRepository;
     TransformWorkshop transformWorkshop;
     TransformInscription transformInscription;
+    SlugifyUtil slugifyUtil;
 
-    public InscriptionServiceImpl(WorkshopRepository workshopRepository, InscriptionRepository inscriptionRepository, TransformWorkshop transformWorkshop, TransformInscription transformInscription) {
+    public InscriptionServiceImpl(WorkshopRepository workshopRepository, InscriptionRepository inscriptionRepository, TransformWorkshop transformWorkshop, TransformInscription transformInscription, SlugifyUtil slugifyUtil) {
         this.workshopRepository = workshopRepository;
         this.inscriptionRepository = inscriptionRepository;
         this.transformWorkshop = transformWorkshop;
         this.transformInscription = transformInscription;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
     public InscriptionDto createInscription(CreateInscriptionBody createInscriptionBody){
 
-        String newSlug = SlugifyUtil.stringToSlug(SlugifyUtil.dateToFormatDDmmYY(new Date()) + '-' + createInscriptionBody.getLastname() + '-' + createInscriptionBody.getFirstname() + '-' + createInscriptionBody.getWorkshopDto().getSlug());
+        String newSlug = slugifyUtil.stringToSlug(slugifyUtil.dateToFormatDDmmYY(new Date()) + '-' + createInscriptionBody.getLastname() + '-' + createInscriptionBody.getFirstname() + '-' + createInscriptionBody.getWorkshopDto().getSlug());
 
         while (this.inscriptionRepository.existsBySlug(newSlug)) {
-            newSlug = newSlug + "bis";
+            newSlug = newSlug + "-bis";
         }
-//        if (this.inscriptionRepository.existsBySlug(newSlug)) {
-//            throw new SlugInscriptionAlreadyExistsException();
-//        }
 
         Workshop workshop = this.findWorkshopBySlug(createInscriptionBody.getWorkshopDto().getSlug());
 
@@ -64,9 +63,7 @@ public class InscriptionServiceImpl implements InscriptionService {
                 .quantity(createInscriptionBody.getQuantity())
                 .build();
 
-        InscriptionDto inscriptionDto = this.transformInscription.inscriptionToDto(this.inscriptionRepository.save(newInscription));
-
-        return inscriptionDto;
+        return this.transformInscription.inscriptionToDto(this.inscriptionRepository.save(newInscription));
     };
 
     @Override

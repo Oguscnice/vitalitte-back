@@ -18,7 +18,7 @@ public class MaterialTypeController {
     public MaterialTypeController(final JwtService jwtService) {}
 
     @GetMapping("")
-    @PreAuthorize("@jwtService.isRoleCheckAndTokenNotExpired('ROLE_ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public List<String> getAllMaterialsTypeEnum() {
         return ConvertEumMaterialType.AllEnumsToStringArray();
     }

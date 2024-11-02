@@ -7,15 +7,14 @@ import fr.vitalitte.vitalittebackend.stationery.category.usecase.TransformCatego
 import fr.vitalitte.vitalittebackend.stationery.collection.exception.CollectionNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.collection.models.Collection;
 import fr.vitalitte.vitalittebackend.stationery.collection.persistence.CollectionRepository;
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.common.rest.CategoryDtoAndCollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.materials.exception.MaterialNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.materials.models.Material;
 import fr.vitalitte.vitalittebackend.stationery.materials.persistence.MaterialRepository;
 import fr.vitalitte.vitalittebackend.stationery.materials.usecase.TransformMaterial;
 import fr.vitalitte.vitalittebackend.stationery.product.exception.ProductNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.product.exception.SlugProductAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
 import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import fr.vitalitte.vitalittebackend.stationery.product.rest.CreateProductBody;
@@ -46,8 +45,9 @@ public class ProductServiceImpl implements ProductService {
     TransformMaterial transformMaterial;
     TransformCategory transformCategory;
     TransformUrl transformUrl;
+    SlugifyUtil slugifyUtil;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, MaterialRepository materialRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository, SecondaryPictureService secondaryPictureService, TransformProduct transformProduct, TransformMaterial transformMaterial, TransformCategory transformCategory, TransformUrl transformUrl) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, MaterialRepository materialRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository, SecondaryPictureService secondaryPictureService, TransformProduct transformProduct, TransformMaterial transformMaterial, TransformCategory transformCategory, TransformUrl transformUrl, SlugifyUtil slugifyUtil) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.materialRepository = materialRepository;
@@ -58,13 +58,14 @@ public class ProductServiceImpl implements ProductService {
         this.transformMaterial = transformMaterial;
         this.transformCategory = transformCategory;
         this.transformUrl = transformUrl;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
     public void createProduct(CreateProductBody createProductBody) {
 
-        String productSlug = slugifyProduct(createProductBody);
-        verifyIfSlugAlreadyExists(productSlug, createProductBody.getProductType());
+        String productSlug = slugifyUtil.stringToSlug(createProductBody.getName());
+        slugifyUtil.verifyIfSlugAlreadyExists(productSlug, createProductBody.getProductType());
 
         URL picture = this.transformUrl.stringToUrl(createProductBody.getPicture());
         URL pictureThumbnail = this.transformUrl.stringToUrl(createProductBody.getPictureThumbnail());
@@ -156,9 +157,9 @@ public class ProductServiceImpl implements ProductService {
         Product originalProduct = findOneProductBySlugOrThrow(productDtoUpdated.getSlug());
         List<SecondaryPicture> oldSecondaryPictures = this.secondaryPictureRepository.findAllByProduct(originalProduct);
 
-        String newProductSlug = slugifyProduct(productDtoUpdated);
+        String newProductSlug = slugifyUtil.stringToSlug(productDtoUpdated.getName());
         if (!productDtoUpdated.getSlug().equals(newProductSlug)) {
-            verifyIfSlugAlreadyExists(newProductSlug, productDtoUpdated.getProductType());
+            slugifyUtil.verifyIfSlugAlreadyExists(newProductSlug, productDtoUpdated.getProductType());
         }
 
         URL picture = this.transformUrl.stringToUrl(productDtoUpdated.getPicture());
@@ -204,20 +205,6 @@ public class ProductServiceImpl implements ProductService {
 
         this.productRepository.delete(productToDelete);
         return productToDelete;
-    }
-
-    private String slugifyProduct(CreateProductBody createProductBody) {
-        return SlugifyUtil.stringToSlug(createProductBody.getName());
-    }
-
-    private String slugifyProduct(ProductDto productDto) {
-        return SlugifyUtil.stringToSlug(productDto.getName());
-    }
-
-    private void verifyIfSlugAlreadyExists(String slug, String productType) {
-        if (this.productRepository.existsBySlug(slug)) {
-            throw new SlugProductAlreadyExistsException(productType);
-        }
     }
 
     private Product findOneProductBySlugOrThrow(String slug) {

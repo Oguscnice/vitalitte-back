@@ -1,6 +1,6 @@
 package fr.vitalitte.vitalittebackend.stationery.secondaryPicture.usecase;
 
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
 import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.models.SecondaryPicture;

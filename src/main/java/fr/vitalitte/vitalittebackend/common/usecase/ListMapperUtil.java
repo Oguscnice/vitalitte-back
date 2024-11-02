@@ -1,4 +1,4 @@
-package fr.vitalitte.vitalittebackend.common.utils;
+package fr.vitalitte.vitalittebackend.common.usecase;
 
 import java.util.ArrayList;
 import java.util.List;

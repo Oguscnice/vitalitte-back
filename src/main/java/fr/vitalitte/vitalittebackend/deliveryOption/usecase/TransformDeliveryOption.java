@@ -5,7 +5,7 @@ import fr.vitalitte.vitalittebackend.deliveryOption.models.DeliveryOption;
 import fr.vitalitte.vitalittebackend.deliveryOption.persistence.DeliveryOptionRepository;
 import fr.vitalitte.vitalittebackend.deliveryOption.rest.DeliveryOptionDto;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
 

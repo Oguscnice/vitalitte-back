@@ -1,11 +1,13 @@
 package fr.vitalitte.vitalittebackend.stationery.category.usecase;
 
-import fr.vitalitte.vitalittebackend.stationery.category.exception.CategoryNotFoundException;
+import fr.vitalitte.vitalittebackend.common.models.FileEntity;
+import fr.vitalitte.vitalittebackend.common.persistence.FileRepository;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformFile;
 import fr.vitalitte.vitalittebackend.stationery.category.models.Category;
 import fr.vitalitte.vitalittebackend.stationery.category.persistence.CategoryRepository;
 import fr.vitalitte.vitalittebackend.stationery.category.rest.CategoryDto;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
 
@@ -13,28 +15,26 @@ import java.util.List;
 public class TransformCategory {
 
     CategoryRepository categoryRepository;
+    FileRepository fileRepository;
+    TransformFile transformFile;
 
-    public TransformCategory(CategoryRepository categoryRepository) {
+    public TransformCategory(CategoryRepository categoryRepository, FileRepository fileRepository, TransformFile transformFile) {
         this.categoryRepository = categoryRepository;
+        this.fileRepository = fileRepository;
+        this.transformFile = transformFile;
     }
 
     public CategoryDto categoryToDto(Category category) {
+        FileEntity file = fileRepository.findByLinkedSlugAndIsMainPictureTrue(category.getSlug());
         return CategoryDto.builder()
                 .slug(category.getSlug())
                 .name(category.getName())
+                .description(category.getDescription())
+                .pictureDto(transformFile.fileToDto(file))
                 .build();
     }
 
     public List<CategoryDto> categoriesToDtos(List<Category> categories) {
         return mapList(this::categoryToDto, categories);
-    }
-
-    public Category dtoToCategory(CategoryDto categoryDto) {
-        return this.categoryRepository.findBySlug(categoryDto.getSlug())
-                        .orElseThrow(CategoryNotFoundException::new);
-    }
-
-    public List<Category> dtosToCategories(List<CategoryDto> categoriesDto) {
-        return mapList(this::dtoToCategory, categoriesDto);
     }
 }

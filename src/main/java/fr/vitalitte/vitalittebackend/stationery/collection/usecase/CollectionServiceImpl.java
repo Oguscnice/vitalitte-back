@@ -5,8 +5,8 @@ import fr.vitalitte.vitalittebackend.stationery.collection.exception.CollectionN
 import fr.vitalitte.vitalittebackend.stationery.collection.models.Collection;
 import fr.vitalitte.vitalittebackend.stationery.collection.persistence.CollectionRepository;
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
-import fr.vitalitte.vitalittebackend.common.utils.CapitalizeStringUtil;
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.CapitalizeStringUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
 import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -15,19 +15,23 @@ import java.util.List;
 
 @Service
 public class CollectionServiceImpl implements CollectionService {
+
     CollectionRepository collectionRepository;
     TransformCollection transformCollection;
     ProductRepository productRepository;
+    SlugifyUtil slugifyUtil;
 
-    public CollectionServiceImpl(CollectionRepository collectionRepository, TransformCollection transformCollection, ProductRepository productRepository) {
+    public CollectionServiceImpl(CollectionRepository collectionRepository, TransformCollection transformCollection, ProductRepository productRepository, SlugifyUtil slugifyUtil) {
         this.collectionRepository = collectionRepository;
         this.transformCollection = transformCollection;
         this.productRepository = productRepository;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
-    public void createCollection(String collectionName){
-        String newSlug = SlugifyUtil.stringToSlug(collectionName);
+    public void createCollection(String collectionName) {
+
+        String newSlug = slugifyUtil.stringToSlug(collectionName);
 
         if (this.collectionRepository.existsBySlug(newSlug)) {
             throw new SlugCategoryAlreadyExistsException();
@@ -43,10 +47,9 @@ public class CollectionServiceImpl implements CollectionService {
     @Override
     public void updateCollection(String slug, CollectionDto collectionDto){
 
-        Collection collectionToUpdate = this.collectionRepository.findBySlug(slug)
-                .orElseThrow(CollectionNotFoundException::new);
+        Collection collectionToUpdate = findOneCollectionBySlugOrThrow(slug);
 
-        String newSlug = SlugifyUtil.stringToSlug(collectionDto.getName());
+        String newSlug = slugifyUtil.stringToSlug(collectionDto.getName());
 
         if (this.collectionRepository.existsBySlug(newSlug)) {
             throw new SlugCategoryAlreadyExistsException();
@@ -64,10 +67,9 @@ public class CollectionServiceImpl implements CollectionService {
         return this.transformCollection.collectionsToDtos(collections);
     }
     @Override
-    public void deleteCollectionBySlug(String slug){
-        Collection collectionFound = this.collectionRepository.findBySlug(slug)
-                .orElseThrow(CollectionNotFoundException::new);
+    public void deleteCollectionBySlug(String slug) {
 
+        Collection collectionFound = findOneCollectionBySlugOrThrow(slug);
         List<Product> products = this.productRepository.findAllByCollection(collectionFound);
 
         for (Product product : products) {
@@ -76,5 +78,9 @@ public class CollectionServiceImpl implements CollectionService {
         }
 
         this.collectionRepository.delete(collectionFound);
+    }
+
+    private Collection findOneCollectionBySlugOrThrow(String collectionSlug) {
+        return this.collectionRepository.findBySlug(collectionSlug).orElseThrow(CollectionNotFoundException::new);
     }
 }

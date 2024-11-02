@@ -1,11 +1,10 @@
 package fr.vitalitte.vitalittebackend.stationery.materials.usecase;
 
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.materialTypes.usecase.ConvertEumMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materials.exception.MaterialNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.materials.exception.SlugMaterialAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.stationery.materialTypes.models.EMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materials.models.Material;
 import fr.vitalitte.vitalittebackend.stationery.materials.persistence.MaterialRepository;
@@ -31,22 +30,21 @@ public class MaterialServiceImpl implements MaterialService {
     TransformMaterial transformMaterial;
     TransformUrl transformUrl;
     ProductRepository productRepository;
+    SlugifyUtil slugifyUtil;
 
-    public MaterialServiceImpl(MaterialRepository materialRepository, TransformMaterial transformMaterial, TransformUrl transformUrl, ProductRepository productRepository) {
+    public MaterialServiceImpl(MaterialRepository materialRepository, TransformMaterial transformMaterial, TransformUrl transformUrl, ProductRepository productRepository, SlugifyUtil slugifyUtil) {
         this.materialRepository = materialRepository;
         this.transformMaterial = transformMaterial;
         this.transformUrl = transformUrl;
         this.productRepository = productRepository;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
     public void createMaterial(CreateMaterialBody createMaterialBody){
 
-        String newSlug = SlugifyUtil.stringToSlug(createMaterialBody.getName());
-
-        if (this.materialRepository.existsBySlug(newSlug)) {
-            throw new SlugMaterialAlreadyExistsException();
-        }
+        String newSlug = slugifyUtil.stringToSlug(createMaterialBody.getName());
+        slugifyUtil.verifyIfSlugAlreadyExists(newSlug);
 
         // transform et vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
         URL urlPicture = this.transformUrl.stringToUrl(createMaterialBody.getPicture());
@@ -97,9 +95,9 @@ public class MaterialServiceImpl implements MaterialService {
 
         Material materialToUpdate = this.findOneMaterialBySlugOrThrow(slug);
 
-        String newSlug = SlugifyUtil.stringToSlug(materialDtoUpdated.getName());
-        if (this.materialRepository.existsBySlug(newSlug) && (!slug.equals(newSlug))) {
-            throw new SlugMaterialAlreadyExistsException();
+        String newSlug = slugifyUtil.stringToSlug(materialDtoUpdated.getName());
+        if (!slug.equals(newSlug)) {
+            slugifyUtil.verifyIfSlugAlreadyExists(newSlug);
         }
 
         List<Product> products = this.productRepository.findAllByMaterialsContaining(materialToUpdate);
@@ -132,7 +130,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public void changeMaterialAvailabilityForCustomization(MaterialDto materialDtoBody){
+    public void changeMaterialAvailabilityForCustomization(MaterialDto materialDtoBody) {
 
         Material materialToUpdate = this.findOneMaterialBySlugOrThrow(materialDtoBody.getSlug());
         materialToUpdate.setAvailableForCustomization(!materialToUpdate.isAvailableForCustomization());
@@ -141,7 +139,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public void changeMaterialAvailability(MaterialDto materialDtoBody){
+    public void changeMaterialAvailability(MaterialDto materialDtoBody) {
 
         Material materialToUpdate = this.findOneMaterialBySlugOrThrow(materialDtoBody.getSlug());
         materialToUpdate.setAvailable(!materialToUpdate.isAvailable());
@@ -150,7 +148,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public void deleteMaterialBySlug(String slug){
+    public void deleteMaterialBySlug(String slug) {
         Material materialToDelete = this.findOneMaterialBySlugOrThrow(slug);
 
         List<Product> products = this.productRepository.findAllByMaterialsContaining(materialToDelete);
@@ -167,8 +165,7 @@ public class MaterialServiceImpl implements MaterialService {
         this.materialRepository.delete(materialToDelete);
     }
 
-    private Material findOneMaterialBySlugOrThrow(String slug){
-        return this.materialRepository.findBySlug(slug)
-                .orElseThrow(MaterialNotFoundException::new);
+    private Material findOneMaterialBySlugOrThrow(String slug) {
+        return this.materialRepository.findBySlug(slug).orElseThrow(MaterialNotFoundException::new);
     }
 }

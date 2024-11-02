@@ -12,7 +12,7 @@ import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 import fr.vitalitte.vitalittebackend.stationery.product.usecase.TransformProduct;
 import org.springframework.stereotype.Service;
 
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import fr.vitalitte.vitalittebackend.user.models.User;
 import fr.vitalitte.vitalittebackend.user.persistence.UserRepository;
 import fr.vitalitte.vitalittebackend.user.rest.UserDto;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 
 import java.util.List;

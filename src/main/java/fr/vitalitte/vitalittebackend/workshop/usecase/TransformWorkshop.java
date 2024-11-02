@@ -1,12 +1,12 @@
 package fr.vitalitte.vitalittebackend.workshop.usecase;
 
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.workshop.exception.WorkshopNotFoundException;
 import fr.vitalitte.vitalittebackend.workshop.models.Workshop;
 import fr.vitalitte.vitalittebackend.workshop.persistence.WorkshopRepository;
 import fr.vitalitte.vitalittebackend.workshop.rest.WorkshopDto;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
 

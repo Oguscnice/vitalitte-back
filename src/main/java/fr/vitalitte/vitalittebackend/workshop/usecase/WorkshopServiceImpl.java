@@ -1,11 +1,8 @@
 package fr.vitalitte.vitalittebackend.workshop.usecase;
 
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.common.utils.TransformUrl;
-import fr.vitalitte.vitalittebackend.publication.models.Publication;
-import fr.vitalitte.vitalittebackend.publication.rest.PublicationDto;
-import fr.vitalitte.vitalittebackend.workshop.exception.SlugWorkshopAlreadyExistsException;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.workshop.exception.WorkshopNotFoundException;
 import fr.vitalitte.vitalittebackend.workshop.models.Workshop;
 import fr.vitalitte.vitalittebackend.workshop.persistence.WorkshopRepository;
@@ -28,19 +25,20 @@ public class WorkshopServiceImpl implements WorkshopService {
     WorkshopRepository workshopRepository;
     TransformWorkshop transformWorkshop;
     TransformUrl transformUrl;
+    SlugifyUtil slugifyUtil;
 
-    public WorkshopServiceImpl(WorkshopRepository workshopRepository, TransformWorkshop transformWorkshop, TransformUrl transformUrl) {
+    public WorkshopServiceImpl(WorkshopRepository workshopRepository, TransformWorkshop transformWorkshop, TransformUrl transformUrl, SlugifyUtil slugifyUtil) {
         this.workshopRepository = workshopRepository;
         this.transformWorkshop = transformWorkshop;
         this.transformUrl = transformUrl;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
     public void createWorkshop(CreateWorkshopBody createWorkshopBody){
 
         String workshopSlug = slugifyWorkshopWithTitleAndDate(createWorkshopBody.getTitle(), createWorkshopBody.getDate());
-
-        existsBySlugOrThrow(workshopSlug);
+        slugifyUtil.verifyIfSlugAlreadyExists(workshopSlug);
 
         URL picture = this.transformUrl.stringToUrl(createWorkshopBody.getPicture());
         URL pictureThumbnail = this.transformUrl.stringToUrl(createWorkshopBody.getPicture());
@@ -102,7 +100,7 @@ public class WorkshopServiceImpl implements WorkshopService {
 
         String newWorkbookSlug = slugifyWorkshopWithTitleAndDate(workshopDtoUpdated.getTitle(), workshopDtoUpdated.getDate());
         if (!(workshopToUpdate.getSlug().equals(newWorkbookSlug))){
-            existsBySlugOrThrow(newWorkbookSlug);
+            slugifyUtil.verifyIfSlugAlreadyExists(newWorkbookSlug);
         }
 
         URL newPicture = this.transformUrl.stringToUrl(workshopDtoUpdated.getPicture());
@@ -130,15 +128,9 @@ public class WorkshopServiceImpl implements WorkshopService {
         return this.workshopRepository.findBySlug(slug).orElseThrow(WorkshopNotFoundException::new);
     }
 
-    private String slugifyWorkshopWithTitleAndDate(String title, LocalDateTime date){
+    private String slugifyWorkshopWithTitleAndDate(String title, LocalDateTime date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy");
         String dateForSlug = date.format(formatter);
-        return SlugifyUtil.stringToSlug( title + '-' + dateForSlug);
-    }
-
-    private void existsBySlugOrThrow(String slug) {
-        if (this.workshopRepository.existsBySlug(slug)){
-            throw new SlugWorkshopAlreadyExistsException();
-        }
+        return slugifyUtil.stringToSlug( title + '-' + dateForSlug);
     }
 }

@@ -1,8 +1,8 @@
-package fr.vitalitte.vitalittebackend.common.utils;
+package fr.vitalitte.vitalittebackend.common.usecase;
 
 import fr.vitalitte.vitalittebackend.common.exception.UrlImageInvalidException;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.utils.ListMapperUtil.mapList;
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.net.URL;
 import java.util.List;

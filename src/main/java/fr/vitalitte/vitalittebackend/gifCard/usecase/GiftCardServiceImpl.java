@@ -1,6 +1,6 @@
 package fr.vitalitte.vitalittebackend.gifCard.usecase;
 
-import fr.vitalitte.vitalittebackend.common.utils.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.gifCard.exception.GifCardNotFoundException;
 import fr.vitalitte.vitalittebackend.gifCard.exception.GiftCardAlreadyUsedException;
 import fr.vitalitte.vitalittebackend.gifCard.exception.GiftCardExpiredException;
@@ -19,16 +19,18 @@ public class GiftCardServiceImpl implements GiftCardService {
 
     GiftCardRepository giftCardRepository;
     TransformGiftCard transformGiftCard;
+    SlugifyUtil slugifyUtil;
 
-    public GiftCardServiceImpl(GiftCardRepository giftCardRepository, TransformGiftCard transformGiftCard) {
+    public GiftCardServiceImpl(GiftCardRepository giftCardRepository, TransformGiftCard transformGiftCard, SlugifyUtil slugifyUtil) {
         this.giftCardRepository = giftCardRepository;
         this.transformGiftCard = transformGiftCard;
+        this.slugifyUtil = slugifyUtil;
     }
 
     @Override
     public void createGiftCard(CreateGiftCardBody createGiftCardBody){
 
-        String slugifiedCode = SlugifyUtil.stringToSlug(createGiftCardBody.getCode());
+        String slugifiedCode = slugifyUtil.stringToSlug(createGiftCardBody.getCode());
 
         if (existsByCode(slugifiedCode)) {
             throw new SlugOrCodeGiftCardAlreadyExistsException();
