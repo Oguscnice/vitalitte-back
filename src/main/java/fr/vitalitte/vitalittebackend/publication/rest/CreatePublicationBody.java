@@ -1,7 +1,7 @@
 package fr.vitalitte.vitalittebackend.publication.rest;
 
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.net.URL;
@@ -15,16 +15,12 @@ public class CreatePublicationBody {
     @Size(max = 2000)
     private final String description;
 
-    @NotBlank
-    private final String picture;
+    private final FileDto pictureDto;
 
-    private final String pictureThumbnail;
-
-    public CreatePublicationBody(String title, String description, String picture, String pictureThumbnail) {
+    public CreatePublicationBody(String title, String description, FileDto pictureDto) {
         this.title = title;
         this.description = description;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
     }
 
     public String getTitle() {
@@ -35,11 +31,7 @@ public class CreatePublicationBody {
         return description;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 }

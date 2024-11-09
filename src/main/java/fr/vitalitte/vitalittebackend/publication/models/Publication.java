@@ -26,11 +26,6 @@ public class Publication {
     @Size(max = 2000)
     private String description;
 
-    @NotNull
-    private URL picture;
-
-    private URL pictureThumbnail;
-
     private boolean isSpotlighted;
 
     @CreationTimestamp
@@ -38,13 +33,11 @@ public class Publication {
 
     public Publication() {}
 
-    public Publication(UUID id, String slug, String title, String description, URL picture, URL pictureThumbnail, boolean isSpotlighted) {
+    public Publication(UUID id, String slug, String title, String description, boolean isSpotlighted) {
         this.id = id;
         this.slug = slug;
         this.title = title;
         this.description = description;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
         this.isSpotlighted = isSpotlighted;
     }
 
@@ -76,22 +69,6 @@ public class Publication {
         this.description = description;
     }
 
-    public URL getPicture() {
-        return picture;
-    }
-
-    public void setPicture(URL picture) {
-        this.picture = picture;
-    }
-
-    public URL getPictureThumbnail() {
-        return pictureThumbnail;
-    }
-
-    public void setPictureThumbnail(URL pictureThumbnail) {
-        this.pictureThumbnail = pictureThumbnail;
-    }
-
     public boolean isSpotlighted() {
         return isSpotlighted;
     }
@@ -114,8 +91,6 @@ public class Publication {
         private String slug;
         private String title;
         private String description;
-        private URL picture;
-        private URL pictureThumbnail;
 
         public PublicationBuilder slug(String slug) {
             this.slug = slug;
@@ -132,18 +107,8 @@ public class Publication {
             return this;
         }
 
-        public PublicationBuilder picture(URL picture) {
-            this.picture = picture;
-            return this;
-        }
-
-        public PublicationBuilder pictureThumbnail(URL pictureThumbnail) {
-            this.pictureThumbnail = pictureThumbnail;
-            return this;
-        }
-
         public Publication build() {
-            return new Publication(this.id, this.slug, this.title, this.description, this.picture, this.pictureThumbnail, false);
+            return new Publication(this.id, this.slug, this.title, this.description, false);
         }
     }
 }

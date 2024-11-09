@@ -1,8 +1,8 @@
 package fr.vitalitte.vitalittebackend.publication.usecase;
 
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
+import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.publication.exception.PublicationNotFoundException;
 import fr.vitalitte.vitalittebackend.publication.exception.SlugPublicationAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.publication.models.Publication;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
@@ -24,14 +23,14 @@ public class PublicationServiceImpl implements PublicationService {
 
     PublicationRepository publicationRepository;
     TransformPublication transformPublication;
-    TransformUrl transformUrl;
     SlugifyUtil slugifyUtil;
+    FileService fileService;
 
-    public PublicationServiceImpl(PublicationRepository publicationRepository, TransformPublication transformPublication, TransformUrl transformUrl, SlugifyUtil slugifyUtil) {
+    public PublicationServiceImpl(PublicationRepository publicationRepository, TransformPublication transformPublication, SlugifyUtil slugifyUtil, FileService fileService) {
         this.publicationRepository = publicationRepository;
         this.transformPublication = transformPublication;
-        this.transformUrl = transformUrl;
         this.slugifyUtil = slugifyUtil;
+        this.fileService = fileService;
     }
 
     @Override
@@ -40,30 +39,27 @@ public class PublicationServiceImpl implements PublicationService {
         String publicationSlug = slugifyPublication(createPublicationBody);
         slugifyUtil.verifyIfSlugAlreadyExists(publicationSlug);
 
-        URL picture = this.transformUrl.stringToUrl(createPublicationBody.getPicture());
-        URL pictureThumbnail = this.transformUrl.stringToUrl(createPublicationBody.getPictureThumbnail());
+        fileService.createFile(createPublicationBody.getPictureDto(), true, publicationSlug);
 
         final Publication newPublication = Publication.builder()
                 .slug(publicationSlug)
                 .title(createPublicationBody.getTitle())
                 .description(createPublicationBody.getDescription())
-                .picture(picture)
-                .pictureThumbnail(pictureThumbnail)
                 .build();
 
-        this.publicationRepository.save(newPublication);
+        publicationRepository.save(newPublication);
 
     }
 
     @Override
     public List<PublicationDto> getPublicationsSpotlighted(boolean value) {
-        List<Publication> publications = this.publicationRepository.findAllPublicationsByIsSpotlighted(value);
-        return this.transformPublication.publicationsToDtos(publications);
+        List<Publication> publications = publicationRepository.findAllPublicationsByIsSpotlighted(value);
+        return transformPublication.publicationsToDtos(publications);
     }
 
     @Override
     public PublicationDto getPublicationBySlug(String slug) {
-        return this.transformPublication.publicationToDto(this.findOnePublicationBySlugOrThrow(slug));
+        return transformPublication.publicationToDto(this.findOnePublicationBySlugOrThrow(slug));
     }
 
     @Override
@@ -74,8 +70,8 @@ public class PublicationServiceImpl implements PublicationService {
         String description = value.isBlank() ? null : value;
         Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPageableValues().getPageNumber(), paginationItemBySearchValue.getPageableValues().getPageSize());
 
-        Page<Publication> publicationPage = this.publicationRepository.findAllByTitleOrDescriptionOrderByCreatedAtDesc(title, description, pageable);
-        List<PublicationDto> publicationDtoList = this.transformPublication.publicationsToDtos(publicationPage.getContent());
+        Page<Publication> publicationPage = publicationRepository.findAllByTitleOrDescriptionOrderByCreatedAtDesc(title, description, pageable);
+        List<PublicationDto> publicationDtoList = transformPublication.publicationsToDtos(publicationPage.getContent());
 
         return new PageImpl<>(publicationDtoList, pageable, publicationPage.getTotalElements());
     }
@@ -85,7 +81,7 @@ public class PublicationServiceImpl implements PublicationService {
 
         Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
         publicationToUpdate.setSpotlighted(!publicationToUpdate.isSpotlighted());
-        this.publicationRepository.save(publicationToUpdate);
+        publicationRepository.save(publicationToUpdate);
 
         return this.transformPublication.publicationToDto(publicationToUpdate);
     }
@@ -96,27 +92,23 @@ public class PublicationServiceImpl implements PublicationService {
         Publication publicationToUpdate = this.findOnePublicationBySlugOrThrow(publicationDtoUpdated.getSlug());
 
         String newPublicationSlug = slugifyPublication(publicationDtoUpdated);
-        slugifyUtil.verifyIfSlugAlreadyExists(newPublicationSlug);
-        if (!(publicationToUpdate.getSlug().equals(newPublicationSlug))){
-            throw new SlugPublicationAlreadyExistsException();
+        if (!publicationToUpdate.getSlug().equals(newPublicationSlug)){
+            slugifyUtil.verifyIfSlugAlreadyExists(newPublicationSlug);
         }
-
-        URL newPicture = this.transformUrl.stringToUrl(publicationDtoUpdated.getPicture());
-        URL newPictureThumbnail = this.transformUrl.stringToUrl(publicationDtoUpdated.getPictureThumbnail());
-
+        
         publicationToUpdate.setTitle(publicationDtoUpdated.getTitle());
         publicationToUpdate.setSlug(newPublicationSlug);
         publicationToUpdate.setDescription(publicationDtoUpdated.getDescription());
-        publicationToUpdate.setPicture(newPicture);
-        publicationToUpdate.setPictureThumbnail(newPictureThumbnail);
+        fileService.updateFile(publicationDtoUpdated.getPictureDto(), newPublicationSlug);
 
-        this.publicationRepository.save(publicationToUpdate);
+        publicationRepository.save(publicationToUpdate);
     }
 
     @Override
     public void deletePublicationBySlug(String slug) {
         Publication publicationToDelete = this.findOnePublicationBySlugOrThrow(slug);
-        this.publicationRepository.delete(publicationToDelete);
+        publicationRepository.delete(publicationToDelete);
+        fileService.deleteAllFilesByLinkedSlug(slug);
     }
 
     private String slugifyPublication(CreatePublicationBody createPublicationBody) {
@@ -132,6 +124,6 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     private Publication findOnePublicationBySlugOrThrow(String slug) {
-        return this.publicationRepository.findBySlug(slug).orElseThrow(PublicationNotFoundException::new);
+        return publicationRepository.findBySlug(slug).orElseThrow(PublicationNotFoundException::new);
     }
 }

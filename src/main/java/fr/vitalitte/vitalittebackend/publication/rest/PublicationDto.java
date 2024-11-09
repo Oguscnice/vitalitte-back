@@ -1,5 +1,8 @@
 package fr.vitalitte.vitalittebackend.publication.rest;
 
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
+
+import java.io.File;
 import java.sql.Timestamp;
 
 public class PublicationDto {
@@ -7,19 +10,17 @@ public class PublicationDto {
     private String slug;
     private String title;
     private String description;
-    private String picture;
-    private String pictureThumbnail;
+    private FileDto pictureDto;
     private boolean isSpotlighted;
     private Timestamp createdAt;
 
     public PublicationDto() {}
 
-    public PublicationDto(String slug, String title, String description, String picture, String pictureThumbnail, boolean isSpotlighted, Timestamp createdAt) {
+    public PublicationDto(String slug, String title, String description, FileDto pictureDto, boolean isSpotlighted, Timestamp createdAt) {
         this.slug = slug;
         this.title = title;
         this.description = description;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
         this.isSpotlighted = isSpotlighted;
         this.createdAt = createdAt;
     }
@@ -48,20 +49,12 @@ public class PublicationDto {
         this.description = description;
     }
 
-    public String getPicture() {
-        return picture;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
-    }
-
-    public void setPictureThumbnail(String pictureThumbnail) {
-        this.pictureThumbnail = pictureThumbnail;
+    public void setPictureDto(FileDto pictureDto) {
+        this.pictureDto = pictureDto;
     }
 
     public boolean isSpotlighted() {
@@ -89,8 +82,7 @@ public class PublicationDto {
         private String slug;
         private String title;
         private String description;
-        private String picture;
-        private String pictureThumbnail;
+        private FileDto pictureDto;
         private boolean isSpotlighted;
         private Timestamp createdAt;
 
@@ -109,13 +101,8 @@ public class PublicationDto {
             return this;
         }
 
-        public PublicationDtoBuilder picture(String picture) {
-            this.picture = picture;
-            return this;
-        }
-
-        public PublicationDtoBuilder pictureThumbnail(String pictureThumbnail) {
-            this.pictureThumbnail = pictureThumbnail;
+        public PublicationDtoBuilder pictureDto(FileDto pictureDto) {
+            this.pictureDto = pictureDto;
             return this;
         }
 
@@ -130,7 +117,7 @@ public class PublicationDto {
         }
 
         public PublicationDto build() {
-            return new PublicationDto(this.slug, this.title, this.description, this.picture, this.pictureThumbnail, this.isSpotlighted, this.createdAt);
+            return new PublicationDto(this.slug, this.title, this.description, this.pictureDto, this.isSpotlighted, this.createdAt);
         }
     }
 }
