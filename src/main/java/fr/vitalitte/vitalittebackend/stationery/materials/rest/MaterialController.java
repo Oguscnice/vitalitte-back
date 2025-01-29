@@ -6,6 +6,7 @@ import fr.vitalitte.vitalittebackend.stationery.materials.usecase.MaterialServic
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,7 @@ public class MaterialController {
     }
 
     @PostMapping("/paginated")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<Page<MaterialDto>> getMaterialsPaginatedBySearchValue(@RequestBody PaginationItemBySearchValue paginationItemBySearchValue) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -36,7 +37,7 @@ public class MaterialController {
     }
 
     @PostMapping("")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> createMaterial(@RequestBody CreateMaterialBody createMaterialBody) {
         this.materialService.createMaterial(createMaterialBody);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -44,49 +45,48 @@ public class MaterialController {
     }
 
     @GetMapping("/availability-for-customization")
-//    @PreAuthorize("hasRole('ADMIN')")
     public List<MaterialDto> getAllMaterialsAvailableForCustomization() {
         return this.materialService.findMaterialsAvailableForCustomization();
     }
 
     @GetMapping("/{slug}")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public MaterialDto getMaterialBySlug(@PathVariable String slug) {
         return this.materialService.findMaterialBySlug(slug);
     }
 
     @GetMapping("")
-//    @PreAuthorize("hasRole('ADMIN')")
     public List<MaterialDto> getAllMaterials() {
         return this.materialService.findAllMaterials();
     }
 
     @PutMapping("/availability-for-customization")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> changeAvailabilityForCustomizationBySlug(@RequestBody MaterialDto materialDtoBody) {
         this.materialService.changeMaterialAvailabilityForCustomization(materialDtoBody);
         return ResponseEntity.ok(new MessageResponse("Disponibilité du Matériel mise à jour avec succès."));
     }
 
     @PutMapping("/availability")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> changeAvailability(@RequestBody MaterialDto materialDtoBody) {
         this.materialService.changeMaterialAvailability(materialDtoBody);
         return ResponseEntity.ok(new MessageResponse("Disponibilité du Matériel mise à jour avec succès."));
     }
 
     @PutMapping("/{slug}")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> updateMaterialBySlug(@PathVariable String slug, @RequestBody MaterialDto materialDto) {
         this.materialService.updateMaterialBySlug(slug, materialDto);
         return ResponseEntity.ok(new MessageResponse("Matériel mise à jour avec succès."));
     }
 
     @DeleteMapping("/{slug}")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> deleteMaterialBySlug(@PathVariable String slug) {
         this.materialService.deleteMaterialBySlug(slug);
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(new MessageResponse("Matériel supprimé avec succès."));
     }
 }

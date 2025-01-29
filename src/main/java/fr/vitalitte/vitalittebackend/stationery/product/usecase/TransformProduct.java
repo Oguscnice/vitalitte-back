@@ -1,5 +1,8 @@
 package fr.vitalitte.vitalittebackend.stationery.product.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.FileEntity;
+import fr.vitalitte.vitalittebackend.common.persistence.FileRepository;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformFile;
 import fr.vitalitte.vitalittebackend.stationery.category.exception.CategoryNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.category.models.Category;
 import fr.vitalitte.vitalittebackend.stationery.category.persistence.CategoryRepository;
@@ -10,17 +13,12 @@ import fr.vitalitte.vitalittebackend.stationery.collection.models.Collection;
 import fr.vitalitte.vitalittebackend.stationery.collection.persistence.CollectionRepository;
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.collection.usecase.TransformCollection;
-import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.materials.usecase.TransformMaterial;
 import fr.vitalitte.vitalittebackend.stationery.product.exception.ProductNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.product.models.Product;
 import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepository;
 import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 import fr.vitalitte.vitalittebackend.stationery.productType.usecase.ConvertEnumProductType;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.models.SecondaryPicture;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.persistence.SecondaryPictureRepository;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.usecase.TransformSecondaryPicture;
 import org.springframework.stereotype.Service;
 import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
@@ -29,59 +27,54 @@ import java.util.List;
 @Service
 public class TransformProduct {
 
-    TransformUrl transformUrl;
     TransformCategory transformCategory;
     TransformCollection transformCollection;
     TransformMaterial transformMaterial;
-    TransformSecondaryPicture transformSecondaryPicture;
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
     CollectionRepository collectionRepository;
-    SecondaryPictureRepository secondaryPictureRepository;
+    FileRepository fileRepository;
+    TransformFile transformFile;
 
-    public TransformProduct(TransformUrl transformUrl, TransformCategory transformCategory, TransformCollection transformCollection, TransformMaterial transformMaterial, TransformSecondaryPicture transformSecondaryPicture, ProductRepository productRepository, CategoryRepository categoryRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository) {
-        this.transformUrl = transformUrl;
-        this.transformCategory = transformCategory;
-        this.transformCollection = transformCollection;
-        this.transformMaterial = transformMaterial;
-        this.transformSecondaryPicture = transformSecondaryPicture;
-        this.productRepository = productRepository;
+    public TransformProduct(CategoryRepository categoryRepository, CollectionRepository collectionRepository, FileRepository fileRepository, ProductRepository productRepository, TransformCategory transformCategory, TransformCollection transformCollection, TransformFile transformFile, TransformMaterial transformMaterial) {
         this.categoryRepository = categoryRepository;
         this.collectionRepository = collectionRepository;
-        this.secondaryPictureRepository = secondaryPictureRepository;
+        this.fileRepository = fileRepository;
+        this.productRepository = productRepository;
+        this.transformCategory = transformCategory;
+        this.transformCollection = transformCollection;
+        this.transformFile = transformFile;
+        this.transformMaterial = transformMaterial;
     }
 
     public ProductDto productToDto(Product product) {
 
-        String picture = this.transformUrl.urlToString(product.getPicture());
-        String pictureThumbnail = this.transformUrl.urlToString(product.getPictureThumbnail());
+        FileEntity file = fileRepository.findByLinkedSlugAndIsMainPictureTrue(product.getSlug());
         String productType = ConvertEnumProductType.EnumToString(product.getEProductType());
 
         CategoryDto categoryDto = null;
-        if(product.getCategory() != null){
-            Category categoryFound = this.categoryRepository.findBySlug(product.getCategory().getSlug()).orElseThrow(CategoryNotFoundException::new);
-            categoryDto = this.transformCategory.categoryToDto(categoryFound);
+        if (product.getCategory() != null) {
+            Category categoryFound = categoryRepository.findBySlug(product.getCategory().getSlug()).orElseThrow(CategoryNotFoundException::new);
+            categoryDto = transformCategory.categoryToDto(categoryFound);
         }
 
         CollectionDto collectionDto = null;
-        if(product.getCollection() != null) {
-            Collection collectionFound = this.collectionRepository.findBySlug(product.getCollection().getSlug()).orElseThrow(CollectionNotFoundException::new);
-            collectionDto = this.transformCollection.collectionToDto(collectionFound);
+        if (product.getCollection() != null) {
+            Collection collectionFound = collectionRepository.findBySlug(product.getCollection().getSlug()).orElseThrow(CollectionNotFoundException::new);
+            collectionDto = transformCollection.collectionToDto(collectionFound);
         }
 
-        List<SecondaryPicture> secondaryPictures = this.secondaryPictureRepository.findAllByProduct(product);
-        List<SecondaryPictureDto> secondaryPicturesDto = this.transformSecondaryPicture.picturesToDtos(secondaryPictures);
+        List<FileEntity> secondaryPictures = fileRepository.findAllByLinkedSlugAndIsMainPictureFalse(product.getSlug());
 
         return ProductDto.builder()
                 .name(product.getName())
                 .slug(product.getSlug())
-                .picture(picture)
-                .pictureThumbnail(pictureThumbnail)
+                .pictureDto(transformFile.fileToDto(file))
                 .introduction(product.getIntroduction())
                 .price(product.getPrice())
-                .secondaryPicturesDto(secondaryPicturesDto)
+                .secondaryPicturesDto(transformFile.filesToDtos(secondaryPictures))
                 .description(product.getDescription())
-                .materialsDto(this.transformMaterial.materialsToDto(product.getMaterials()))
+                .materialsDto(transformMaterial.materialsToDto(product.getMaterials()))
                 .categoryDto(categoryDto)
                 .collectionDto(collectionDto)
                 .isAvailable(product.isAvailable())

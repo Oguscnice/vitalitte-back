@@ -1,5 +1,7 @@
 package fr.vitalitte.vitalittebackend.stationery.materials.rest;
 
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
+
 import java.math.BigDecimal;
 
 public class MaterialDto {
@@ -8,19 +10,17 @@ public class MaterialDto {
     private String slug;
     private BigDecimal price;
     private String description;
-    private String picture;
-    private String pictureThumbnail;
+    private FileDto pictureDto;
     private String materialType;
     private boolean isAvailable;
     private boolean isAvailableForCustomization;
 
-    public MaterialDto(String name, String slug, BigDecimal price, String description, String picture, String pictureThumbnail,String materialType, boolean isAvailable, boolean isAvailableForCustomization) {
+    public MaterialDto(String name, String slug, BigDecimal price, String description, FileDto pictureDto,String materialType, boolean isAvailable, boolean isAvailableForCustomization) {
         this.name = name;
         this.slug = slug;
         this.price = price;
         this.description = description;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
         this.materialType = materialType;
         this.isAvailable = isAvailable;
         this.isAvailableForCustomization = isAvailableForCustomization;
@@ -58,20 +58,12 @@ public class MaterialDto {
         this.description = description;
     }
 
-    public String getPicture() {
-        return picture;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
-    }
-
-    public void setPictureThumbnail(String pictureThumbnail) {
-        this.pictureThumbnail = pictureThumbnail;
+    public void setPictureDto(FileDto pictureDto) {
+        this.pictureDto = pictureDto;
     }
 
     public boolean isAvailableForCustomization() {
@@ -108,8 +100,7 @@ public class MaterialDto {
         private String slug;
         private BigDecimal price;
         private String description;
-        private String picture;
-        private String pictureThumbnail;
+        private FileDto pictureDto;
         private String materialType;
         private boolean isAvailable;
         private boolean isAvailableForCustomization;
@@ -134,13 +125,8 @@ public class MaterialDto {
             return this;
         }
 
-        public MaterialDtoBuilder picture(String picture){
-            this.picture = picture;
-            return this;
-        }
-
-        public MaterialDtoBuilder pictureThumbnail(String pictureThumbnail){
-            this.pictureThumbnail = pictureThumbnail;
+        public MaterialDtoBuilder pictureDto(FileDto pictureDto){
+            this.pictureDto = pictureDto;
             return this;
         }
 
@@ -158,7 +144,16 @@ public class MaterialDto {
             return this;
         }
         public MaterialDto build(){
-            return new MaterialDto(this.name, this.slug, this.price, this.description, this.picture, this.pictureThumbnail, this.materialType, this.isAvailable, this.isAvailableForCustomization);
+            return new MaterialDto(
+                    this.name,
+                    this.slug,
+                    this.price,
+                    this.description,
+                    this.pictureDto,
+                    this.materialType,
+                    this.isAvailable,
+                    this.isAvailableForCustomization
+            );
         }
     }
 }

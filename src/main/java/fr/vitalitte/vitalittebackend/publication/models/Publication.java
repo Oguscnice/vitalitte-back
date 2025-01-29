@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.UUID;
+
 @Entity
 public class Publication {
 

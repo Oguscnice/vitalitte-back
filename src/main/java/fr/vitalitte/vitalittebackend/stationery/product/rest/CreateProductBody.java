@@ -1,10 +1,9 @@
 package fr.vitalitte.vitalittebackend.stationery.product.rest;
 
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
 import fr.vitalitte.vitalittebackend.stationery.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.MaterialDto;
-import fr.vitalitte.vitalittebackend.stationery.productType.models.EProductType;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -22,10 +21,7 @@ public class CreateProductBody {
     private final String name;
 
     @NotNull
-    private final String picture;
-
-    @NotNull
-    private final String pictureThumbnail;
+    private final FileDto pictureDto;
 
     @NotBlank
     @Column(columnDefinition = "TEXT")
@@ -36,7 +32,7 @@ public class CreateProductBody {
     private final BigDecimal price;
 
     @NotNull
-    private final List<SecondaryPictureDto> secondaryPicturesDto;
+    private final List<FileDto> secondaryPicturesDto;
 
     @NotBlank
     @Column(columnDefinition = "TEXT")
@@ -52,10 +48,9 @@ public class CreateProductBody {
 
     private final CollectionDto collectionDto;
 
-    public CreateProductBody(String name, String picture, String pictureThumbnail, String introduction, BigDecimal price, List<SecondaryPictureDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, String productType) {
+    public CreateProductBody(String name, FileDto pictureDto, String introduction, BigDecimal price, List<FileDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, String productType) {
         this.name = name;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
         this.introduction = introduction;
         this.price = price;
         this.secondaryPicturesDto = secondaryPicturesDto;
@@ -70,12 +65,8 @@ public class CreateProductBody {
         return name;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 
     public String getIntroduction() {
@@ -86,7 +77,7 @@ public class CreateProductBody {
         return price;
     }
 
-    public List<SecondaryPictureDto> getSecondaryPicturesDto() {
+    public List<FileDto> getSecondaryPicturesDto() {
         return secondaryPicturesDto;
     }
 

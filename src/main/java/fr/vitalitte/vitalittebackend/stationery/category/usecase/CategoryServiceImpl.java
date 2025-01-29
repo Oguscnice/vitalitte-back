@@ -1,7 +1,5 @@
 package fr.vitalitte.vitalittebackend.stationery.category.usecase;
 
-import fr.vitalitte.vitalittebackend.common.models.FileEntity;
-import fr.vitalitte.vitalittebackend.common.persistence.FileRepository;
 import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.stationery.category.exception.CategoryNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.category.models.Category;
@@ -19,20 +17,18 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    private final FileRepository fileRepository;
     CategoryRepository categoryRepository;
     TransformCategory transformCategory;
     ProductRepository productRepository;
     SlugifyUtil slugifyUtil;
     FileService fileService;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, TransformCategory transformCategory, ProductRepository productRepository, SlugifyUtil slugifyUtil, FileService fileService, FileRepository fileRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, TransformCategory transformCategory, ProductRepository productRepository, SlugifyUtil slugifyUtil, FileService fileService) {
         this.categoryRepository = categoryRepository;
         this.transformCategory = transformCategory;
         this.productRepository = productRepository;
         this.slugifyUtil = slugifyUtil;
         this.fileService = fileService;
-        this.fileRepository = fileRepository;
     }
 
     @Override
@@ -65,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryToUpdate.setName(CapitalizeStringUtil.firstLetter(category.getName()));
         categoryToUpdate.setDescription(category.getDescription());
-        fileService.updateFile(category.getPictureDto(), newCategorySlug);
+        fileService.updateFile(category.getPictureDto(), newCategorySlug, true);
 
         categoryRepository.save(categoryToUpdate);
     }

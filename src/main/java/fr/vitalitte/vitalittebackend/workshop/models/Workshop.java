@@ -40,11 +40,6 @@ public class Workshop {
     @Digits(integer=3, fraction=2)
     private BigDecimal price;
 
-    @NotNull
-    private URL picture;
-
-    private URL pictureThumbnail;
-
     @Min(1)
     private Long registrations;
 
@@ -52,7 +47,7 @@ public class Workshop {
 
     public Workshop() {}
 
-    public Workshop(UUID id, String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, URL picture, URL pictureThumbnail, Long registrations, boolean isAvailable) {
+    public Workshop(UUID id, String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, Long registrations, boolean isAvailable) {
         this.id = id;
         this.title = title;
         this.slug = slug;
@@ -60,8 +55,6 @@ public class Workshop {
         this.date = date;
         this.address = address;
         this.price = price;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
         this.registrations = registrations;
         this.isAvailable = isAvailable;
     }
@@ -118,22 +111,6 @@ public class Workshop {
         this.price = price;
     }
 
-    public URL getPicture() {
-        return picture;
-    }
-
-    public void setPicture(URL picture) {
-        this.picture = picture;
-    }
-
-    public URL getPictureThumbnail() {
-        return pictureThumbnail;
-    }
-
-    public void setPictureThumbnail(URL pictureThumbnail) {
-        this.pictureThumbnail = pictureThumbnail;
-    }
-
     public Long getRegistrations() {
         return registrations;
     }
@@ -163,8 +140,6 @@ public class Workshop {
         private LocalDateTime date;
         private String address;
         private BigDecimal price;
-        private URL picture;
-        private URL pictureThumbnail;
         private Long registrations;
 
         public WorkshopBuilder title(String title) {
@@ -197,23 +172,13 @@ public class Workshop {
             return this;
         }
 
-        public WorkshopBuilder picture(URL picture) {
-            this.picture = picture;
-            return this;
-        }
-
-        public WorkshopBuilder pictureThumbnail(URL pictureThumbnail) {
-            this.pictureThumbnail = pictureThumbnail;
-            return this;
-        }
-
         public WorkshopBuilder registrations(Long registrations) {
             this.registrations = registrations;
             return this;
         }
 
         public Workshop build() {
-            return new Workshop(this.id, this.title, this.slug, this.description, this.date, this.address, this.price, this.picture, this.pictureThumbnail, this.registrations, true);
+            return new Workshop(this.id, this.title, this.slug, this.description, this.date, this.address, this.price, this.registrations, true);
         }
     }
 }

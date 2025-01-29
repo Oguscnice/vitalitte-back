@@ -1,10 +1,10 @@
 package fr.vitalitte.vitalittebackend.stationery.product.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
 import fr.vitalitte.vitalittebackend.stationery.category.rest.CategoryDto;
 import fr.vitalitte.vitalittebackend.stationery.collection.rest.CollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.MaterialDto;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
 import jakarta.persistence.Column;
 
 import java.math.BigDecimal;
@@ -14,11 +14,10 @@ public class ProductDto {
 
     private String name;
     private String slug;
-    private String picture;
-    private String pictureThumbnail;
+    private FileDto pictureDto;
     private String introduction;
     private BigDecimal price;
-    private List<SecondaryPictureDto> secondaryPicturesDto;
+    private List<FileDto> secondaryPicturesDto;
     private String description;
     private List<MaterialDto> materialsDto;
     private CategoryDto categoryDto;
@@ -28,11 +27,10 @@ public class ProductDto {
     @Column(name = "isAvailable")
     private boolean isAvailable;
 
-    public ProductDto(String name, String slug, String picture, String pictureThumbnail, String introduction, BigDecimal price, List<SecondaryPictureDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, boolean isAvailable, String productType) {
+    public ProductDto(String name, String slug, FileDto pictureDto, String introduction, BigDecimal price, List<FileDto> secondaryPicturesDto, String description, List<MaterialDto> materialsDto, CategoryDto categoryDto, CollectionDto collectionDto, boolean isAvailable, String productType) {
         this.name = name;
         this.slug = slug;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
         this.introduction = introduction;
         this.price = price;
         this.secondaryPicturesDto = secondaryPicturesDto;
@@ -60,20 +58,12 @@ public class ProductDto {
         this.slug = slug;
     }
 
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 
-    public void setPictureThumbnail(String pictureThumbnail) {
-        this.pictureThumbnail = pictureThumbnail;
-    }
-
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setPictureDto(FileDto pictureDto) {
+        this.pictureDto = pictureDto;
     }
 
     public String getIntroduction() {
@@ -92,11 +82,11 @@ public class ProductDto {
         this.price = price;
     }
 
-    public List<SecondaryPictureDto> getSecondaryPicturesDto() {
+    public List<FileDto> getSecondaryPicturesDto() {
         return secondaryPicturesDto;
     }
 
-    public void setSecondaryPicturesDto(List<SecondaryPictureDto> secondaryPicturesDto) {
+    public void setSecondaryPicturesDto(List<FileDto> secondaryPicturesDto) {
         this.secondaryPicturesDto = secondaryPicturesDto;
     }
 
@@ -158,11 +148,10 @@ public class ProductDto {
 
         private String name;
         private String slug;
-        private String picture;
-        private String pictureThumbnail;
+        private FileDto pictureDto;
         private String introduction;
         private BigDecimal price;
-        private List<SecondaryPictureDto> secondaryPicturesDto;
+        private List<FileDto> secondaryPicturesDto;
         private String description;
         private List<MaterialDto> materialsDto;
         private CategoryDto categoryDto;
@@ -180,13 +169,8 @@ public class ProductDto {
             return this;
         }
 
-        public ProductDtoBuilder picture(String picture) {
-            this.picture = picture;
-            return this;
-        }
-
-        public ProductDtoBuilder pictureThumbnail(String pictureThumbnail) {
-            this.pictureThumbnail = pictureThumbnail;
+        public ProductDtoBuilder pictureDto(FileDto pictureDto) {
+            this.pictureDto = pictureDto;
             return this;
         }
 
@@ -200,7 +184,7 @@ public class ProductDto {
             return this;
         }
 
-        public ProductDtoBuilder secondaryPicturesDto(List<SecondaryPictureDto> secondaryPicturesDto) {
+        public ProductDtoBuilder secondaryPicturesDto(List<FileDto> secondaryPicturesDto) {
             this.secondaryPicturesDto = secondaryPicturesDto;
             return this;
         }
@@ -239,8 +223,7 @@ public class ProductDto {
             return new ProductDto(
                     this.name,
                     this.slug,
-                    this.picture,
-                    this.pictureThumbnail,
+                    this.pictureDto,
                     this.introduction,
                     this.price,
                     this.secondaryPicturesDto,

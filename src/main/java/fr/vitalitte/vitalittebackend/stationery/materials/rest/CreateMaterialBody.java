@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.stationery.materials.rest;
 
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -23,21 +24,16 @@ public class CreateMaterialBody {
     @Column(columnDefinition = "TEXT")
     private final String description;
 
-    @NotNull
-    private final String picture;
-
-    @NotNull
-    private final String pictureThumbnail;
+    private final FileDto pictureDto;
 
     @NotNull
     private final String materialType;
 
-    public CreateMaterialBody(String name, BigDecimal price, String description, String picture, String pictureThumbnail, String materialType) {
+    public CreateMaterialBody(String name, BigDecimal price, String description, FileDto pictureDto, String materialType) {
         this.name = name;
         this.price = price;
         this.description = description;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
         this.materialType = materialType;
     }
 
@@ -53,12 +49,8 @@ public class CreateMaterialBody {
         return description;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 
     public String getMaterialType() {

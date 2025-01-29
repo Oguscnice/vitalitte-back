@@ -1,5 +1,8 @@
 package fr.vitalitte.vitalittebackend.stationery.materials.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.FileEntity;
+import fr.vitalitte.vitalittebackend.common.persistence.FileRepository;
+import fr.vitalitte.vitalittebackend.common.usecase.TransformFile;
 import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.materialTypes.usecase.ConvertEumMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materials.exception.MaterialNotFoundException;
@@ -14,18 +17,19 @@ import java.util.List;
 public class TransformMaterial {
 
     MaterialRepository materialRepository;
-    TransformUrl transformUrl;
+    FileRepository fileRepository;
+    TransformFile transformFile;
 
-    public TransformMaterial(MaterialRepository materialRepository, TransformUrl transformUrl) {
+    public TransformMaterial(FileRepository fileRepository, MaterialRepository materialRepository, TransformFile transformFile) {
+        this.fileRepository = fileRepository;
         this.materialRepository = materialRepository;
-        this.transformUrl = transformUrl;
+        this.transformFile = transformFile;
     }
 
     public MaterialDto materialToDto(Material material) {
 
         String materialType = ConvertEumMaterialType.EnumToString(material.getMaterialType());
-        String picture = this.transformUrl.urlToString(material.getPicture());
-        String pictureThumbnail = this.transformUrl.urlToString(material.getPictureThumbnail());
+        FileEntity file = fileRepository.findByLinkedSlugAndIsMainPictureTrue(material.getSlug());
 
         return MaterialDto.builder()
                 .name(material.getName())
@@ -33,8 +37,7 @@ public class TransformMaterial {
                 .description(material.getDescription())
                 .materialType(materialType)
                 .price(material.getPrice())
-                .picture(picture)
-                .pictureThumbnail(pictureThumbnail)
+                .pictureDto(transformFile.fileToDto(file))
                 .isAvailable(material.isAvailable())
                 .isAvailableForCustomization(material.isAvailableForCustomization())
                 .build();

@@ -1,5 +1,8 @@
 package fr.vitalitte.vitalittebackend.stationery.product.usecase;
 
+import fr.vitalitte.vitalittebackend.common.models.FileEntity;
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
+import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.stationery.category.exception.CategoryNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.category.models.Category;
 import fr.vitalitte.vitalittebackend.stationery.category.persistence.CategoryRepository;
@@ -21,14 +24,8 @@ import fr.vitalitte.vitalittebackend.stationery.product.rest.CreateProductBody;
 import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 import fr.vitalitte.vitalittebackend.stationery.productType.models.EProductType;
 import fr.vitalitte.vitalittebackend.stationery.productType.usecase.ConvertEnumProductType;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.exception.SecondaryPictureNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.models.SecondaryPicture;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.persistence.SecondaryPictureRepository;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.rest.SecondaryPictureDto;
-import fr.vitalitte.vitalittebackend.stationery.secondaryPicture.usecase.SecondaryPictureService;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,26 +36,22 @@ public class ProductServiceImpl implements ProductService {
     CategoryRepository categoryRepository;
     MaterialRepository materialRepository;
     CollectionRepository collectionRepository;
-    SecondaryPictureRepository secondaryPictureRepository;
-    SecondaryPictureService secondaryPictureService;
     TransformProduct transformProduct;
     TransformMaterial transformMaterial;
     TransformCategory transformCategory;
-    TransformUrl transformUrl;
     SlugifyUtil slugifyUtil;
+    FileService fileService;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, MaterialRepository materialRepository, CollectionRepository collectionRepository, SecondaryPictureRepository secondaryPictureRepository, SecondaryPictureService secondaryPictureService, TransformProduct transformProduct, TransformMaterial transformMaterial, TransformCategory transformCategory, TransformUrl transformUrl, SlugifyUtil slugifyUtil) {
-        this.productRepository = productRepository;
+    public ProductServiceImpl(CategoryRepository categoryRepository, CollectionRepository collectionRepository, FileService fileService, MaterialRepository materialRepository, ProductRepository productRepository, SlugifyUtil slugifyUtil, TransformCategory transformCategory, TransformMaterial transformMaterial, TransformProduct transformProduct) {
         this.categoryRepository = categoryRepository;
-        this.materialRepository = materialRepository;
         this.collectionRepository = collectionRepository;
-        this.secondaryPictureRepository = secondaryPictureRepository;
-        this.secondaryPictureService = secondaryPictureService;
-        this.transformProduct = transformProduct;
-        this.transformMaterial = transformMaterial;
-        this.transformCategory = transformCategory;
-        this.transformUrl = transformUrl;
+        this.fileService = fileService;
+        this.materialRepository = materialRepository;
+        this.productRepository = productRepository;
         this.slugifyUtil = slugifyUtil;
+        this.transformCategory = transformCategory;
+        this.transformMaterial = transformMaterial;
+        this.transformProduct = transformProduct;
     }
 
     @Override
@@ -67,8 +60,10 @@ public class ProductServiceImpl implements ProductService {
         String productSlug = slugifyUtil.stringToSlug(createProductBody.getName());
         slugifyUtil.verifyIfSlugAlreadyExists(productSlug, createProductBody.getProductType());
 
-        URL picture = this.transformUrl.stringToUrl(createProductBody.getPicture());
-        URL pictureThumbnail = this.transformUrl.stringToUrl(createProductBody.getPictureThumbnail());
+        fileService.createFile(createProductBody.getPictureDto(), true, productSlug);
+        if (!createProductBody.getSecondaryPicturesDto().isEmpty()) {
+            createProductBody.getSecondaryPicturesDto().forEach(secondaryPictureDto -> fileService.createFile(secondaryPictureDto, false, productSlug));
+        }
         EProductType eProductType = ConvertEnumProductType.StringToEnum(createProductBody.getProductType());
 
         final Collection collectionFound = findOneCollectionBySlugOrThrow(createProductBody.getCollectionDto().getSlug());
@@ -81,8 +76,6 @@ public class ProductServiceImpl implements ProductService {
         final Product newProduct = Product.builder()
                 .name(createProductBody.getName())
                 .slug(productSlug)
-                .picture(picture)
-                .pictureThumbnail(pictureThumbnail)
                 .price(createProductBody.getPrice())
                 .description(createProductBody.getDescription())
                 .introduction(createProductBody.getIntroduction())
@@ -93,8 +86,6 @@ public class ProductServiceImpl implements ProductService {
                 .build();
 
         this.productRepository.save(newProduct);
-
-        createSecondaryPictures(findOneProductBySlugOrThrow(productSlug), createProductBody.getSecondaryPicturesDto());
     }
 
     @Override
@@ -109,18 +100,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDto> findAllProductsByCategorySlug(String categorySlug) {
-
         Category category = findOneCategoryBySlugOrThrow(categorySlug);
-
         List<Product> products = this.productRepository.findAllByCategory(category);
         return this.transformProduct.productsToDto(products);
     }
 
     @Override
     public List<ProductDto> findAllProductsByCollectionSlug(String collectionSlug) {
-
         Collection collection = findOneCollectionBySlugOrThrow(collectionSlug);
-
         List<Product> products = this.productRepository.findAllByCollection(collection);
         return this.transformProduct.productsToDto(products);
     }
@@ -155,20 +142,25 @@ public class ProductServiceImpl implements ProductService {
     public void updateProduct(ProductDto productDtoUpdated) {
 
         Product originalProduct = findOneProductBySlugOrThrow(productDtoUpdated.getSlug());
-        List<SecondaryPicture> oldSecondaryPictures = this.secondaryPictureRepository.findAllByProduct(originalProduct);
 
         String newProductSlug = slugifyUtil.stringToSlug(productDtoUpdated.getName());
         if (!productDtoUpdated.getSlug().equals(newProductSlug)) {
             slugifyUtil.verifyIfSlugAlreadyExists(newProductSlug, productDtoUpdated.getProductType());
         }
 
-        URL picture = this.transformUrl.stringToUrl(productDtoUpdated.getPicture());
-        URL pictureThumbnail = this.transformUrl.stringToUrl(productDtoUpdated.getPictureThumbnail());
+        FileDto actualPictureDto = fileService.findFilePictureByLinkedSlug(originalProduct.getSlug());
+        if (!productDtoUpdated.getPictureDto().getSlug().equals(actualPictureDto.getSlug())) {
+            final boolean isMainPicture = true;
+            fileService.updateFile(productDtoUpdated.getPictureDto(), newProductSlug, isMainPicture);
+        }
+
+        List<FileDto> actualSecondaryPicturesDto = fileService.findFilesSecondaryPicturesByLinkedSlug(originalProduct.getSlug());
+        if (!actualSecondaryPicturesDto.isEmpty()) {
+            fileService.compareAndUpdateFiles(actualSecondaryPicturesDto, productDtoUpdated.getSecondaryPicturesDto(), newProductSlug);
+        }
 
         originalProduct.setName(productDtoUpdated.getName());
         originalProduct.setSlug(newProductSlug);
-        originalProduct.setPicture(picture);
-        originalProduct.setPictureThumbnail(pictureThumbnail);
         originalProduct.setIntroduction(productDtoUpdated.getIntroduction());
         originalProduct.setPrice(productDtoUpdated.getPrice());
         originalProduct.setDescription(productDtoUpdated.getDescription());
@@ -191,16 +183,18 @@ public class ProductServiceImpl implements ProductService {
         originalProduct.setMaterials(materials);
 
         this.productRepository.save(originalProduct);
-
-        compareOldSecPicListAndNewPicList(newProductSlug, oldSecondaryPictures, productDtoUpdated.getSecondaryPicturesDto());
     }
 
     public Product deleteProductBySlug(String slug){
         Product productToDelete = findOneProductBySlugOrThrow(slug);
 
-        List<SecondaryPicture> secondaryPictureList = this.secondaryPictureRepository.findAllByProduct(productToDelete);
+        FileDto pictureDto = fileService.findFilePictureByLinkedSlug(slug);
+        if (pictureDto != null) {
+            fileService.deleteFileBySlug(pictureDto.getSlug());
+        }
+        List<FileDto> secondaryPictureList = fileService.findFilesSecondaryPicturesByLinkedSlug(slug);
         if (!secondaryPictureList.isEmpty()) {
-            this.secondaryPictureRepository.deleteAll(secondaryPictureList);
+            fileService.deleteAllFilesByLinkedSlug(slug);
         }
 
         this.productRepository.delete(productToDelete);
@@ -221,62 +215,5 @@ public class ProductServiceImpl implements ProductService {
 
     private Material findOneMaterialBySlugOrThrow(String slug) {
         return this.materialRepository.findBySlug(slug).orElseThrow(MaterialNotFoundException::new);
-    }
-
-    private void createSecondaryPictures(Product product, List<SecondaryPictureDto> newSecondaryPicturesDto) {
-        if (!newSecondaryPicturesDto.isEmpty()) {
-            newSecondaryPicturesDto.forEach(secondaryPictureDto -> this.secondaryPictureService.createSecondaryPicture(product, secondaryPictureDto));
-        }
-    }
-
-    private void compareOldSecPicListAndNewPicList(String newProductSlug, List<SecondaryPicture> originalSecondaryPicturesDto, List<SecondaryPictureDto> newSecondaryPicturesDto) {
-
-        final Product newProduct = findOneProductBySlugOrThrow(newProductSlug);
-
-        if (!newSecondaryPicturesDto.isEmpty()) {
-
-//         Si dans l' "ancienne liste" d'image, une image existe, on met la relation Product à jour,
-//          si elle n'existe pas dans la "nouvelle liste" on la supprime
-            for (SecondaryPicture oldPicture : originalSecondaryPicturesDto) {
-                boolean existsInNewList = false;
-                SecondaryPicture secondaryPicture = findOneSecondaryPictureByPictureUrl(oldPicture.getPicture());
-
-                for (SecondaryPictureDto newPicture : newSecondaryPicturesDto) {
-
-                    if (oldPicture.getPicture().equals(transformUrl.stringToUrl(newPicture.getPicture()))) {
-                        secondaryPicture.setProduct(newProduct);
-                        this.secondaryPictureRepository.save(secondaryPicture);
-                        existsInNewList = true;
-                        break;
-                    }
-                }
-                if (!existsInNewList) {
-                    this.secondaryPictureRepository.delete(secondaryPicture);
-                }
-            }
-
-//          Si dans la "nouvelle liste" d'image, une image n'existe pas dans l' "ancienne liste", on créé l'image,
-            for (SecondaryPictureDto newPicture : newSecondaryPicturesDto) {
-                boolean existsInOldList = false;
-
-                for (SecondaryPicture oldPicture : originalSecondaryPicturesDto) {
-
-                    if (oldPicture.getPicture() == this.transformUrl.stringToUrl(newPicture.getPicture())) {
-                        existsInOldList = true;
-                        break;
-                    }
-                }
-                if (!existsInOldList) {
-                    this.secondaryPictureService.createSecondaryPicture(newProduct, newPicture);
-                }
-            }
-        } else {
-            originalSecondaryPicturesDto.forEach(secPicDto -> this.secondaryPictureRepository.delete(findOneSecondaryPictureByPictureUrl(secPicDto.getPicture())));
-        }
-    }
-
-    private SecondaryPicture findOneSecondaryPictureByPictureUrl(URL pictureUrl) {
-        return this.secondaryPictureRepository.findByPicture(pictureUrl)
-                .orElseThrow(SecondaryPictureNotFoundException::new);
     }
 }

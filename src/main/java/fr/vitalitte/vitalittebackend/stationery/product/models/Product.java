@@ -41,11 +41,6 @@ public class Product {
     @NotBlank
     private String slug;
 
-    @NotNull
-    private URL picture;
-
-    private URL pictureThumbnail;
-
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer=3, fraction=2)
     private BigDecimal price;
@@ -79,7 +74,7 @@ public class Product {
 
     public Product() {}
 
-    public Product(Category category, Collection collection, String description, EProductType eProductType, UUID id, String introduction, boolean isAvailable, List<Material> materials, String name, URL picture, URL pictureThumbnail, BigDecimal price, String slug) {
+    public Product(Category category, Collection collection, String description, EProductType eProductType, UUID id, String introduction, boolean isAvailable, List<Material> materials, String name, BigDecimal price, String slug) {
         this.category = category;
         this.collection = collection;
         this.description = description;
@@ -89,8 +84,6 @@ public class Product {
         this.isAvailable = isAvailable;
         this.materials = materials;
         this.name = name;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
         this.price = price;
         this.slug = slug;
     }
@@ -163,21 +156,6 @@ public class Product {
         this.name = name;
     }
 
-    public URL getPicture() {
-        return picture;
-    }
-
-    public void setPicture(URL picture) {
-        this.picture = picture;
-    }
-
-    public URL getPictureThumbnail() {
-        return pictureThumbnail;
-    }
-
-    public void setPictureThumbnail(URL pictureThumbnail) {
-        this.pictureThumbnail = pictureThumbnail;
-    }
 
     public BigDecimal getPrice() {
         return price;
@@ -203,8 +181,6 @@ public class Product {
 
         private String name;
         private String slug;
-        private URL picture;
-        private URL pictureThumbnail;
         private BigDecimal price;
         private String description;
         private String introduction;
@@ -220,16 +196,6 @@ public class Product {
 
         public ProductBuilder slug(String slug) {
             this.slug = slug;
-            return  this ;
-        }
-
-        public ProductBuilder picture(URL picture) {
-            this.picture = picture;
-            return  this ;
-        }
-
-        public ProductBuilder pictureThumbnail(URL pictureThumbnail) {
-            this.pictureThumbnail = pictureThumbnail;
             return  this ;
         }
 
@@ -283,8 +249,6 @@ public class Product {
                     isAvailable,
                     this.materials,
                     this.name,
-                    this.picture,
-                    this.pictureThumbnail,
                     this.price,
                     this.slug
             );

@@ -16,13 +16,11 @@ import java.util.List;
 @Service
 public class TransformPublication {
 
-    TransformUrl transformUrl;
     PublicationRepository publicationRepository;
     FileRepository fileRepository;
     TransformFile transformFile;
 
-    public TransformPublication(TransformUrl transformUrl, PublicationRepository publicationRepository, FileRepository fileRepository, TransformFile transformFile) {
-        this.transformUrl = transformUrl;
+    public TransformPublication(PublicationRepository publicationRepository, FileRepository fileRepository, TransformFile transformFile) {
         this.publicationRepository = publicationRepository;
         this.fileRepository = fileRepository;
         this.transformFile = transformFile;

@@ -7,6 +7,7 @@ import fr.vitalitte.vitalittebackend.stationery.product.usecase.ProductService;
 import fr.vitalitte.vitalittebackend.stationery.productType.usecase.ConvertEnumProductType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,72 +30,85 @@ public class ProductController {
     }
 
     @PostMapping("")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> createProduct(@RequestBody CreateProductBody createProductBody) {
         this.productService.createProduct(createProductBody);
         String message = String.format("%s créé avec succès.", ConvertEnumProductType.StringToSingular(createProductBody.getProductType()));
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(new MessageResponse(message));
     }
 
     @PostMapping("/type-{productType}/filter/category-collection")
     public ResponseEntity<List<ProductDto>> getProductFilteredByCategoryAndCollection(@PathVariable String productType, @RequestBody CategoryDtoAndCollectionDto categoryDtoAndCollectionDto) {
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(this.productService.findAllProductsFilteredByCategoryAndCollection(productType, categoryDtoAndCollectionDto));
     }
 
     @GetMapping("/category/{categorySlug}")
     public ResponseEntity<List<ProductDto>> getProductByCategorySlug(@PathVariable String categorySlug) {
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(this.productService.findAllProductsByCategorySlug(categorySlug));
     }
 
     @GetMapping("/collection/{collectionSlug}")
     public ResponseEntity<List<ProductDto>> getProductByCollectionSlug(@PathVariable String collectionSlug) {
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(this.productService.findAllProductsByCollectionSlug(collectionSlug));
     }
 
     @GetMapping("/{slug}")
     public ResponseEntity<ProductDto> getProductBySlug(@PathVariable String slug) {
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(this.productService.getProductBySlug(slug));
     }
 
     @GetMapping("")
     public ResponseEntity<List<ProductDto>> getAllProducts() {
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(this.productService.findAllProducts());
     }
 
     @PutMapping("/availability")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> updateAvailabilityProduct(@RequestBody ProductDto productDto) {
         ProductDto productDtoUpdated =  this.productService.changeProductAvailability(productDto);
         String message = String.format("%s %s est %s.",
                 ConvertEnumProductType.StringToSingular(productDto.getProductType()),
                 productDtoUpdated.getName(),
                 productDtoUpdated.isAvailable() ? "Disponible" : "Indisponible");
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(new MessageResponse(message));
     }
 
     @PutMapping("")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> updateProduct(@RequestBody ProductDto productDto) {
         this.productService.updateProduct(productDto);
         String message = String.format("%s %s mis à jour avec succès.",
                 ConvertEnumProductType.StringToSingular(productDto.getProductType()),
                 productDto.getName());
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(new MessageResponse(message));
     }
 
     @DeleteMapping("/{slug}")
+    @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")
     public ResponseEntity<MessageResponse> deleteProduct(@PathVariable String slug) {
         Product deletedProduct = this.productService.deleteProductBySlug(slug);
         String productType = ConvertEnumProductType.EnumToString(deletedProduct.getEProductType());
         String message = String.format("%s %s supprimé avec succès.",
                 ConvertEnumProductType.StringToSingular(productType),
                 deletedProduct.getName());
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(new MessageResponse(message));
     }
 }

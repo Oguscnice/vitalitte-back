@@ -1,5 +1,7 @@
 package fr.vitalitte.vitalittebackend.workshop.rest;
 
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -12,22 +14,20 @@ public class WorkshopDto {
     private LocalDateTime date;
     private String address;
     private BigDecimal price;
-    private String picture;
-    private String pictureThumbnail;
+    private FileDto pictureDto;
     private Long registrations;
     private boolean isAvailable;
 
     public WorkshopDto() {}
 
-    public WorkshopDto(String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, String picture, String pictureThumbnail, Long registrations, boolean isAvailable) {
+    public WorkshopDto(String title, String slug, String description, LocalDateTime date, String address, BigDecimal price, FileDto pictureDto, Long registrations, boolean isAvailable) {
         this.title = title;
         this.slug = slug;
         this.description = description;
         this.date = date;
         this.address = address;
         this.price = price;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
         this.registrations = registrations;
         this.isAvailable = isAvailable;
     }
@@ -80,20 +80,12 @@ public class WorkshopDto {
         this.price = price;
     }
 
-    public String getPicture() {
-        return picture;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
-    }
-
-    public void setPictureThumbnail(String pictureThumbnail) {
-        this.pictureThumbnail = pictureThumbnail;
+    public void setPictureDto(FileDto pictureDto) {
+        this.pictureDto = pictureDto;
     }
 
     public Long getRegistrations() {
@@ -124,8 +116,7 @@ public class WorkshopDto {
         private LocalDateTime date;
         private String address;
         private BigDecimal price;
-        private String picture;
-        private String pictureThumbnail;
+        private FileDto pictureDto;
         private Long registrations;
         private boolean isAvailable;
 
@@ -159,13 +150,8 @@ public class WorkshopDto {
             return this;
         }
 
-        public WorkshopDtoBuilder picture(String picture) {
-            this.picture = picture;
-            return this;
-        }
-
-        public WorkshopDtoBuilder pictureThumbnail(String pictureThumbnail) {
-            this.pictureThumbnail = pictureThumbnail;
+        public WorkshopDtoBuilder pictureDto(FileDto pictureDto) {
+            this.pictureDto = pictureDto;
             return this;
         }
 
@@ -180,7 +166,7 @@ public class WorkshopDto {
         }
 
         public WorkshopDto build() {
-            return new WorkshopDto(this.title, this.slug, this.description, this.date, this.address, this.price, this.picture, this.pictureThumbnail, this.registrations, this.isAvailable);
+            return new WorkshopDto(this.title, this.slug, this.description, this.date, this.address, this.price, this.pictureDto, this.registrations, this.isAvailable);
         }
     }
 }

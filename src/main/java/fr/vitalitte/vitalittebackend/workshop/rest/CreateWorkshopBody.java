@@ -1,5 +1,6 @@
 package fr.vitalitte.vitalittebackend.workshop.rest;
 
+import fr.vitalitte.vitalittebackend.common.rest.FileDto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -28,23 +29,18 @@ public class CreateWorkshopBody {
     @Digits(integer=3, fraction=2)
     private final BigDecimal price;
 
-    @NotNull
-    private final String picture;
-
-    @NotNull
-    private final String pictureThumbnail;
+    private final FileDto pictureDto;
 
     @Min(1)
     private final Long registrations;
 
-    public CreateWorkshopBody(String title, String description, LocalDateTime date, String address, BigDecimal price, String picture, String pictureThumbnail, Long registrations) {
+    public CreateWorkshopBody(String title, String description, LocalDateTime date, String address, BigDecimal price, FileDto pictureDto, Long registrations) {
         this.title = title;
         this.description = description;
         this.date = date;
         this.address = address;
         this.price = price;
-        this.picture = picture;
-        this.pictureThumbnail = pictureThumbnail;
+        this.pictureDto = pictureDto;
         this.registrations = registrations;
     }
 
@@ -68,12 +64,8 @@ public class CreateWorkshopBody {
         return price;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public String getPictureThumbnail() {
-        return pictureThumbnail;
+    public FileDto getPictureDto() {
+        return pictureDto;
     }
 
     public Long getRegistrations() {

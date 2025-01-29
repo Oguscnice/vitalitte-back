@@ -4,7 +4,6 @@ import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.publication.exception.PublicationNotFoundException;
-import fr.vitalitte.vitalittebackend.publication.exception.SlugPublicationAlreadyExistsException;
 import fr.vitalitte.vitalittebackend.publication.models.Publication;
 import fr.vitalitte.vitalittebackend.publication.persistence.PublicationRepository;
 import fr.vitalitte.vitalittebackend.publication.rest.CreatePublicationBody;
@@ -99,15 +98,14 @@ public class PublicationServiceImpl implements PublicationService {
         publicationToUpdate.setTitle(publicationDtoUpdated.getTitle());
         publicationToUpdate.setSlug(newPublicationSlug);
         publicationToUpdate.setDescription(publicationDtoUpdated.getDescription());
-        fileService.updateFile(publicationDtoUpdated.getPictureDto(), newPublicationSlug);
+        fileService.updateFile(publicationDtoUpdated.getPictureDto(), newPublicationSlug, true);
 
         publicationRepository.save(publicationToUpdate);
     }
 
     @Override
     public void deletePublicationBySlug(String slug) {
-        Publication publicationToDelete = this.findOnePublicationBySlugOrThrow(slug);
-        publicationRepository.delete(publicationToDelete);
+        publicationRepository.delete(this.findOnePublicationBySlugOrThrow(slug));
         fileService.deleteAllFilesByLinkedSlug(slug);
     }
 

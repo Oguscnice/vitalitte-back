@@ -1,6 +1,7 @@
 package fr.vitalitte.vitalittebackend.workshop.usecase;
 
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
+import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
 import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.workshop.exception.WorkshopNotFoundException;
@@ -24,24 +25,23 @@ public class WorkshopServiceImpl implements WorkshopService {
 
     WorkshopRepository workshopRepository;
     TransformWorkshop transformWorkshop;
-    TransformUrl transformUrl;
     SlugifyUtil slugifyUtil;
+    FileService fileService;
 
-    public WorkshopServiceImpl(WorkshopRepository workshopRepository, TransformWorkshop transformWorkshop, TransformUrl transformUrl, SlugifyUtil slugifyUtil) {
+    public WorkshopServiceImpl(WorkshopRepository workshopRepository, TransformWorkshop transformWorkshop, SlugifyUtil slugifyUtil, FileService fileService) {
         this.workshopRepository = workshopRepository;
         this.transformWorkshop = transformWorkshop;
-        this.transformUrl = transformUrl;
         this.slugifyUtil = slugifyUtil;
+        this.fileService = fileService;
     }
 
     @Override
-    public void createWorkshop(CreateWorkshopBody createWorkshopBody){
+    public void createWorkshop(CreateWorkshopBody createWorkshopBody) {
 
         String workshopSlug = slugifyWorkshopWithTitleAndDate(createWorkshopBody.getTitle(), createWorkshopBody.getDate());
         slugifyUtil.verifyIfSlugAlreadyExists(workshopSlug);
 
-        URL picture = this.transformUrl.stringToUrl(createWorkshopBody.getPicture());
-        URL pictureThumbnail = this.transformUrl.stringToUrl(createWorkshopBody.getPicture());
+        fileService.createFile(createWorkshopBody.getPictureDto(), true, workshopSlug);
 
         final Workshop newWorkshop =  Workshop.builder()
                 .title(createWorkshopBody.getTitle())
@@ -50,52 +50,50 @@ public class WorkshopServiceImpl implements WorkshopService {
                 .date(createWorkshopBody.getDate())
                 .address(createWorkshopBody.getAddress())
                 .price(createWorkshopBody.getPrice())
-                .picture(picture)
-                .pictureThumbnail(pictureThumbnail)
                 .registrations(createWorkshopBody.getRegistrations())
                 .build();
 
-        this.workshopRepository.save(newWorkshop);
-    };
-
-    @Override
-    public WorkshopDto getWorkbookBySlug(String slug){
-        return this.transformWorkshop.workshopToDto(findOneWorkshopBySlugOrThrow(slug));
-    };
-
-    public List<WorkshopDto> findWorkshopsByDateToCome(){
-        LocalDateTime date = LocalDateTime.now();
-        return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByDateAfterOrderByDateDesc(date));
+        workshopRepository.save(newWorkshop);
     }
 
     @Override
-    public Page<WorkshopDto> findWorkshopsPaginatedByPastDate(PaginationItemBySearchValue paginationItemBySearchValue){
+    public WorkshopDto getWorkbookBySlug(String slug) {
+        return transformWorkshop.workshopToDto(findOneWorkshopBySlugOrThrow(slug));
+    }
+
+    public List<WorkshopDto> findWorkshopsByDateToCome() {
+        LocalDateTime date = LocalDateTime.now();
+        return transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByDateAfterOrderByDateDesc(date));
+    }
+
+    @Override
+    public Page<WorkshopDto> findWorkshopsPaginatedByPastDate(PaginationItemBySearchValue paginationItemBySearchValue) {
 
         LocalDateTime date = LocalDateTime.now();
         String value = paginationItemBySearchValue.getSearchValue();
         Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPageableValues().getPageNumber(), paginationItemBySearchValue.getPageableValues().getPageSize());
 
-        Page<Workshop> workshopPage = this.workshopRepository.findWorkshopsByTitleContainsIgnoreCaseAndDateBeforeOrderByDateDesc(value, date, pageable);
-        List<WorkshopDto> workshopDtoList = this.transformWorkshop.workshopsToDto(workshopPage.getContent());
+        Page<Workshop> workshopPage = workshopRepository.findWorkshopsByTitleContainsIgnoreCaseAndDateBeforeOrderByDateDesc(value, date, pageable);
+        List<WorkshopDto> workshopDtoList = transformWorkshop.workshopsToDto(workshopPage.getContent());
 
         return new PageImpl<>(workshopDtoList, pageable, workshopPage.getTotalElements());
     }
 
     @Override
-    public List<WorkshopDto> findWorkshopsIsAvailable(boolean value){
-        return this.transformWorkshop.workshopsToDto(this.workshopRepository.findAllWorkshopByIsAvailable(value));
+    public List<WorkshopDto> findWorkshopsIsAvailable(boolean value) {
+        return transformWorkshop.workshopsToDto(workshopRepository.findAllWorkshopByIsAvailable(value));
     }
 
     @Override
-    public WorkshopDto changeWorkshopAvailability(WorkshopDto workshopDtoUpdated){
+    public WorkshopDto changeWorkshopAvailability(WorkshopDto workshopDtoUpdated) {
         Workshop workshopToUpdate = findOneWorkshopBySlugOrThrow(workshopDtoUpdated.getSlug());
         workshopToUpdate.setAvailable(!workshopToUpdate.isAvailable());
-        this.workshopRepository.save(workshopToUpdate);
-        return this.transformWorkshop.workshopToDto(workshopToUpdate);
-    };
+        workshopRepository.save(workshopToUpdate);
+        return transformWorkshop.workshopToDto(workshopToUpdate);
+    }
 
     @Override
-    public void updateWorkshopBySlug(WorkshopDto workshopDtoUpdated){
+    public void updateWorkshopBySlug(WorkshopDto workshopDtoUpdated) {
         Workshop workshopToUpdate = findOneWorkshopBySlugOrThrow(workshopDtoUpdated.getSlug());
 
         String newWorkbookSlug = slugifyWorkshopWithTitleAndDate(workshopDtoUpdated.getTitle(), workshopDtoUpdated.getDate());
@@ -103,29 +101,26 @@ public class WorkshopServiceImpl implements WorkshopService {
             slugifyUtil.verifyIfSlugAlreadyExists(newWorkbookSlug);
         }
 
-        URL newPicture = this.transformUrl.stringToUrl(workshopDtoUpdated.getPicture());
-        URL newPictureThumbnail = this.transformUrl.stringToUrl(workshopDtoUpdated.getPictureThumbnail());
-
         workshopToUpdate.setTitle(workshopDtoUpdated.getTitle());
         workshopToUpdate.setSlug(newWorkbookSlug);
         workshopToUpdate.setDescription(workshopDtoUpdated.getDescription());
         workshopToUpdate.setDate(workshopDtoUpdated.getDate());
         workshopToUpdate.setAddress(workshopDtoUpdated.getAddress());
         workshopToUpdate.setPrice(workshopDtoUpdated.getPrice());
-        workshopToUpdate.setPicture(newPicture);
-        workshopToUpdate.setPictureThumbnail(newPictureThumbnail);
         workshopToUpdate.setRegistrations(workshopDtoUpdated.getRegistrations());
+        fileService.updateFile(workshopDtoUpdated.getPictureDto(), newWorkbookSlug, true);
 
-        this.workshopRepository.save(workshopToUpdate);
-    };
+        workshopRepository.save(workshopToUpdate);
+    }
 
     @Override
     public void deleteWorkshopBySlug(String slug){
-        this.workshopRepository.delete(findOneWorkshopBySlugOrThrow(slug));
-    };
+        workshopRepository.delete(findOneWorkshopBySlugOrThrow(slug));
+        fileService.deleteAllFilesByLinkedSlug(slug);
+    }
 
     private Workshop findOneWorkshopBySlugOrThrow(String slug) {
-        return this.workshopRepository.findBySlug(slug).orElseThrow(WorkshopNotFoundException::new);
+        return workshopRepository.findBySlug(slug).orElseThrow(WorkshopNotFoundException::new);
     }
 
     private String slugifyWorkshopWithTitleAndDate(String title, LocalDateTime date) {

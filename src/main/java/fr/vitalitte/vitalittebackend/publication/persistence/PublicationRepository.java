@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface PublicationRepository extends JpaRepository<Publication, String> {
+
     boolean existsBySlug(String slug);
     Optional<Publication> findBySlug(String slug);
     List<Publication> findAllPublicationsByIsSpotlighted(boolean value);

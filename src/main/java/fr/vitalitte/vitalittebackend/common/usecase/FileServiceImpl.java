@@ -47,13 +47,13 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void updateFile(FileDto fileUpdated, String linkedSlug) {
+    public void updateFile(FileDto fileUpdated, String linkedSlug, boolean isMainPicture) {
 
         String actualSlug = fileUpdated.getSlug();
         String fileSlug = slugifyFileName(fileUpdated.getFileName());
 
         if (actualSlug.isBlank() || actualSlug.isEmpty() || !fileRepository.existsBySlug(fileUpdated.getSlug())) {
-            createFile(fileUpdated, true, linkedSlug);
+            createFile(fileUpdated, isMainPicture, linkedSlug);
             return;
         }
 
@@ -64,6 +64,36 @@ public class FileServiceImpl implements FileService {
         actualFile.setLinkedSlug(linkedSlug);
 
         fileRepository.save(actualFile);
+    }
+
+    @Override
+    public void compareAndUpdateFiles(List<FileDto> oldFiles, List<FileDto> newFiles, String linkedSlug) {
+        for (FileDto oldFile : oldFiles) {
+            boolean isOldFileSlugExist = false;
+            for (FileDto newFile : newFiles) {
+                if (oldFile.getSlug().equals(newFile.getSlug())) {
+                    updateFile(newFile, linkedSlug, false);
+                    isOldFileSlugExist = true;
+                    break;
+                }
+            }
+            if (!isOldFileSlugExist) {
+                deleteFileBySlug(oldFile.getSlug());
+            }
+        }
+
+        for (FileDto newFile : newFiles) {
+            boolean isNewFileSlugExist = false;
+            for (FileDto oldFile : oldFiles) {
+                if (newFile.getSlug().equals(oldFile.getSlug())) {
+                    isNewFileSlugExist = true;
+                    break;
+                }
+            }
+            if (!isNewFileSlugExist) {
+                createFile(newFile, false, linkedSlug);
+            }
+        }
     }
 
     @Override

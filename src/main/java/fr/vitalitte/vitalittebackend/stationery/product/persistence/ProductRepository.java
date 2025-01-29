@@ -21,9 +21,13 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findAllByCollection(Collection collection);
     List<Product> findAllByMaterialsContaining(Material material);
 
-    @Query("SELECT n FROM Product n " +
-           "WHERE (:category IS NULL OR n.category = :category) " +
-           "AND (:collection IS NULL OR n.collection = :collection) "+
-           "AND (:eProductType IS NULL OR n.eProductType = :eProductType)")
+    @Query("SELECT COUNT(*) FROM Product p " +
+            "WHERE p.eProductType = :eProductType")
+    long countByEProductType(EProductType eProductType);
+
+    @Query("SELECT p FROM Product p " +
+           "WHERE (:category IS NULL OR p.category = :category) " +
+           "AND (:collection IS NULL OR p.collection = :collection) "+
+           "AND (:eProductType IS NULL OR p.eProductType = :eProductType)")
     List<Product> findAllByCategoryAndCollectionAndEProductType(Category category, Collection collection, EProductType eProductType);
 }

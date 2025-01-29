@@ -1,8 +1,8 @@
 package fr.vitalitte.vitalittebackend.stationery.materials.usecase;
 
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
+import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.materialTypes.usecase.ConvertEumMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materials.exception.MaterialNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.materialTypes.models.EMaterialType;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,37 +27,34 @@ public class MaterialServiceImpl implements MaterialService {
 
     MaterialRepository materialRepository;
     TransformMaterial transformMaterial;
-    TransformUrl transformUrl;
     ProductRepository productRepository;
     SlugifyUtil slugifyUtil;
+    FileService fileService;
 
-    public MaterialServiceImpl(MaterialRepository materialRepository, TransformMaterial transformMaterial, TransformUrl transformUrl, ProductRepository productRepository, SlugifyUtil slugifyUtil) {
+
+    public MaterialServiceImpl(MaterialRepository materialRepository, TransformMaterial transformMaterial, ProductRepository productRepository, SlugifyUtil slugifyUtil, FileService fileService) {
         this.materialRepository = materialRepository;
         this.transformMaterial = transformMaterial;
-        this.transformUrl = transformUrl;
         this.productRepository = productRepository;
         this.slugifyUtil = slugifyUtil;
+        this.fileService = fileService;
     }
 
     @Override
     public void createMaterial(CreateMaterialBody createMaterialBody){
 
-        String newSlug = slugifyUtil.stringToSlug(createMaterialBody.getName());
-        slugifyUtil.verifyIfSlugAlreadyExists(newSlug);
+        String materialSlug = slugifyUtil.stringToSlug(createMaterialBody.getName());
+        slugifyUtil.verifyIfSlugAlreadyExists(materialSlug);
 
-        // transform et vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
-        URL urlPicture = this.transformUrl.stringToUrl(createMaterialBody.getPicture());
-        URL urlPictureThumbnail = this.transformUrl.stringToUrl(createMaterialBody.getPictureThumbnail());
+        fileService.createFile(createMaterialBody.getPictureDto(), true, materialSlug);
 
         EMaterialType materialType = ConvertEumMaterialType.StringToEnum(createMaterialBody.getMaterialType());
         final Material newMaterial = Material.builder()
                                              .name(createMaterialBody.getName())
-                                             .slug(newSlug)
+                                             .slug(materialSlug)
                                              .description(createMaterialBody.getDescription())
                                              .materialType(materialType)
                                              .price(createMaterialBody.getPrice())
-                                             .picture(urlPicture)
-                                             .pictureThumbnail(urlPictureThumbnail)
                                              .build();
 
         this.materialRepository.save(newMaterial);
@@ -95,37 +91,21 @@ public class MaterialServiceImpl implements MaterialService {
 
         Material materialToUpdate = this.findOneMaterialBySlugOrThrow(slug);
 
-        String newSlug = slugifyUtil.stringToSlug(materialDtoUpdated.getName());
-        if (!slug.equals(newSlug)) {
-            slugifyUtil.verifyIfSlugAlreadyExists(newSlug);
+        String newMaterialSlug = slugifyUtil.stringToSlug(materialDtoUpdated.getName());
+        if (!slug.equals(newMaterialSlug)) {
+            slugifyUtil.verifyIfSlugAlreadyExists(newMaterialSlug);
+            materialToUpdate.setSlug(newMaterialSlug);
         }
 
         List<Product> products = this.productRepository.findAllByMaterialsContaining(materialToUpdate);
         EMaterialType materialTypeUpdated = ConvertEumMaterialType.StringToEnum(materialDtoUpdated.getMaterialType());
 
-        // transform et vérifie que ce soit bien un String valide en URL, le convertis ou jète une erreur
-        URL newUrlPicture = this.transformUrl.stringToUrl(materialDtoUpdated.getPicture());
-        URL newUrlPictureThumbnail = this.transformUrl.stringToUrl(materialDtoUpdated.getPictureThumbnail());
-
         materialToUpdate.setName(materialDtoUpdated.getName());
-        materialToUpdate.setSlug(newSlug);
         materialToUpdate.setPrice(materialDtoUpdated.getPrice());
         materialToUpdate.setDescription(materialDtoUpdated.getDescription());
-        materialToUpdate.setPicture(newUrlPicture);
-        materialToUpdate.setPictureThumbnail(newUrlPictureThumbnail);
         materialToUpdate.setMaterialType(materialTypeUpdated);
+        fileService.updateFile(materialDtoUpdated.getPictureDto(), newMaterialSlug, true);
 
-        for(Product product : products){
-            List<Material> materialsToUpdate = new ArrayList<>();
-            List<Material> actualMaterials =  product.getMaterials();
-            for(Material material : actualMaterials) {
-                if(!material.getSlug().equals(slug)) {
-                    materialsToUpdate.add(materialToUpdate);
-                }
-            }
-            product.setMaterials(materialsToUpdate);
-            this.productRepository.save(product);
-        }
         this.materialRepository.save(materialToUpdate);
     }
 
@@ -153,7 +133,7 @@ public class MaterialServiceImpl implements MaterialService {
 
         List<Product> products = this.productRepository.findAllByMaterialsContaining(materialToDelete);
 
-        for(Product product : products){
+        for (Product product : products) {
             List<Material> actualMaterials =  product.getMaterials();
             List<Material> materialsToUpdate = actualMaterials.stream()
                                                .filter(material -> !material.getSlug().equals(slug))
@@ -162,6 +142,7 @@ public class MaterialServiceImpl implements MaterialService {
             this.productRepository.save(product);
         }
 
+        this.fileService.deleteAllFilesByLinkedSlug(slug);
         this.materialRepository.delete(materialToDelete);
     }
 

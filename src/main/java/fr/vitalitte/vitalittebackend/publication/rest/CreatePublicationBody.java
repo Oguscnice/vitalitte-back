@@ -4,7 +4,6 @@ import fr.vitalitte.vitalittebackend.common.rest.FileDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.net.URL;
 
 public class CreatePublicationBody {
 
