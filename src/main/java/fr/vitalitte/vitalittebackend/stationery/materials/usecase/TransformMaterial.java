@@ -3,15 +3,17 @@ package fr.vitalitte.vitalittebackend.stationery.materials.usecase;
 import fr.vitalitte.vitalittebackend.common.models.FileEntity;
 import fr.vitalitte.vitalittebackend.common.persistence.FileRepository;
 import fr.vitalitte.vitalittebackend.common.usecase.TransformFile;
-import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.materialTypes.usecase.ConvertEumMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materials.exception.MaterialNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.materials.models.Material;
 import fr.vitalitte.vitalittebackend.stationery.materials.persistence.MaterialRepository;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.MaterialDto;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
+
+import java.math.BigDecimal;
 import java.util.List;
+
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 @Service
 public class TransformMaterial {
@@ -26,7 +28,7 @@ public class TransformMaterial {
         this.transformFile = transformFile;
     }
 
-    public MaterialDto materialToDto(Material material) {
+    public MaterialDto materialToDto(Material material, boolean isPriceVisible) {
 
         String materialType = ConvertEumMaterialType.EnumToString(material.getMaterialType());
         FileEntity file = fileRepository.findByLinkedSlugAndIsMainPictureTrue(material.getSlug());
@@ -36,15 +38,15 @@ public class TransformMaterial {
                 .slug(material.getSlug())
                 .description(material.getDescription())
                 .materialType(materialType)
-                .price(material.getPrice())
+                .price(isPriceVisible ? material.getPrice() : BigDecimal.ZERO)
                 .pictureDto(transformFile.fileToDto(file))
                 .isAvailable(material.isAvailable())
                 .isAvailableForCustomization(material.isAvailableForCustomization())
                 .build();
     }
 
-    public List<MaterialDto> materialsToDto(List<Material> materials) {
-        return mapList(this::materialToDto, materials);
+    public List<MaterialDto> materialsToDto(List<Material> materials, boolean isPriceVisible) {
+        return mapList(material -> materialToDto(material, isPriceVisible), materials);
     }
 
     public Material DtoToMaterial(MaterialDto materialDto) {

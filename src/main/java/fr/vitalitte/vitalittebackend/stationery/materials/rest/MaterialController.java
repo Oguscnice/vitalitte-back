@@ -44,10 +44,10 @@ public class MaterialController {
                 .body(new MessageResponse("Matériel créé avec succès."));
     }
 
-    @GetMapping("/availability-for-customization")
-    public List<MaterialDto> getAllMaterialsAvailableForCustomization() {
-        return this.materialService.findMaterialsAvailableForCustomization();
-    }
+//    @GetMapping("/availability-for-customization")
+//    public List<MaterialDto> getAllMaterialsAvailableForCustomization() {
+//        return this.materialService.findMaterialsAvailableForCustomization();
+//    }
 
     @GetMapping("/{slug}")
     @PreAuthorize("@jwtService.isRoleAdminAndTokenNotExpired()")

@@ -12,9 +12,9 @@ import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 import fr.vitalitte.vitalittebackend.stationery.product.usecase.TransformProduct;
 import org.springframework.stereotype.Service;
 
-import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
-
 import java.util.List;
+
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 @Service
 public class TransformReview {
@@ -33,7 +33,7 @@ public class TransformReview {
 
         String status = ConvertEnumReviewStatus.EReviewStatusToString(review.getStatus());
         Product product = this.productRepository.findBySlug(review.getProduct().getSlug()).orElseThrow(() -> new ProductNotFoundException("Produit"));
-        ProductDto productDto = this.transformProduct.productToDto(product);
+        ProductDto productDto = this.transformProduct.productToDto(product, false);
 
         return ReviewDto.builder()
                 .content(review.getContent())

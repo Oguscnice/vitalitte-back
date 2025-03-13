@@ -20,9 +20,10 @@ import fr.vitalitte.vitalittebackend.stationery.product.persistence.ProductRepos
 import fr.vitalitte.vitalittebackend.stationery.product.rest.ProductDto;
 import fr.vitalitte.vitalittebackend.stationery.productType.usecase.ConvertEnumProductType;
 import org.springframework.stereotype.Service;
-import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 import java.util.List;
+
+import static fr.vitalitte.vitalittebackend.common.usecase.ListMapperUtil.mapList;
 
 @Service
 public class TransformProduct {
@@ -47,7 +48,7 @@ public class TransformProduct {
         this.transformMaterial = transformMaterial;
     }
 
-    public ProductDto productToDto(Product product) {
+    public ProductDto productToDto(Product product, boolean isMaterialPriceVisible) {
 
         FileEntity file = fileRepository.findByLinkedSlugAndIsMainPictureTrue(product.getSlug());
         String productType = ConvertEnumProductType.EnumToString(product.getEProductType());
@@ -74,15 +75,16 @@ public class TransformProduct {
                 .price(product.getPrice())
                 .secondaryPicturesDto(transformFile.filesToDtos(secondaryPictures))
                 .description(product.getDescription())
-                .materialsDto(transformMaterial.materialsToDto(product.getMaterials()))
+                .materialsDto(transformMaterial.materialsToDto(product.getMaterials(), isMaterialPriceVisible))
                 .categoryDto(categoryDto)
                 .collectionDto(collectionDto)
                 .isAvailable(product.isAvailable())
                 .productType(productType)
                 .build();
     }
-    public List<ProductDto> productsToDto(List<Product> products) {
-        return mapList(this::productToDto, products);
+
+    public List<ProductDto> productsToDto(List<Product> products, boolean isMaterialPriceVisible) {
+        return mapList(product -> productToDto(product, isMaterialPriceVisible), products);
     }
 
     public Product dtoToProduct(ProductDto productDto) {

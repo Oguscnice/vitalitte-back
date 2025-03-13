@@ -11,7 +11,7 @@ public interface MaterialService {
     void createMaterial(CreateMaterialBody createMaterialBody);
     List<MaterialDto> findAllMaterials();
     Page<MaterialDto> getMaterialsPaginatedBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue);
-    List<MaterialDto> findMaterialsAvailableForCustomization();
+//    List<MaterialDto> findMaterialsAvailableForCustomization();
     MaterialDto findMaterialBySlug(String materialSlug);
     void changeMaterialAvailabilityForCustomization(MaterialDto materialDtoBody);
     void changeMaterialAvailability(MaterialDto materialDtoBody);

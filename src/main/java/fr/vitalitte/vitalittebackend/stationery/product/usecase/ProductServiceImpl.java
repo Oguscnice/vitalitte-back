@@ -1,6 +1,5 @@
 package fr.vitalitte.vitalittebackend.stationery.product.usecase;
 
-import fr.vitalitte.vitalittebackend.common.models.FileEntity;
 import fr.vitalitte.vitalittebackend.common.rest.FileDto;
 import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.stationery.category.exception.CategoryNotFoundException;
@@ -11,7 +10,6 @@ import fr.vitalitte.vitalittebackend.stationery.collection.exception.CollectionN
 import fr.vitalitte.vitalittebackend.stationery.collection.models.Collection;
 import fr.vitalitte.vitalittebackend.stationery.collection.persistence.CollectionRepository;
 import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
-import fr.vitalitte.vitalittebackend.common.usecase.TransformUrl;
 import fr.vitalitte.vitalittebackend.stationery.common.rest.CategoryDtoAndCollectionDto;
 import fr.vitalitte.vitalittebackend.stationery.materials.exception.MaterialNotFoundException;
 import fr.vitalitte.vitalittebackend.stationery.materials.models.Material;
@@ -90,26 +88,26 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto getProductBySlug(String slug) {
-        return this.transformProduct.productToDto(findOneProductBySlugOrThrow(slug));
+        return this.transformProduct.productToDto(findOneProductBySlugOrThrow(slug), false);
     }
 
     @Override
     public List<ProductDto> findAllProducts() {
-        return this.transformProduct.productsToDto(this.productRepository.findAll());
+        return this.transformProduct.productsToDto(this.productRepository.findAll(), false);
     }
 
     @Override
     public List<ProductDto> findAllProductsByCategorySlug(String categorySlug) {
         Category category = findOneCategoryBySlugOrThrow(categorySlug);
         List<Product> products = this.productRepository.findAllByCategory(category);
-        return this.transformProduct.productsToDto(products);
+        return this.transformProduct.productsToDto(products, false);
     }
 
     @Override
     public List<ProductDto> findAllProductsByCollectionSlug(String collectionSlug) {
         Collection collection = findOneCollectionBySlugOrThrow(collectionSlug);
         List<Product> products = this.productRepository.findAllByCollection(collection);
-        return this.transformProduct.productsToDto(products);
+        return this.transformProduct.productsToDto(products, false);
     }
 
     @Override
@@ -128,14 +126,14 @@ public class ProductServiceImpl implements ProductService {
         EProductType eProductType = ConvertEnumProductType.StringToEnum(productType);
 
         List<Product> products = this.productRepository.findAllByCategoryAndCollectionAndEProductType(categoryFound, collectionFound, eProductType);
-        return this.transformProduct.productsToDto(products);
+        return this.transformProduct.productsToDto(products, false);
     }
 
     @Override
     public ProductDto changeProductAvailability(ProductDto productDto) {
         Product productToUpdate = findOneProductBySlugOrThrow(productDto.getSlug());
         productToUpdate.setAvailable(!productToUpdate.isAvailable());
-        return this.transformProduct.productToDto(this.productRepository.save(productToUpdate));
+        return this.transformProduct.productToDto(this.productRepository.save(productToUpdate), true);
     }
 
     @Override

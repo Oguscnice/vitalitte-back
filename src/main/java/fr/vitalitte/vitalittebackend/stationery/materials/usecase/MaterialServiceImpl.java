@@ -3,9 +3,9 @@ package fr.vitalitte.vitalittebackend.stationery.materials.usecase;
 import fr.vitalitte.vitalittebackend.common.models.PaginationItemBySearchValue;
 import fr.vitalitte.vitalittebackend.common.usecase.FileService;
 import fr.vitalitte.vitalittebackend.common.usecase.SlugifyUtil;
+import fr.vitalitte.vitalittebackend.stationery.materialTypes.models.EMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materialTypes.usecase.ConvertEumMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materials.exception.MaterialNotFoundException;
-import fr.vitalitte.vitalittebackend.stationery.materialTypes.models.EMaterialType;
 import fr.vitalitte.vitalittebackend.stationery.materials.models.Material;
 import fr.vitalitte.vitalittebackend.stationery.materials.persistence.MaterialRepository;
 import fr.vitalitte.vitalittebackend.stationery.materials.rest.CreateMaterialBody;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,14 +60,15 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialDto> findAllMaterials(){
-        return this.transformMaterial.materialsToDto(this.materialRepository.findAll());
+    public List<MaterialDto> findAllMaterials() {
+        //TODO: vérifier que ce soit pour l'admin uniquement
+        return this.transformMaterial.materialsToDto(this.materialRepository.findAll(), true);
     }
 
-    @Override
-    public List<MaterialDto> findMaterialsAvailableForCustomization(){
-        return this.transformMaterial.materialsToDto(this.materialRepository.findAllMaterialsByIsAvailableForCustomizationOrderByName(true));
-    }
+//    @Override
+//    public List<MaterialDto> findMaterialsAvailableForCustomization(){
+//        return this.transformMaterial.materialsToDto(this.materialRepository.findAllMaterialsByIsAvailableForCustomizationOrderByName(true));
+//    }
 
     @Override
     public Page<MaterialDto> getMaterialsPaginatedBySearchValue(PaginationItemBySearchValue paginationItemBySearchValue) {
@@ -76,14 +76,14 @@ public class MaterialServiceImpl implements MaterialService {
         String value = paginationItemBySearchValue.getSearchValue();
         Pageable pageable = PageRequest.of(paginationItemBySearchValue.getPageableValues().getPageNumber(), paginationItemBySearchValue.getPageableValues().getPageSize());
         Page<Material> materialPage = this.materialRepository.findAllByNameContainsIgnoreCaseOrderByName(value, pageable);
-        List<MaterialDto> materialDtoList = this.transformMaterial.materialsToDto(materialPage.getContent());
+        List<MaterialDto> materialDtoList = this.transformMaterial.materialsToDto(materialPage.getContent(), true);
 
         return new PageImpl<>(materialDtoList, pageable, materialPage.getTotalElements());
     }
 
     @Override
     public MaterialDto findMaterialBySlug(String materialSlug){
-        return this.transformMaterial.materialToDto(this.findOneMaterialBySlugOrThrow(materialSlug));
+        return this.transformMaterial.materialToDto(this.findOneMaterialBySlugOrThrow(materialSlug), true);
     }
 
     @Override
