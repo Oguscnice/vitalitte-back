@@ -5,5 +5,5 @@ spring:
 vitalitte-project:
   app:
     controller:
-      cross-origin: "https://mon-site.com"
+      cross-origin: "https://utaida.fr/*"
     jwtSecret: 25e34212-3809-4c08-a867-d6633feb1e29

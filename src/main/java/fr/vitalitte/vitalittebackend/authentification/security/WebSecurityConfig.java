@@ -6,20 +6,20 @@ import fr.vitalitte.vitalittebackend.user.usecase.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -38,9 +38,12 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Value("${vitalitte-project.app.controller.max-age}")
     private long maxAge;
 
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+    private final Environment env;
+
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler, Environment env) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
+        this.env = env;
     }
 
 //    @Override
@@ -77,7 +80,26 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Vérifie si l'on est en production
+        final boolean isProduction = env.acceptsProfiles("prod");
+
         http
+                .requiresChannel(channel -> {
+                    if (isProduction) {
+                        channel.anyRequest().requiresSecure(); // Force HTTPS en production
+                    }
+                }) // Force HTTPS
+                .headers(headers -> {
+                    if (isProduction) {
+                        headers.httpStrictTransportSecurity(hsts -> hsts
+                                .maxAgeInSeconds(31536000) // 1 an
+                                .includeSubDomains(true)
+                                .preload(true)
+                        )
+                                .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                                .contentSecurityPolicy(cps -> cps.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self'"));
+                    }
+                })
                 .cors(cors -> cors.configurationSource(request -> {
                             CorsConfiguration config = new CorsConfiguration();
                             config.setAllowedOrigins(List.of(crossOrigin));

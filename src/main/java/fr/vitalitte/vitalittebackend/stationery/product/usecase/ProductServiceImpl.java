@@ -87,8 +87,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto getProductBySlug(String slug) {
-        return this.transformProduct.productToDto(findOneProductBySlugOrThrow(slug), false);
+    public ProductDto getProductBySlug(String slug, boolean isMaterialPriceVisible) {
+        return this.transformProduct.productToDto(findOneProductBySlugOrThrow(slug), isMaterialPriceVisible);
     }
 
     @Override

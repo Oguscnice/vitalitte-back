@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ProductService {
     void createProduct(CreateProductBody createProductBody);
-    ProductDto getProductBySlug(String slug);
+    ProductDto getProductBySlug(String slug, boolean isMaterialPriceVisible);
     List<ProductDto> findAllProducts();
     List<ProductDto> findAllProductsByCategorySlug(String categorySlug);
     List<ProductDto> findAllProductsByCollectionSlug(String collectionSlug);

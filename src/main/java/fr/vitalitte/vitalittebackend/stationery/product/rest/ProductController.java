@@ -60,11 +60,18 @@ public class ProductController {
                 .body(this.productService.findAllProductsByCollectionSlug(collectionSlug));
     }
 
+    @GetMapping("/edit/{slug}")
+    public ResponseEntity<ProductDto> getProductBySlugEdit(@PathVariable String slug) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(this.productService.getProductBySlug(slug, true));
+    }
+
     @GetMapping("/{slug}")
     public ResponseEntity<ProductDto> getProductBySlug(@PathVariable String slug) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(this.productService.getProductBySlug(slug));
+                .body(this.productService.getProductBySlug(slug, false));
     }
 
     @GetMapping("")
